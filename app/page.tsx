@@ -1,3 +1,7 @@
 export default function Home() {
-  return <h1>Finova</h1>;
+  return (
+    <main>
+      <h1>Finova</h1>
+    </main>
+  );
 }
