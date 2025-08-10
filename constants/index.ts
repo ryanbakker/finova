@@ -183,3 +183,36 @@ export const pricingSection = {
   betaNotice:
     "Beta pricing is subject to change. Early adopters will receive special pricing when we launch our paid plans.",
 };
+
+export const menuItems = [
+  {
+    href: "/dashboard",
+    label: "Dashboard",
+    icon: "BarChart3",
+  },
+  {
+    href: "/transactions",
+    label: "Transactions",
+    icon: "CreditCard",
+  },
+  {
+    href: "/budgeting",
+    label: "Budgeting",
+    icon: "TrendingUp",
+  },
+  {
+    href: "/accounts",
+    label: "Accounts",
+    icon: "Shield",
+  },
+  {
+    href: "/analytics",
+    label: "Analytics",
+    icon: "PieChart",
+  },
+  {
+    href: "/settings",
+    label: "Settings",
+    icon: "Settings2",
+  },
+];

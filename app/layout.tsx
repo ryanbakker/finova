@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { UserSync } from "@/components/UserSync";
 
 export const metadata: Metadata = {
   title: "Finova",
@@ -23,6 +24,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <UserSync />
             {children}
           </ThemeProvider>
         </body>
