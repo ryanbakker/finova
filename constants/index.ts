@@ -186,7 +186,7 @@ export const pricingSection = {
 
 export const menuItems = [
   {
-    href: "/dashboard",
+    href: "/",
     label: "Dashboard",
     icon: "BarChart3",
   },

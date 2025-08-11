@@ -142,13 +142,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   {user.lastName?.charAt(0)}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1 min-w-0 text-left">
-                <p className="text-sm font-medium truncate">
-                  {user.firstName} {user.lastName}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
+              <div className="flex-1 text-left">
+                <div className="text-sm font-medium">
+                  {user.fullName || "User"}
+                </div>
+                <div className="text-xs text-muted-foreground">
                   {user.primaryEmailAddress?.emailAddress}
-                </p>
+                </div>
               </div>
             </button>
             <button
@@ -156,12 +156,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="flex items-center gap-3 w-full p-2 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer mt-2"
             >
               <LogOut className="w-5 h-5" />
-              <span className="text-sm font-medium">Sign Out</span>
+              <span className="text-sm">Sign Out</span>
             </button>
           </>
         ) : (
-          // Skeleton loader for user profile
-          <div className="flex items-center gap-3 w-full p-2">
+          <div className="flex items-center gap-3 p-2">
             <Skeleton className="h-10 w-10 rounded-full" />
             <div className="flex-1 space-y-2">
               <Skeleton className="h-4 w-24" />
