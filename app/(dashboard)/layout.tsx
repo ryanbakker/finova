@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { usePathname } from "next/navigation";
 import React from "react";
+import { Separator } from "@/components/ui/separator";
 
 function DynamicBreadcrumbs() {
   const pathname = usePathname();
@@ -29,7 +30,7 @@ function DynamicBreadcrumbs() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbPage>Dashboard</BreadcrumbPage>
+            <BreadcrumbPage className="text-sky-600">Dashboard</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -52,9 +53,13 @@ function DynamicBreadcrumbs() {
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
                 {isLast ? (
-                  <BreadcrumbPage>{label}</BreadcrumbPage>
+                  <BreadcrumbPage className="text-sky-600 font-medium">
+                    {label}
+                  </BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink href={href}>{label}</BreadcrumbLink>
+                  <BreadcrumbLink href={href} className="text-sky-600">
+                    {label}
+                  </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
             </React.Fragment>
@@ -76,7 +81,11 @@ export default function DashboardLayout({
         <AppSidebar />
         <SidebarInset className="flex-1 w-full min-w-0">
           <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-            <SidebarTrigger className="-ml-1" />
+            <SidebarTrigger className="-ml-1 text-sky-600 cursor-pointer hover:text-sky-800" />
+            <Separator
+              orientation="vertical"
+              className="mr-2 data-[orientation=vertical]:h-4"
+            />
             <DynamicBreadcrumbs />
           </header>
           <main className="flex-1 overflow-auto w-full page-content">

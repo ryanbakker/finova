@@ -25,7 +25,7 @@ export async function createUser(user: CreateUserParams) {
     console.log("createUser called with:", user);
     console.log("Attempting to connect to database...");
 
-    const connection = await connectToDB();
+    await connectToDB();
     console.log("Database connected successfully");
 
     console.log("Creating user in database...");

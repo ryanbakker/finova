@@ -108,7 +108,7 @@ const DynamicBreadcrumb = React.forwardRef<
     const breadcrumbs = [{ label: "Dashboard", href: "/" }];
 
     let currentPath = "";
-    segments.forEach((segment, index) => {
+    segments.forEach((segment) => {
       currentPath += `/${segment}`;
       const label = segment.charAt(0).toUpperCase() + segment.slice(1);
       breadcrumbs.push({ label, href: currentPath });

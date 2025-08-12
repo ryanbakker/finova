@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CreditCard, Plus, Search, Filter } from "lucide-react";
+import { DashboardFooter } from "@/components/DashboardFooter";
 
 export default function TransactionsPage() {
   return (
@@ -171,6 +172,8 @@ export default function TransactionsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <DashboardFooter />
     </div>
   );
 }

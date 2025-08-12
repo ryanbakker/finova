@@ -17,8 +17,8 @@ function Contact() {
             Get In Touch
           </h2>
           <p className="text-lg text-sky-100 max-w-3xl mx-auto">
-            Have questions, found a bug, or want to suggest a feature? We'd love
-            to hear from you!
+            Have questions, found a bug, or want to suggest a feature? We&apos;d
+            love to hear from you!
           </p>
         </div>
 
@@ -35,8 +35,8 @@ function Contact() {
                   Email Us
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  Send us a direct message and we'll get back to you within 24
-                  hours.
+                  Send us a direct message and we&apos;ll get back to you within
+                  24 hours.
                 </p>
                 <Button
                   className="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
@@ -94,7 +94,7 @@ function Contact() {
                   Suggest Features
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  Have an idea for a new feature? We'd love to hear your
+                  Have an idea for a new feature? We&apos;d love to hear your
                   suggestions!
                 </p>
                 <Button

@@ -1,4 +1,3 @@
-import { Globe } from "lucide-react";
 import { features } from "../../constants";
 
 function Features() {

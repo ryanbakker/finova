@@ -6,13 +6,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Shield,
-  Plus,
-  ExternalLink,
-  RefreshCw,
-  AlertCircle,
-} from "lucide-react";
+import { Shield, Plus, ExternalLink, RefreshCw } from "lucide-react";
+import { DashboardFooter } from "@/components/DashboardFooter";
 
 export default function AccountsPage() {
   return (
@@ -275,7 +270,7 @@ export default function AccountsPage() {
                 <div>
                   <p className="font-medium">Read-Only Access</p>
                   <p className="text-sm text-muted-foreground">
-                    We can't make changes to your accounts
+                    We can&apos;t make changes to your accounts
                   </p>
                 </div>
               </div>
@@ -292,6 +287,8 @@ export default function AccountsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <DashboardFooter />
     </div>
   );
 }

@@ -188,31 +188,31 @@ export const menuItems = [
   {
     href: "/",
     label: "Dashboard",
-    icon: "BarChart3",
+    icon: "Dashboard",
+    title: "Dashboard",
   },
   {
     href: "/transactions",
     label: "Transactions",
-    icon: "CreditCard",
+    icon: "BarChart3",
+    title: "Transactions",
   },
   {
     href: "/budgeting",
     label: "Budgeting",
     icon: "TrendingUp",
+    title: "Budgeting",
   },
   {
     href: "/accounts",
     label: "Accounts",
     icon: "Shield",
+    title: "Accounts",
   },
   {
     href: "/analytics",
     label: "Analytics",
     icon: "PieChart",
-  },
-  {
-    href: "/settings",
-    label: "Settings",
-    icon: "Settings2",
+    title: "Analytics",
   },
 ];

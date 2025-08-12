@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 function WelcomeFooter() {
   const [showBanner, setShowBanner] = useState(true);
@@ -100,36 +101,36 @@ function WelcomeFooter() {
               </h3>
               <ul className="space-y-3">
                 <li>
-                  <a
+                  <Link
                     href="/#welcome-hero"
                     className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
                   >
                     Get Started
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
+                  <Link
                     href="/#welcome-features"
                     className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
                   >
                     Features
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
+                  <Link
                     href="/#welcome-pricing"
                     className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
                   >
                     Pricing
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
+                  <Link
                     href="/#welcome-contact"
                     className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
                   >
                     Contact
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>

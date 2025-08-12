@@ -6,7 +6,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PieChart, TrendingUp, Calendar, Download, Filter } from "lucide-react";
+import { PieChart, TrendingUp, Download, Filter } from "lucide-react";
+import { DashboardFooter } from "@/components/DashboardFooter";
 
 export default function AnalyticsPage() {
   return (
@@ -361,6 +362,8 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <DashboardFooter />
     </div>
   );
 }
