@@ -1,7 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { ChevronRight } from "lucide-react";
+import {
+  ChevronRight,
+  BarChart3,
+  CreditCard,
+  TrendingUp,
+  Shield,
+  PieChart,
+  LayoutDashboard,
+} from "lucide-react";
 import { Slot } from "@radix-ui/react-slot";
 import { usePathname } from "next/navigation";
 
@@ -86,7 +94,7 @@ const BreadcrumbSeparator = ({
     className={cn("[&>svg]:size-3.5", className)}
     {...props}
   >
-    {children ?? <ChevronRight className="h-3.5 w-3.5" />}
+    {children ?? <ChevronRight className="h-3.5 w-3.5 text-current" />}
   </li>
 );
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
@@ -97,6 +105,24 @@ const DynamicBreadcrumb = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof Breadcrumb>
 >(({ className, ...props }, ref) => {
   const pathname = usePathname();
+
+  // Icon mapping for each route
+  const getIconForRoute = (href: string) => {
+    switch (href) {
+      case "/":
+        return <LayoutDashboard className="w-4 h-4 text-foreground" />;
+      case "/transactions":
+        return <BarChart3 className="w-4 h-4 text-sky-600" />;
+      case "/budgeting":
+        return <TrendingUp className="w-4 h-4 text-sky-600" />;
+      case "/accounts":
+        return <Shield className="w-4 h-4 text-sky-600" />;
+      case "/analytics":
+        return <PieChart className="w-4 h-4 text-sky-600" />;
+      default:
+        return null;
+    }
+  };
 
   const generateBreadcrumbs = () => {
     const segments = pathname.split("/").filter(Boolean);
@@ -126,7 +152,10 @@ const DynamicBreadcrumb = React.forwardRef<
           <React.Fragment key={breadcrumb.href}>
             <BreadcrumbItem>
               {index === breadcrumbs.length - 1 ? (
-                <BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>
+                <div className="flex items-center gap-2">
+                  {getIconForRoute(breadcrumb.href)}
+                  <BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>
+                </div>
               ) : (
                 <BreadcrumbLink href={breadcrumb.href}>
                   {breadcrumb.label}

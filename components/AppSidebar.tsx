@@ -8,10 +8,18 @@ import {
   Shield,
   PieChart,
   LogOut,
-  SunMoon,
   Moon,
   Sun,
   LayoutDashboard,
+  Plus,
+  Minus,
+  ChevronRight,
+  ArrowRightLeft,
+  ChartPie,
+  ChartNoAxesCombined,
+  Receipt,
+  Target,
+  FileChartColumn,
 } from "lucide-react";
 import {
   Sidebar,
@@ -23,15 +31,23 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { menuItems } from "@/constants";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "next-themes";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "./ui/collapsible";
 
 // Sidebar Theme Toggle Component
 function SidebarThemeToggle() {
@@ -49,7 +65,6 @@ function SidebarThemeToggle() {
   };
 
   const isDark = theme === "dark";
-  const isLight = theme === "light";
 
   return (
     <SidebarMenuButton
@@ -66,7 +81,6 @@ function SidebarThemeToggle() {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, isLoaded } = useUser();
   const { openUserProfile, signOut } = useClerk();
-  const { theme } = useTheme();
   const pathname = usePathname();
 
   const handleUserClick = () => {
@@ -124,7 +138,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className="flex-1">
-        <SidebarGroup className="flex-1">
+        <SidebarGroup className="flex-1 space-y-1">
           <SidebarGroupLabel className="text-xs font-medium text-muted-foreground  tracking-wider mb-3">
             Finova
           </SidebarGroupLabel>
@@ -133,45 +147,49 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               ? menuItems.map((item, index) => {
                   const isActive = pathname === item.href;
                   return (
-                    <SidebarMenuItem key={index}>
-                      <SidebarMenuButton
-                        asChild
-                        className={`h-9 px-3 rounded-md transition-colors ${
-                          isActive
-                            ? "bg-sky-500 text-white hover:bg-sky-600 hover:text-white"
-                            : "hover:bg-accent hover:text-accent-foreground"
-                        }`}
-                        title={item.title}
-                      >
-                        <Link
-                          href={item.href}
-                          className="flex items-center gap-3"
+                    <>
+                      <SidebarMenuItem key={index}>
+                        <SidebarMenuButton
+                          asChild
+                          className={`h-9 px-3 rounded-md transition-colors ${
+                            isActive
+                              ? "bg-sky-500 text-white hover:bg-sky-600 hover:text-white"
+                              : "hover:bg-accent hover:text-accent-foreground"
+                          }`}
+                          title={item.title}
                         >
-                          {item.icon === "BarChart3" && (
-                            <BarChart3 className="w-6 h-6" />
-                          )}
-                          {item.icon === "CreditCard" && (
-                            <CreditCard className="w-6 h-6" />
-                          )}
-                          {item.icon === "TrendingUp" && (
-                            <TrendingUp className="w-6 h-6" />
-                          )}
-                          {item.icon === "Shield" && (
-                            <Shield className="w-6 h-6" />
-                          )}
-                          {item.icon === "PieChart" && (
-                            <PieChart className="w-6 h-6" />
-                          )}
-
-                          {item.icon === "Dashboard" && (
-                            <LayoutDashboard className="w-6 h-6" />
-                          )}
-                          <span className="text-sm font-medium">
-                            {item.label}
-                          </span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
+                          <Link
+                            href={item.href}
+                            className="flex items-center gap-3"
+                          >
+                            {item.icon === "dashboard" && (
+                              <LayoutDashboard className="w-6 h-6" />
+                            )}
+                            {item.icon === "transactions" && (
+                              <ArrowRightLeft className="w-6 h-6" />
+                            )}
+                            {item.icon === "budgets" && (
+                              <ChartPie className="w-6 h-6" />
+                            )}
+                            {item.icon === "assets" && (
+                              <ChartNoAxesCombined className="w-6 h-6" />
+                            )}
+                            {item.icon === "liabilities" && (
+                              <CreditCard className="w-6 h-6" />
+                            )}
+                            {item.icon === "bills" && (
+                              <Receipt className="w-6 h-6" />
+                            )}
+                            {item.icon === "goals" && (
+                              <Target className="w-6 h-6" />
+                            )}
+                            <span className="text-sm font-medium">
+                              {item.label}
+                            </span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    </>
                   );
                 })
               : // Skeleton loaders for menu items
@@ -183,6 +201,74 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     </div>
                   </SidebarMenuItem>
                 ))}
+          </SidebarMenu>
+          <SidebarMenu>
+            <Collapsible className="group/collapsible">
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild className="cursor-pointer mb-0.5">
+                  <SidebarMenuButton
+                    asChild
+                    className="h-9 px-3 rounded-md transition-colors"
+                  >
+                    <button className="flex items-center gap-3">
+                      <FileChartColumn className="w-6 h-6" />
+                      <span className="text-sm font-medium">Reports</span>
+                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    </button>
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <Link href="/" className="text-xs font-medium">
+                          Generate Report
+                          <Plus className="w-[5px] h-[5px] scale-90" />
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton
+                        asChild
+                        className="text-neutral-500"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Spinner size="sm" className="text-neutral-500" />
+                          <span className="text-xs">Generating</span>
+
+                          {/* Add toast notification when report is generating, and then when it is completed or errored out */}
+                        </div>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <Link href="/" className="text-xs">
+                          2025-09-17
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <Link href="/" className="text-xs">
+                          2025-08-22
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <Link href="/" className="text-xs">
+                          2024-06-31
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

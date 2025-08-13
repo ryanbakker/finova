@@ -41,7 +41,7 @@ function BudgetMetricsSkeleton() {
   );
 }
 
-function ChartSkeleton({ title }: { title: string }) {
+function ChartSkeleton() {
   return (
     <Card className="border-l-4 border-l-sky-500 overflow-hidden h-full flex flex-col">
       <CardHeader className="flex-shrink-0">
@@ -216,10 +216,10 @@ export default function BudgetingPage() {
             gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
           }}
         >
-          <ChartSkeleton title="Monthly Spending Trends" />
-          <ChartSkeleton title="Budget vs Actual" />
-          <ChartSkeleton title="Category Breakdown" />
-          <ChartSkeleton title="Weekly Spending" />
+          <ChartSkeleton />
+          <ChartSkeleton />
+          <ChartSkeleton />
+          <ChartSkeleton />
 
           {/* Combined Budget Overview and Alerts Container Skeleton */}
           <div className="flex flex-col h-full space-y-2">

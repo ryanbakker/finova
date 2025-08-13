@@ -76,6 +76,15 @@ const parseData = (
       dataPoint.color ||
       categoryColors.get(dataPoint[category]) ||
       AvailableChartColors[0];
+
+    // Debug: Log color assignment for each data point
+    console.log(`Data point "${dataPoint[category]}":`, {
+      hasColor: !!dataPoint.color,
+      color: dataPoint.color,
+      fallbackColor: categoryColors.get(dataPoint[category]),
+      finalColor: colorName,
+    });
+
     return {
       ...dataPoint,
       color: colorName,
@@ -229,7 +238,14 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
     );
 
     const categories = Array.from(new Set(data.map((item) => item[category])));
-    const categoryColors = constructCategoryColors(categories, colors);
+
+    // Check if data already has pre-assigned colors
+    const hasPreAssignedColors = data.some((item) => item.color);
+
+    // Only construct category colors if no pre-assigned colors exist
+    const categoryColors = hasPreAssignedColors
+      ? new Map() // Empty map to force use of pre-assigned colors
+      : constructCategoryColors(categories, colors);
 
     const prevActiveRef = React.useRef<boolean | undefined>(undefined);
     const prevCategoryRef = React.useRef<string | undefined>(undefined);

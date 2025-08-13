@@ -393,6 +393,70 @@
   .tremor-LineChart .recharts-line {
     stroke-width: 3;
   }
+  
+  /* Net Worth Summary Chart - Y-axis spacing and X-axis labels */
+  .tremor-LineChart .recharts-yAxis .recharts-cartesian-axis-tick {
+    font-size: 11px !important;
+    line-height: 1 !important;
+  }
+  
+  .tremor-LineChart .recharts-yAxis .recharts-cartesian-axis-tick text {
+    font-size: 11px !important;
+    line-height: 1 !important;
+  }
+  
+  .tremor-LineChart .recharts-xAxis .recharts-cartesian-axis-tick {
+    font-size: 11px !important;
+    line-height: 1 !important;
+  }
+  
+  .tremor-LineChart .recharts-xAxis .recharts-cartesian-axis-tick text {
+    font-size: 11px !important;
+    line-height: 1 !important;
+  }
+  
+  /* Reduce spacing between y-axis ticks - make it much tighter */
+  .tremor-LineChart .recharts-yAxis .recharts-cartesian-axis-tick {
+    transform: translate(-3, 0);
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Ensure all x-axis labels are visible */
+  .tremor-LineChart .recharts-xAxis .recharts-cartesian-axis-tick {
+    transform: translate(0, 6);
+  }
+  
+  /* Force more x-axis labels to be visible by overriding tick interval */
+  .tremor-LineChart .recharts-xAxis .recharts-cartesian-axis-tick {
+    display: block !important;
+    opacity: 1 !important;
+  }
+  
+  /* Ensure every data point gets a label */
+  .tremor-LineChart .recharts-xAxis .recharts-cartesian-axis-tick:nth-child(odd),
+  .tremor-LineChart .recharts-xAxis .recharts-cartesian-axis-tick:nth-child(even) {
+    display: block !important;
+    opacity: 1 !important;
+  }
+  
+  /* Override any hidden ticks */
+  .tremor-LineChart .recharts-xAxis .recharts-cartesian-axis-tick[style*="display: none"],
+  .tremor-LineChart .recharts-xAxis .recharts-cartesian-axis-tick[style*="opacity: 0"] {
+    display: block !important;
+    opacity: 1 !important;
+  }
+  
+  /* Force tighter y-axis spacing by reducing the chart height allocation */
+  .tremor-LineChart .recharts-yAxis {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* Reduce the overall chart height to compress y-axis spacing */
+  .tremor-LineChart .recharts-cartesian-grid-horizontal line {
+    stroke-dasharray: 2, 2;
+  }
 }
 
 .page-content {
@@ -438,4 +502,8 @@
 .category-legend-content {
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+.container-color {
+  @apply border-l-sky-800 border-l-4 bg-gradient-to-r from-sky-50/50 to-white;
 }

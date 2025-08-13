@@ -18,7 +18,13 @@ export function FinancialGoals() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div
+          className="space-y-4 max-h-[150px] overflow-y-auto category-breakdown-scroll"
+          style={{
+            scrollbarWidth: "thin",
+            scrollbarColor: "#d1d5db transparent",
+          }}
+        >
           <div className="flex items-center space-x-3 p-3 border border-sky-200 rounded-lg bg-gradient-to-r from-sky-50 to-cyan-50">
             <Target className="h-5 w-5 text-sky-600" />
             <div className="flex-1">
@@ -62,6 +68,60 @@ export function FinancialGoals() {
               <p className="text-sm text-muted-foreground">$2,000 / $5,000</p>
               <Progress
                 value={40}
+                className="w-full mt-2 h-2"
+                style={
+                  {
+                    "--progress-background": "#e5e7eb",
+                    "--progress-foreground": "#0ea5e9",
+                  } as React.CSSProperties
+                }
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-3 p-3 border border-sky-200 rounded-lg bg-gradient-to-r from-sky-50 to-cyan-50">
+            <TrendingUp className="h-5 w-5 text-sky-600" />
+            <div className="flex-1">
+              <p className="font-medium text-sky-800">Home Renovation</p>
+              <p className="text-sm text-muted-foreground">$5,000 / $15,000</p>
+              <Progress
+                value={33}
+                className="w-full mt-2 h-2"
+                style={
+                  {
+                    "--progress-background": "#e5e7eb",
+                    "--progress-foreground": "#0ea5e9",
+                  } as React.CSSProperties
+                }
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-3 p-3 border border-sky-200 rounded-lg bg-gradient-to-r from-sky-50 to-cyan-50">
+            <Target className="h-5 w-5 text-sky-600" />
+            <div className="flex-1">
+              <p className="font-medium text-sky-800">Investment Portfolio</p>
+              <p className="text-sm text-muted-foreground">$12,000 / $25,000</p>
+              <Progress
+                value={48}
+                className="w-full mt-2 h-2"
+                style={
+                  {
+                    "--progress-background": "#e5e7eb",
+                    "--progress-foreground": "#0ea5e9",
+                  } as React.CSSProperties
+                }
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-3 p-3 border border-sky-200 rounded-lg bg-gradient-to-r from-sky-50 to-cyan-50">
+            <TrendingUp className="h-5 w-5 text-sky-600" />
+            <div className="flex-1">
+              <p className="font-medium text-sky-800">Wedding Fund</p>
+              <p className="text-sm text-muted-foreground">$3,500 / $8,000</p>
+              <Progress
+                value={44}
                 className="w-full mt-2 h-2"
                 style={
                   {

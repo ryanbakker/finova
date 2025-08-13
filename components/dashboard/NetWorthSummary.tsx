@@ -1,26 +1,87 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { LineChart } from "@tremor/react";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { CircleArrowUp, CircleArrowDown } from "lucide-react";
 
 interface NetWorthData {
   quarter: string;
   netWorth: number;
+  totalAssets: number;
+  totalLiabilities: number;
 }
 
 const exampleData: NetWorthData[] = [
-  { quarter: "2024 Q1", netWorth: 40000 },
-  { quarter: "2024 Q2", netWorth: 52000 },
-  { quarter: "2024 Q3", netWorth: 48000 },
-  { quarter: "2024 Q4", netWorth: 65000 },
-  { quarter: "2025 Q1", netWorth: 58000 },
-  { quarter: "2025 Q2", netWorth: 85000 },
-  { quarter: "2025 Q3", netWorth: 125000 },
+  {
+    quarter: "2023 Q1",
+    netWorth: 25000,
+    totalAssets: 95000,
+    totalLiabilities: 70000,
+  },
+  {
+    quarter: "2023 Q2",
+    netWorth: 28000,
+    totalAssets: 98000,
+    totalLiabilities: 70000,
+  },
+  {
+    quarter: "2023 Q3",
+    netWorth: 32000,
+    totalAssets: 102000,
+    totalLiabilities: 70000,
+  },
+  {
+    quarter: "2023 Q4",
+    netWorth: 35000,
+    totalAssets: 110000,
+    totalLiabilities: 75000,
+  },
+  {
+    quarter: "2024 Q1",
+    netWorth: 40000,
+    totalAssets: 125000,
+    totalLiabilities: 85000,
+  },
+  {
+    quarter: "2024 Q2",
+    netWorth: 52000,
+    totalAssets: 138000,
+    totalLiabilities: 86000,
+  },
+  {
+    quarter: "2024 Q3",
+    netWorth: 48000,
+    totalAssets: 132000,
+    totalLiabilities: 84000,
+  },
+  {
+    quarter: "2024 Q4",
+    netWorth: 65000,
+    totalAssets: 150000,
+    totalLiabilities: 85000,
+  },
+  {
+    quarter: "2025 Q1",
+    netWorth: 58000,
+    totalAssets: 143000,
+    totalLiabilities: 85000,
+  },
+  {
+    quarter: "2025 Q2",
+    netWorth: 85000,
+    totalAssets: 170000,
+    totalLiabilities: 85000,
+  },
+  {
+    quarter: "2025 Q3",
+    netWorth: 125000,
+    totalAssets: 187500,
+    totalLiabilities: 62500,
+  },
+  {
+    quarter: "2025 Q4",
+    netWorth: 142000,
+    totalAssets: 205000,
+    totalLiabilities: 63000,
+  },
 ];
 
 export function NetWorthSummary() {
@@ -31,29 +92,32 @@ export function NetWorthSummary() {
   const isPositive = change >= 0;
 
   return (
-    <Card className="col-span-4">
-      <CardHeader>
-        <CardTitle>Net Worth Summary</CardTitle>
-        <CardDescription>
-          Your total financial position over time
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-6 md:grid-cols-2">
+    <Card className="col-span-4 h-full container-color !w-full flex-1">
+      <CardContent className="pt-6">
+        <div className="flex flex-row gap-8">
           <div className="space-y-6">
+            <div className="space-y-1">
+              <div className="text-2xl font-semibold text-sky-900">
+                Net Worth Summary
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Your total financial position over time
+              </div>
+            </div>
+
             <div className="space-y-2">
               <div className="text-3xl font-bold">
                 ${currentNetWorth.toLocaleString()}
               </div>
               <div className="flex items-center space-x-2">
                 {isPositive ? (
-                  <TrendingUp className="h-4 w-4 text-green-600" />
+                  <CircleArrowUp className="h-4 w-4 text-emerald-700" />
                 ) : (
-                  <TrendingDown className="h-4 w-4 text-red-600" />
+                  <CircleArrowDown className="h-4 w-4 text-red-700" />
                 )}
                 <span
                   className={`text-sm font-medium ${
-                    isPositive ? "text-green-600" : "text-red-600"
+                    isPositive ? "text-emerald-700" : "text-red-700"
                   }`}
                 >
                   {isPositive ? "+" : ""}
@@ -69,20 +133,81 @@ export function NetWorthSummary() {
               </div>
               <div>
                 <div className="text-muted-foreground">Total Liabilities</div>
-                <div className="font-semibold">$35,100</div>
+                <div className="font-semibold">$62,500</div>
+              </div>
+            </div>
+
+            {/* Custom Graph Key */}
+            <div className="flex flex-col items-start space-y-2 text-xs bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 w-fit">
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-sky-700 rounded-full"></div>
+                <span className="text-muted-foreground">Net Worth</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-emerald-700 rounded-full"></div>
+                <span className="text-muted-foreground">Total Assets</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-red-700 rounded-full"></div>
+                <span className="text-muted-foreground">Total Liabilities</span>
               </div>
             </div>
           </div>
 
-          <div className="h-64 flex items-center justify-center p-4">
+          <div className="flex-1 flex items-center justify-center bg-neutral-50 p-4 rounded-lg border border-neutral-200">
             <LineChart
               data={exampleData}
               index="quarter"
-              categories={["netWorth"]}
-              colors={["sky"]}
+              categories={["totalAssets", "totalLiabilities", "netWorth"]}
+              colors={["sky", "emerald", "red"]}
               showLegend={false}
               showGridLines={true}
               showAnimation={true}
+              curveType="natural"
+              yAxisWidth={65}
+              valueFormatter={(value: number) => `$${value.toLocaleString()}`}
+              className="[&_.recharts-xAxis_.recharts-cartesian-axis-tick]:text-xs [&_.recharts-yAxis_.recharts-cartesian-axis-tick]:text-xs [&_.recharts-yAxis_.recharts-cartesian-axis-tick]:text-[11px] [&_.recharts-yAxis_.recharts-cartesian-axis-tick]:leading-none [&_.recharts-xAxis_.recharts-cartesian-axis-tick]:text-[11px] [&_.recharts-xAxis_.recharts-cartesian-axis-tick]:leading-none"
+              customTooltip={({ payload, active }) => {
+                if (active && payload && payload.length) {
+                  const colorMap = {
+                    netWorth: "#0369a1", // sky-700
+                    totalAssets: "#047857", // emerald-700
+                    totalLiabilities: "#b91c1c", // red-700
+                  };
+
+                  return (
+                    <div className="bg-white dark:bg-gray-900 p-3 border border-gray-200 dark:border-gray-600 rounded-lg shadow-xl text-xs backdrop-blur-sm">
+                      <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2 pb-2 border-b border-gray-200 dark:border-gray-600">
+                        {payload[0]?.payload?.quarter}
+                      </p>
+                      {payload.map((entry, index) => {
+                        const categoryColor =
+                          colorMap[entry.name as keyof typeof colorMap];
+                        return (
+                          <p
+                            key={index}
+                            className="font-medium py-1 text-gray-700 dark:text-gray-300"
+                          >
+                            {entry.name === "netWorth"
+                              ? "Net Worth"
+                              : entry.name === "totalAssets"
+                              ? "Total Assets"
+                              : "Total Liabilities"}
+                            :{" "}
+                            <span
+                              className="font-bold"
+                              style={{ color: categoryColor }}
+                            >
+                              ${entry.value?.toLocaleString()}
+                            </span>
+                          </p>
+                        );
+                      })}
+                    </div>
+                  );
+                }
+                return null;
+              }}
             />
           </div>
         </div>

@@ -89,7 +89,12 @@ export const chartColors = {
     fill: "fill-sky-950",
     text: "text-sky-950",
   },
-  // Original colors (keeping for backward compatibility)
+  sky: {
+    bg: "bg-sky-500",
+    stroke: "stroke-sky-500",
+    fill: "fill-sky-500",
+    text: "text-sky-500",
+  },
   blue: {
     bg: "bg-blue-500",
     stroke: "stroke-blue-500",

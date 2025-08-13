@@ -22,7 +22,7 @@ export default function RootLayout({
         className={`${GeistSans.className} antialiased dark:bg-gray-950`}
         suppressHydrationWarning
       >
-        <body>
+        <body className="w-full h-full">
           <ThemeProvider
             attribute="class"
             defaultTheme="system"

@@ -8,10 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DonutChart } from "@/components/DonutChart";
-import {
-  AvailableChartColors,
-  type AvailableChartColorsKeys,
-} from "@/lib/chartUtils";
+import { type AvailableChartColorsKeys } from "@/lib/chartUtils";
 
 interface CategoryData {
   name: string;
@@ -66,7 +63,8 @@ export function CategoryBreakdownChart({
 
   // Create value-based color mapping using sky gradient
   // Sort data by value to assign colors from lightest (lowest) to darkest (highest)
-  const sortedData = [...validData].sort((a, b) => a.value - b.value);
+  // Note: Highest value gets darkest color, lowest value gets lightest color
+  const sortedData = [...validData].sort((a, b) => b.value - a.value);
 
   // Sky colors from lightest to darkest - optimized for 6 categories
   const skyColors: AvailableChartColorsKeys[] = [
@@ -85,8 +83,16 @@ export function CategoryBreakdownChart({
     categoryColors.set(item.name, skyColors[colorIndex]);
   });
 
+  // Debug: Log the color assignment
+  console.log("Color assignment:", Object.fromEntries(categoryColors));
+  console.log(
+    "Sorted data:",
+    sortedData.map((item) => ({ name: item.name, value: item.value }))
+  );
+
   // Transform data for the donut chart with pre-assigned colors
-  const chartData = validData.map((item) => ({
+  // Sort the chart data in the same order as the color assignment for proper color mapping
+  const chartData = sortedData.map((item) => ({
     name: item.name,
     amount: item.value,
     color: categoryColors.get(item.name) || "sky500", // fallback color
@@ -110,7 +116,6 @@ export function CategoryBreakdownChart({
                   category="name"
                   value="amount"
                   showLabel={true}
-                  colors={Array.from(categoryColors.values())}
                   valueFormatter={(number: number) =>
                     `$${Intl.NumberFormat("us").format(number).toString()}`
                   }
@@ -131,8 +136,7 @@ export function CategoryBreakdownChart({
               <ul className="p-3 space-y-1.5 flex-1 overflow-y-auto min-h-0 category-legend-content category-breakdown-scroll list-none overflow-scroll max-h-[28vh]">
                 {validData.map((category) => {
                   const colorKey =
-                    categoryColors.get(category.name) ||
-                    AvailableChartColors[0];
+                    categoryColors.get(category.name) || "sky500";
 
                   return (
                     <li

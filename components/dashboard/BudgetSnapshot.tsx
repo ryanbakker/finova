@@ -6,7 +6,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, MoveRight } from "lucide-react";
+import Link from "next/link";
 
 interface BudgetCategory {
   name: string;
@@ -49,107 +50,91 @@ const exampleCategories: BudgetCategory[] = [
 ];
 
 export function BudgetSnapshot() {
-  const getProgressColor = (spent: number, budgeted: number) => {
-    const percentage = (spent / budgeted) * 100;
-    if (percentage >= 100) return "destructive";
-    if (percentage >= 80) return "default";
-    return "default";
-  };
-
   const getStatusIcon = (spent: number, budgeted: number) => {
     const percentage = (spent / budgeted) * 100;
     if (percentage >= 100)
-      return <AlertCircle className="h-4 w-4 text-red-600" />;
-    if (percentage >= 80) return <Clock className="h-4 w-4 text-yellow-600" />;
-    return <CheckCircle className="h-4 w-4 text-green-600" />;
-  };
-
-  const getStatusText = (spent: number, budgeted: number) => {
-    const percentage = (spent / budgeted) * 100;
-    if (percentage >= 100) return "Over Budget";
-    if (percentage >= 80) return "Approaching Limit";
-    return "On Track";
+      return <AlertCircle className="h-4 w-4 text-sky-900" />;
+    if (percentage >= 80) return <Clock className="h-4 w-4 text-sky-900" />;
+    return <CheckCircle className="h-4 w-4 text-sky-900" />;
   };
 
   return (
-    <Card className="col-span-4">
+    <Card className="h-full container-color">
       <CardHeader>
-        <CardTitle>Budget Snapshot</CardTitle>
-        <CardDescription>
-          Top budget categories for the current month
-        </CardDescription>
+        <div className="flex items-end justify-between">
+          <div className="space-y-2">
+            <CardTitle className="text-sky-900">Budget Snapshot</CardTitle>
+            <CardDescription>
+              Top budget categories for the current month
+            </CardDescription>
+          </div>
+          <Link href="/budgeting">
+            <button className="px-3 py-1.5 text-sm bg-sky-600 text-white rounded-md hover:bg-sky-700 transition-colors flex items-center gap-2">
+              Budgets
+              <MoveRight className="h-4 w-4" />
+            </button>
+          </Link>
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-6">
-            {exampleCategories.map((category) => {
-              const percentage = Math.min(
-                (category.spent / category.budgeted) * 100,
-                100
-              );
-              const remaining = category.budgeted - category.spent;
+        <div className="border border-gray-200 rounded-lg bg-gray-50 p-4 max-h-[410px] overflow-y-auto category-breakdown-scroll">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
+              {exampleCategories.map((category) => {
+                const percentage = Math.min(
+                  (category.spent / category.budgeted) * 100,
+                  100
+                );
+                const remaining = category.budgeted - category.spent;
 
-              return (
-                <div key={category.name} className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      {getStatusIcon(category.spent, category.budgeted)}
-                      <div>
-                        <div className="font-medium">{category.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          ${category.spent.toLocaleString()} of $
-                          {category.budgeted.toLocaleString()}
+                return (
+                  <div
+                    key={category.name}
+                    className="p-3 border border-sky-200 rounded-lg bg-gradient-to-r from-sky-50 to-cyan-50"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center space-x-2">
+                          <div className="p-1.5 rounded-lg bg-sky-100">
+                            {getStatusIcon(category.spent, category.budgeted)}
+                          </div>
+                          <p className="font-medium text-sky-800">
+                            {category.name}
+                          </p>
                         </div>
+                        <span className="text-sm font-medium text-sky-600">
+                          {percentage.toFixed(1)}%
+                        </span>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <div
-                        className={`text-sm font-medium ${
-                          remaining >= 0 ? "text-green-600" : "text-red-600"
-                        }`}
-                      >
-                        {remaining >= 0
-                          ? `$${remaining.toLocaleString()} left`
-                          : `$${Math.abs(remaining).toLocaleString()} over`}
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm text-muted-foreground">
+                          ${category.spent.toLocaleString()} / $
+                          {category.budgeted.toLocaleString()}
+                        </p>
+                        {remaining >= 0 ? (
+                          <p className="text-xs text-muted-foreground">
+                            ${remaining.toLocaleString()} left
+                          </p>
+                        ) : (
+                          <p className="text-xs text-muted-foreground">
+                            ${Math.abs(remaining).toLocaleString()} over
+                          </p>
+                        )}
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {getStatusText(category.spent, category.budgeted)}
-                      </div>
+                      <Progress
+                        value={percentage}
+                        className="w-full h-2"
+                        style={
+                          {
+                            "--progress-background": "#e5e7eb",
+                            "--progress-foreground": "#0ea5e9",
+                          } as React.CSSProperties
+                        }
+                      />
                     </div>
                   </div>
-
-                  <Progress
-                    value={percentage}
-                    className="h-2"
-                    style={
-                      {
-                        "--progress-background":
-                          getProgressColor(
-                            category.spent,
-                            category.budgeted
-                          ) === "destructive"
-                            ? "#ef4444"
-                            : undefined,
-                      } as React.CSSProperties
-                    }
-                  />
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="pt-4 border-t">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">Total Budget</span>
-              <span className="font-medium">$3,500</span>
-            </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">Total Spent</span>
-              <span className="font-medium">$3,250</span>
-            </div>
-            <div className="flex justify-between items-center text-sm font-medium">
-              <span>Remaining</span>
-              <span className="text-green-600">$250</span>
+                );
+              })}
             </div>
           </div>
         </div>
