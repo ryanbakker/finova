@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, CreditCard, Wifi, Zap, Home, Car } from "lucide-react";
 
 interface Bill {
@@ -84,7 +85,11 @@ const exampleBills: Bill[] = [
   },
 ];
 
-export function UpcomingBills() {
+interface UpcomingBillsProps {
+  isLoading?: boolean;
+}
+
+export function UpcomingBills({ isLoading = false }: UpcomingBillsProps) {
   const getDaysUntilDue = (dueDate: string) => {
     const today = new Date();
     const due = new Date(dueDate);
@@ -112,6 +117,54 @@ export function UpcomingBills() {
     const daysB = getDaysUntilDue(b.dueDate);
     return daysA - daysB;
   });
+
+  if (isLoading) {
+    return (
+      <Card className="col-span-3">
+        <CardHeader>
+          <Skeleton className="h-6 w-64 mb-2" />
+          <Skeleton className="h-4 w-80" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between p-3 rounded-lg border"
+              >
+                <div className="flex items-center space-x-3">
+                  <Skeleton className="w-8 h-8 rounded-lg" />
+                  <div>
+                    <Skeleton className="h-4 w-24 mb-1" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <Skeleton className="h-4 w-16 mb-1" />
+                  <div className="flex items-center space-x-2">
+                    <Skeleton className="w-3 h-3" />
+                    <Skeleton className="h-5 w-20" />
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            <div className="pt-4 border-t">
+              <div className="flex justify-between items-center text-sm mb-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-4 w-20" />
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-8" />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="col-span-3">

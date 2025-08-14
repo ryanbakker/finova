@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, AlertTriangle, AlertOctagon, Bell } from "lucide-react";
 
 interface CategoryData {
@@ -15,12 +16,46 @@ interface CategoryData {
 
 interface BudgetAlertsProps {
   categoryData: CategoryData[];
+  isLoading?: boolean;
 }
 
-export function BudgetAlerts({ categoryData }: BudgetAlertsProps) {
+export function BudgetAlerts({
+  categoryData,
+  isLoading = false,
+}: BudgetAlertsProps) {
   const overBudgetCategories = categoryData.filter(
     (category) => category.value / category.budget > 0.8
   );
+
+  if (isLoading) {
+    return (
+      <Card className="border-l-4 border-l-red-500 h-full">
+        <CardHeader className="pb-2">
+          <div className="flex items-center space-x-2 text-red-700 text-sm mb-2">
+            <Skeleton className="h-4 w-4 rounded" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <Skeleton className="h-3 w-48" />
+        </CardHeader>
+        <CardContent className="pt-0 pb-1">
+          <div className="space-y-2 max-h-32 overflow-y-auto">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="flex items-center space-x-2 p-2 bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg"
+              >
+                <Skeleton className="h-4 w-4 rounded flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <Skeleton className="h-3 w-24 mb-1" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="border-l-4 border-l-red-500 h-full">

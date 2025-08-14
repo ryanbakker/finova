@@ -6,8 +6,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, CheckCircle, Clock, MoveRight } from "lucide-react";
 import Link from "next/link";
+import { Button } from "../ui/button";
 
 interface BudgetCategory {
   name: string;
@@ -49,7 +51,11 @@ const exampleCategories: BudgetCategory[] = [
   },
 ];
 
-export function BudgetSnapshot() {
+interface BudgetSnapshotProps {
+  isLoading?: boolean;
+}
+
+export function BudgetSnapshot({ isLoading = false }: BudgetSnapshotProps) {
   const getStatusIcon = (spent: number, budgeted: number) => {
     const percentage = (spent / budgeted) * 100;
     if (percentage > 100)
@@ -60,7 +66,6 @@ export function BudgetSnapshot() {
 
   const getCategoryColors = (spent: number, budgeted: number) => {
     const percentage = (spent / budgeted) * 100;
-    const remaining = budgeted - spent;
 
     if (percentage > 100) {
       // Over budget - red theme
@@ -101,6 +106,51 @@ export function BudgetSnapshot() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <Card className="h-full container-color">
+        <CardHeader>
+          <div className="flex items-end justify-between">
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+            <Skeleton className="h-10 w-24" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-3 overflow-y-auto category-breakdown-scroll max-h-[410px]">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 gap-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div
+                    key={i}
+                    className="p-3 border rounded-lg border-gray-200 bg-white dark:bg-neutral-800"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center space-x-2">
+                          <Skeleton className="w-6 h-6 rounded-sm" />
+                          <Skeleton className="h-4 w-20" />
+                        </div>
+                        <Skeleton className="h-4 w-12" />
+                      </div>
+                      <div className="flex items-center justify-between mb-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-3 w-16" />
+                      </div>
+                      <Skeleton className="w-full h-2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="h-full container-color">
       <CardHeader>
@@ -112,10 +162,10 @@ export function BudgetSnapshot() {
             </CardDescription>
           </div>
           <Link href="/budgeting">
-            <button className="px-3 py-1.5 text-sm bg-sky-600  rounded-md hover:bg-sky-700 transition-colors flex items-center gap-2 bg-gradient-to-r from-sky-500 via-sky-500 to-sky-600 text-white hover:from-sky-600 hover:via-sky-600 hover:text-white cursor-pointer shadow-sm">
+            <Button className="button-blue-bg">
               Budgets
               <MoveRight className="h-4 w-4" />
-            </button>
+            </Button>
           </Link>
         </div>
       </CardHeader>

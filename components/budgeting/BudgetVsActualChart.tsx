@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart } from "@tremor/react";
 
 interface BudgetVsActual {
@@ -18,11 +19,29 @@ interface BudgetVsActual {
 
 interface BudgetVsActualChartProps {
   budgetVsActual: BudgetVsActual[];
+  isLoading?: boolean;
 }
 
 export function BudgetVsActualChart({
   budgetVsActual,
+  isLoading = false,
 }: BudgetVsActualChartProps) {
+  if (isLoading) {
+    return (
+      <Card className="border-l-4 border-l-sky-500 h-full flex flex-col">
+        <CardHeader className="flex-shrink-0">
+          <Skeleton className="h-6 w-48 mb-2" />
+          <Skeleton className="h-4 w-64" />
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-1 w-full min-h-[300px] !max-h-[60vh] overflow-hidden">
+            <Skeleton className="h-full w-full" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="border-l-4 border-l-sky-500 h-full flex flex-col">
       <CardHeader className="flex-shrink-0">

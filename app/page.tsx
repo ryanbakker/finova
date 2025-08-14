@@ -6,7 +6,6 @@ import {
   SidebarInset,
   SidebarTrigger,
   SidebarProvider,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { DynamicBreadcrumb } from "@/components/ui/breadcrumb";
 import {
@@ -28,15 +27,27 @@ import {
 } from "@/components/dashboard";
 import { useUser } from "@clerk/nextjs";
 import { FileText, Plus } from "lucide-react";
+import { useState, useEffect } from "react";
 
 function DashboardContent({
   user,
   isLoaded,
 }: {
-  user: any;
+  user: ReturnType<typeof useUser>["user"];
   isLoaded: boolean;
 }) {
-  const { state } = useSidebar();
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate loading delay
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Remove unused state variable
 
   // Sample data for recent activities
   const recentActivities = [
@@ -141,7 +152,7 @@ function DashboardContent({
           </div>
 
           {/* Top Row - Key Metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mx-auto w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mx-auto w-full">
             <MetricCard
               title="Total Income"
               value={8450}
@@ -149,6 +160,7 @@ function DashboardContent({
               dataValueColor="text-emerald-600 dark:text-emerald-400"
               borderColor="border-l-emerald-700"
               bgGradientFrom="from-emerald-50/50 dark:from-emerald-950/40 dark:to-neutral-900"
+              isLoading={isLoading}
             />
             <MetricCard
               title="Total Expenses"
@@ -157,6 +169,7 @@ function DashboardContent({
               dataValueColor="text-red-600 dark:text-red-400"
               borderColor="border-l-red-700"
               bgGradientFrom="from-red-50/50 dark:from-red-950/40 dark:to-neutral-900"
+              isLoading={isLoading}
             />
             <MetricCard
               title="Savings"
@@ -165,6 +178,7 @@ function DashboardContent({
               dataValueColor="text-sky-600 dark:text-sky-400"
               borderColor="border-l-sky-700"
               bgGradientFrom="from-sky-50/50 dark:from-sky-950/40 dark:to-neutral-900"
+              isLoading={isLoading}
             />
             <MetricCard
               title="Net Income"
@@ -173,13 +187,14 @@ function DashboardContent({
               dataValueColor="text-sky-600 dark:text-sky-400"
               borderColor="border-l-sky-700"
               bgGradientFrom="from-sky-50/50 dark:from-sky-950/40 dark:to-neutral-900"
+              isLoading={isLoading}
             />
           </div>
 
           {/* Second Row - Net Worth Summary & Quick Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mx-auto w-full">
             <div className="w-full lg:col-span-3 flex">
-              <NetWorthSummary />
+              <NetWorthSummary isLoading={isLoading} />
             </div>
             <Card className="w-full lg:col-span-1 container-color">
               <CardHeader>
@@ -337,27 +352,27 @@ function DashboardContent({
 
             {/* Right Side - Income vs Spending Chart */}
             <div className="w-full lg:col-span-3">
-              <IncomeVsSpendingChart />
+              <IncomeVsSpendingChart isLoading={isLoading} />
             </div>
           </div>
 
           {/* Fourth Row - Budget Snapshot & Financial Goals */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mx-auto">
             <div className="w-full lg:col-span-2">
-              <BudgetSnapshot />
+              <BudgetSnapshot isLoading={isLoading} />
             </div>
             <div className="w-full lg:col-span-2">
-              <FinancialGoals />
+              <FinancialGoals isLoading={isLoading} />
             </div>
           </div>
 
           {/* Fifth Row - Category Breakdown & Financial Assets */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mx-auto">
             <div className="w-full lg:col-span-2">
-              <CategoryBreakdownChart />
+              <CategoryBreakdownChart isLoading={isLoading} />
             </div>
             <div className="w-full lg:col-span-2">
-              <FinancialAssets />
+              <FinancialAssets isLoading={isLoading} />
             </div>
           </div>
 

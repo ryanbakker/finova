@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   MoveRight,
   Building2,
@@ -61,7 +62,65 @@ const assetsData: Asset[] = [
   },
 ];
 
-export function FinancialAssets() {
+interface FinancialAssetsProps {
+  isLoading?: boolean;
+}
+
+export function FinancialAssets({ isLoading = false }: FinancialAssetsProps) {
+  if (isLoading) {
+    return (
+      <Card className="container-color h-full flex flex-col">
+        <CardHeader className="flex-shrink-0">
+          <div className="flex items-end justify-between">
+            <div>
+              <Skeleton className="h-6 w-32 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+            <Skeleton className="h-10 w-20" />
+          </div>
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col min-h-0">
+          {/* Total Assets Summary */}
+          <div className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-3 max-h-[250px] overflow-y-auto category-breakdown-scroll mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-8 w-24" />
+            </div>
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-4 w-16" />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-28 mb-3" />
+            {/* Mapped Assets */}
+            <ul className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-3 max-h-[280px] overflow-y-auto category-breakdown-scroll space-y-3">
+              {[1, 2, 3, 4].map((i) => (
+                <li
+                  key={i}
+                  className="flex items-center justify-between p-3 rounded-lg border border-sky-200 bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-950/50 dark:to-cyan-950/50 dark:border-sky-900/50"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Skeleton className="w-10 h-10 rounded-full" />
+                    <div>
+                      <Skeleton className="h-4 w-24 mb-1" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <Skeleton className="h-4 w-16 mb-1" />
+                    <Skeleton className="h-3 w-12" />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="container-color h-full flex flex-col">
       <CardHeader className="flex-shrink-0">
@@ -72,7 +131,7 @@ export function FinancialAssets() {
               Track your individual financial assets and investments
             </CardDescription>
           </div>
-          <Button className="bg-gradient-to-r from-sky-500 via-sky-500 to-sky-600 text-white hover:from-sky-600 hover:via-sky-600 hover:text-white transition-colors cursor-pointer shadow-sm">
+          <Button className="button-blue-bg">
             Assets
             <MoveRight className="h-4 w-4" />
           </Button>

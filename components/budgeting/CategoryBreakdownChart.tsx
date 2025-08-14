@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DonutChart } from "@/components/DonutChart";
 import { type AvailableChartColorsKeys } from "@/lib/chartUtils";
 
@@ -18,11 +19,61 @@ interface CategoryData {
 
 interface CategoryBreakdownChartProps {
   categoryData: CategoryData[];
+  isLoading?: boolean;
 }
 
 export function CategoryBreakdownChart({
   categoryData,
+  isLoading = false,
 }: CategoryBreakdownChartProps) {
+  if (isLoading) {
+    return (
+      <Card className="border-l-4 border-l-sky-500 h-full flex flex-col">
+        <CardHeader className="flex-shrink-0">
+          <Skeleton className="h-6 w-32 mb-2" />
+          <Skeleton className="h-4 w-48" />
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 space-y-6 min-h-[400px] !max-h-[60vh]">
+            {/* Chart and Legend Section */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-6 items-start justify-items-center h-full">
+              {/* Donut Chart Column */}
+              <div className="w-full flex justify-center items-start">
+                <Skeleton className="w-48 h-48 rounded-full" />
+              </div>
+
+              {/* Category Legend/Key Column */}
+              <div className="w-full max-w-xs xl:max-w-sm bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col max-h-[50vh] overflow-hidden category-legend-container pb-1">
+                {/* Header Section */}
+                <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+                  <Skeleton className="h-4 w-32" />
+                </div>
+
+                {/* Content Section */}
+                <ul className="p-3 space-y-1.5 flex-1 overflow-y-auto min-h-0 category-legend-content category-breakdown-scroll list-none overflow-scroll max-h-[28vh]">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <li
+                      key={i}
+                      className="flex items-center justify-between py-1.5 px-2.5 bg-gray-100 dark:bg-gray-800 rounded-full"
+                    >
+                      <div className="flex items-center space-x-2 min-w-0 flex-1">
+                        <Skeleton className="w-3 h-3 rounded-full flex-shrink-0" />
+                        <Skeleton className="h-3 w-20" />
+                      </div>
+                      <div className="text-right flex-shrink-0 ml-2">
+                        <Skeleton className="h-4 w-16" />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Handle empty data
   if (!categoryData || categoryData.length === 0) {
     return (
@@ -82,13 +133,6 @@ export function CategoryBreakdownChart({
     const colorIndex = Math.min(index, skyColors.length - 1);
     categoryColors.set(item.name, skyColors[colorIndex]);
   });
-
-  // Debug: Log the color assignment
-  console.log("Color assignment:", Object.fromEntries(categoryColors));
-  console.log(
-    "Sorted data:",
-    sortedData.map((item) => ({ name: item.name, value: item.value }))
-  );
 
   // Transform data for the donut chart with pre-assigned colors
   // Sort the chart data in the same order as the color assignment for proper color mapping

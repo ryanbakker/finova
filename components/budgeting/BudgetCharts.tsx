@@ -1,3 +1,4 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import { MonthlySpendingChart } from "./MonthlySpendingChart";
 import { BudgetVsActualChart } from "./BudgetVsActualChart";
 import { CategoryBreakdownChart } from "./CategoryBreakdownChart";
@@ -33,6 +34,7 @@ interface BudgetChartsProps {
   budgetVsActual: BudgetVsActual[];
   categoryData: CategoryData[];
   monthlyBudget: number;
+  isLoading?: boolean;
 }
 
 export function BudgetCharts({
@@ -41,7 +43,25 @@ export function BudgetCharts({
   budgetVsActual,
   categoryData,
   monthlyBudget,
+  isLoading = false,
 }: BudgetChartsProps) {
+  if (isLoading) {
+    return (
+      <div
+        className="grid gap-6"
+        style={{ gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))" }}
+      >
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="space-y-4">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-64" />
+            <Skeleton className="h-80 w-full" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div
       className="grid gap-6"

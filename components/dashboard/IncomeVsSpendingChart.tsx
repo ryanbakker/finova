@@ -8,12 +8,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AreaChart } from "@tremor/react";
 import {
   TrendingUp,
   TrendingDown,
   CircleDollarSign,
-  Plus,
   MoveRight,
 } from "lucide-react";
 
@@ -39,21 +39,61 @@ const exampleData: MonthlyData[] = [
   { month: "Dec", income: 6800, spending: 6200, surplus: 600 },
 ];
 
-export function IncomeVsSpendingChart() {
+interface IncomeVsSpendingChartProps {
+  isLoading?: boolean;
+}
+
+export function IncomeVsSpendingChart({
+  isLoading = false,
+}: IncomeVsSpendingChartProps) {
   const currentMonth = exampleData[exampleData.length - 1];
-  const previousMonth = exampleData[exampleData.length - 2];
 
-  const incomeChange = currentMonth.income - previousMonth.income;
-  const spendingChange = currentMonth.spending - previousMonth.spending;
+  if (isLoading) {
+    return (
+      <Card className="flex flex-col h-full container-color !w-full">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <Skeleton className="h-6 w-64 mb-2" />
+            <Skeleton className="h-4 w-80" />
+          </div>
+          <Skeleton className="h-10 w-32" />
+        </CardHeader>
+        <CardContent className="flex flex-col">
+          {/* Summary Metrics */}
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="text-center p-3 rounded-lg bg-green-50 dark:bg-pink-950/20">
+              <div className="flex items-center justify-center mb-2">
+                <Skeleton className="h-4 w-4 rounded-full" />
+              </div>
+              <Skeleton className="h-6 w-20 mx-auto mb-2" />
+              <Skeleton className="h-3 w-24 mx-auto" />
+            </div>
 
-  const incomeChangePercent = (
-    (incomeChange / previousMonth.income) *
-    100
-  ).toFixed(1);
-  const spendingChangePercent = (
-    (spendingChange / previousMonth.spending) *
-    100
-  ).toFixed(1);
+            <div className="text-center p-3 rounded-lg bg-red-50 dark:bg-cyan-950/20">
+              <div className="flex items-center justify-center mb-2">
+                <Skeleton className="h-4 w-4 rounded-full" />
+              </div>
+              <Skeleton className="h-6 w-20 mx-auto mb-2" />
+              <Skeleton className="h-3 w-24 mx-auto" />
+            </div>
+
+            <div className="text-center p-3 rounded-lg bg-sky-50 dark:bg-amber-950/20">
+              <div className="flex items-center justify-center mb-2">
+                <Skeleton className="h-4 w-4 rounded-full" />
+              </div>
+              <Skeleton className="h-6 w-20 mx-auto mb-2" />
+              <Skeleton className="h-3 w-24 mx-auto" />
+            </div>
+          </div>
+
+          {/* Area Chart */}
+          <div className="p-6 bg-neutral-50 border border-gray-200 rounded-lg text-xs dark:invert dark:bg-neutral-100/40 flex-1">
+            <Skeleton className="w-full h-80" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="flex flex-col h-full container-color !w-full">
@@ -66,7 +106,7 @@ export function IncomeVsSpendingChart() {
             Monthly trends in your income and spending patterns
           </CardDescription>
         </div>
-        <Button className="bg-gradient-to-r from-sky-500 via-sky-500 to-sky-600 text-white hover:from-sky-600 hover:via-sky-600 hover:text-white transition-colors cursor-pointer shadow-sm">
+        <Button className="button-blue-bg">
           Transactions
           <MoveRight className="h-4 w-4" />
         </Button>
@@ -133,7 +173,7 @@ export function IncomeVsSpendingChart() {
                 };
 
                 return (
-                  <div className="bg-white dark:bg-neutral-100 p-3 border border-gray-200 dark:border-neutral-300 rounded-lg shadow-xl text-xs backdrop-blur-sm">
+                  <div className="bg-white dark:bg-neutral-100 p-3 border border-gray-200 dark:border-neutral-300 rounded-lg shadow-xl text-xs backdrop-blur-sm dark:shadow-neutral-100/40">
                     <p className="font-semibold text-gray-900 dark:text-neutral-800 mb-2 pb-2 border-b border-gray-200 dark:border-neutral-300">
                       {payload[0]?.payload?.month}
                     </p>

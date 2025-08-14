@@ -245,7 +245,7 @@ export default function BudgetingPage() {
         </div>
         <Button className="bg-sky-500 hover:bg-sky-600 hover:cursor-pointer">
           <Plus className="mr-1 h-4 w-4" />
-          Create Budget
+          Create / Edit Budget
         </Button>
       </div>
 

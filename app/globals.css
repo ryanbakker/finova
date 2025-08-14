@@ -511,3 +511,7 @@
 .card-title {
   @apply text-2xl font-semibold text-sky-900 dark:text-sky-50;
 }
+
+.button-blue-bg {
+  @apply bg-gradient-to-r from-sky-500 via-sky-500 to-sky-600 text-white hover:from-sky-600 hover:via-sky-600 hover:text-white transition-colors cursor-pointer shadow-sm dark:from-sky-600 dark:via-sky-600 dark:to-sky-800;
+}

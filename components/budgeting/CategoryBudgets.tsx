@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface CategoryData {
   name: string;
@@ -15,14 +16,43 @@ interface CategoryData {
 
 interface CategoryBudgetsProps {
   categoryData: CategoryData[];
+  isLoading?: boolean;
 }
 
-export function CategoryBudgets({ categoryData }: CategoryBudgetsProps) {
+export function CategoryBudgets({
+  categoryData,
+  isLoading = false,
+}: CategoryBudgetsProps) {
   const getProgressColor = (percentage: number) => {
     if (percentage > 80) return "#ef4444"; // red
     if (percentage > 60) return "#f59e0b"; // amber
     return "#10b981"; // green
   };
+
+  if (isLoading) {
+    return (
+      <Card className="border-l-4 border-l-sky-500">
+        <CardHeader>
+          <Skeleton className="h-6 w-32 mb-2" />
+          <Skeleton className="h-4 w-64" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+                <Skeleton className="w-full h-2" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="border-l-4 border-l-sky-500">

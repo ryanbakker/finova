@@ -2,22 +2,17 @@
 
 import * as React from "react";
 import {
-  BarChart3,
-  CreditCard,
-  TrendingUp,
-  Shield,
-  PieChart,
   LogOut,
   Moon,
   Sun,
   LayoutDashboard,
   Plus,
-  Minus,
   ChevronRight,
   ArrowRightLeft,
   ChartPie,
   ChartNoAxesCombined,
-  Receipt,
+  ReceiptText,
+  CreditCard,
   Target,
   FileChartColumn,
 } from "lucide-react";
@@ -152,7 +147,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         asChild
                         className={`h-9 px-3 rounded-md transition-colors ${
                           isActive
-                            ? "bg-gradient-to-r from-sky-500 via-sky-500 to-sky-600 text-white hover:from-sky-600 hover:via-sky-600 hover:text-white transition-colors shadow-sm"
+                            ? "button-blue-bg"
                             : "hover:bg-accent hover:text-accent-foreground"
                         }`}
                         title={item.title}
@@ -177,7 +172,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             <CreditCard className="w-6 h-6" />
                           )}
                           {item.icon === "bills" && (
-                            <Receipt className="w-6 h-6" />
+                            <ReceiptText className="w-6 h-6" />
                           )}
                           {item.icon === "goals" && (
                             <Target className="w-6 h-6" />

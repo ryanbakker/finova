@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { LineChart } from "@tremor/react";
 import { CircleArrowUp, CircleArrowDown } from "lucide-react";
 
@@ -84,12 +85,71 @@ const exampleData: NetWorthData[] = [
   },
 ];
 
-export function NetWorthSummary() {
+interface NetWorthSummaryProps {
+  isLoading?: boolean;
+}
+
+export function NetWorthSummary({ isLoading = false }: NetWorthSummaryProps) {
   const currentNetWorth = 125000;
   const previousNetWorth = 85000;
   const change = currentNetWorth - previousNetWorth;
   const changePercentage = ((change / previousNetWorth) * 100).toFixed(1);
   const isPositive = change >= 0;
+
+  if (isLoading) {
+    return (
+      <Card className="col-span-4 h-full container-color !w-full flex-1">
+        <CardContent className="pt-6">
+          <div className="flex flex-row gap-8">
+            <div className="space-y-6">
+              <div className="space-y-1">
+                <Skeleton className="h-6 w-40" />
+                <Skeleton className="h-4 w-48" />
+              </div>
+
+              <div className="space-y-2">
+                <Skeleton className="h-10 w-32" />
+                <div className="flex items-center space-x-2">
+                  <Skeleton className="h-4 w-4" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <Skeleton className="h-4 w-20 mb-1" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+                <div>
+                  <Skeleton className="h-4 w-24 mb-1" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+              </div>
+
+              <div className="flex flex-col items-start space-y-2 text-xs bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 w-fit">
+                <div className="flex items-center space-x-2">
+                  <Skeleton className="w-3 h-3 rounded-full" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Skeleton className="w-3 h-3 rounded-full" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Skeleton className="w-3 h-3 rounded-full" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1 flex items-center justify-center bg-neutral-50 p-4 rounded-lg border border-neutral-200 dark:invert dark:bg-neutral-100/40">
+              <Skeleton className="w-full h-48" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="col-span-4 h-full container-color !w-full flex-1">
@@ -176,7 +236,7 @@ export function NetWorthSummary() {
                   };
 
                   return (
-                    <div className="bg-white dark:bg-neutral-100 p-3 border border-gray-200 dark:border-neutral-300 rounded-lg shadow-xl text-xs backdrop-blur-sm">
+                    <div className="bg-white dark:bg-neutral-100 p-3 border border-gray-200 dark:border-neutral-300 rounded-lg shadow-xl dark:shadow-neutral-100/40 text-xs backdrop-blur-sm">
                       <p className="font-semibold text-gray-900 dark:text-neutral-800 mb-2 pb-2 border-b border-gray-200 dark:border-neutral-300">
                         {payload[0]?.payload?.quarter}
                       </p>

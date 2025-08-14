@@ -8,11 +8,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { MoveRight } from "lucide-react";
 import { DonutChart } from "@/components/DonutChart";
 import { type AvailableChartColorsKeys } from "@/lib/chartUtils";
 
-export function CategoryBreakdownChart() {
+interface CategoryBreakdownChartProps {
+  isLoading?: boolean;
+}
+
+export function CategoryBreakdownChart({
+  isLoading = false,
+}: CategoryBreakdownChartProps) {
   const categoryData = [
     { name: "Food & Dining", amount: 450 },
     { name: "Shopping", amount: 300 },
@@ -43,13 +50,6 @@ export function CategoryBreakdownChart() {
     categoryColors.set(item.name, skyColors[colorIndex]);
   });
 
-  // Debug: Log the color assignment
-  console.log("Color assignment:", Object.fromEntries(categoryColors));
-  console.log(
-    "Sorted data:",
-    sortedData.map((item) => ({ name: item.name, amount: item.amount }))
-  );
-
   // Transform data for the donut chart with pre-assigned colors
   // Sort the chart data in the same order as the color assignment for proper color mapping
   const chartData = sortedData.map((item) => ({
@@ -58,15 +58,68 @@ export function CategoryBreakdownChart() {
     color: categoryColors.get(item.name) || "sky500", // fallback color
   }));
 
+  if (isLoading) {
+    return (
+      <Card className="h-full flex flex-col container-color">
+        <CardHeader className="flex-shrink-0">
+          <div className="flex items-end justify-between">
+            <div>
+              <Skeleton className="h-6 w-40 mb-2" />
+              <Skeleton className="h-4 w-48" />
+            </div>
+            <Skeleton className="h-10 w-24" />
+          </div>
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 space-y-6 min-h-[400px] !max-h-[60vh]">
+            {/* Chart and Legend Section */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-6 items-start justify-items-center h-full">
+              {/* Donut Chart Column */}
+              <div className="w-full flex justify-center items-start">
+                <Skeleton className="w-48 h-48 rounded-full" />
+              </div>
+
+              {/* Category Legend/Key Column */}
+              <div className="w-full max-w-xs xl:max-w-sm bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col max-h-[32vh] overflow-hidden category-legend-container pb-1">
+                {/* Header Section */}
+                <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+                  <Skeleton className="h-4 w-32" />
+                </div>
+
+                {/* Content Section */}
+                <ul className="p-3 space-y-1.5 flex-1 overflow-y-auto min-h-0 category-legend-content category-breakdown-scroll list-none overflow-scroll max-h-[50vh]">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <li
+                      key={i}
+                      className="flex items-center justify-between py-1.5 px-2.5 bg-gray-100 dark:bg-gray-800 rounded-full"
+                    >
+                      <div className="flex items-center space-x-2 min-w-0 flex-1">
+                        <Skeleton className="w-3 h-3 rounded-full flex-shrink-0" />
+                        <Skeleton className="h-3 w-20" />
+                      </div>
+                      <div className="text-right flex-shrink-0 ml-2">
+                        <Skeleton className="h-4 w-16" />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="h-full flex flex-col container-color">
       <CardHeader className="flex-shrink-0">
         <div className="flex items-end justify-between">
           <div>
-            <CardTitle className="text-sky-900">Category Breakdown</CardTitle>
+            <CardTitle className="card-title">Category Breakdown</CardTitle>
             <CardDescription>Spending breakdown by category</CardDescription>
           </div>
-          <Button className="bg-gradient-to-r from-sky-500 via-sky-500 to-sky-600 text-white hover:from-sky-600 hover:via-sky-600 hover:text-white transition-colors cursor-pointer shadow-sm">
+          <Button className="button-blue-bg">
             Categories
             <MoveRight className="h-4 w-4" />
           </Button>

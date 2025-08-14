@@ -6,17 +6,41 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface BudgetProgressProps {
   totalSpent: number;
   totalBudget: number;
+  isLoading?: boolean;
 }
 
 export function BudgetProgress({
   totalSpent,
   totalBudget,
+  isLoading = false,
 }: BudgetProgressProps) {
   const utilizationPercentage = (totalSpent / totalBudget) * 100;
+
+  if (isLoading) {
+    return (
+      <Card className="border-l-4 border-l-sky-500 h-full">
+        <CardHeader className="pb-3">
+          <Skeleton className="h-5 w-32 mb-2" />
+          <Skeleton className="h-3 w-48" />
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-3 w-20" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+            <Skeleton className="w-full h-2" />
+            <Skeleton className="h-3 w-40" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="border-l-4 border-l-sky-500 h-full">

@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AreaChart } from "@tremor/react";
 
 interface MonthlySpending {
@@ -18,12 +19,32 @@ interface MonthlySpending {
 interface MonthlySpendingChartProps {
   monthlySpending: MonthlySpending[];
   monthlyBudget: number;
+  isLoading?: boolean;
 }
 
 export function MonthlySpendingChart({
   monthlySpending,
   monthlyBudget,
+  isLoading = false,
 }: MonthlySpendingChartProps) {
+  if (isLoading) {
+    return (
+      <div style={{ gridColumn: "1 / -1" }} className="h-full">
+        <Card className="border-l-4 border-l-sky-500 overflow-hidden h-full flex flex-col">
+          <CardHeader className="flex-shrink-0">
+            <Skeleton className="h-6 w-48 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </CardHeader>
+          <CardContent className="pl-2 pr-8 mb-2 flex-1 flex flex-col min-h-0 overflow-hidden">
+            <div className="flex-1 w-full min-h-[300px] !max-h-[60vh] overflow-hidden">
+              <Skeleton className="h-full w-full" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div style={{ gridColumn: "1 / -1" }} className="h-full">
       <Card className="border-l-4 border-l-sky-500 overflow-hidden h-full flex flex-col">

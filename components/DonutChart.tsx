@@ -42,6 +42,8 @@ const getColorValue = (colorName: AvailableChartColorsKeys): string => {
     sky1000: "#061c2e",
     sky1100: "#04121f",
     sky1200: "#020a10",
+    // Add missing sky color
+    sky: "#0ea5e9",
     // Original colors (keeping for backward compatibility)
     blue: "#3b82f6",
     emerald: "#10b981",
@@ -76,14 +78,6 @@ const parseData = (
       dataPoint.color ||
       categoryColors.get(dataPoint[category]) ||
       AvailableChartColors[0];
-
-    // Debug: Log color assignment for each data point
-    console.log(`Data point "${dataPoint[category]}":`, {
-      hasColor: !!dataPoint.color,
-      color: dataPoint.color,
-      fallbackColor: categoryColors.get(dataPoint[category]),
-      finalColor: colorName,
-    });
 
     return {
       ...dataPoint,
