@@ -505,5 +505,9 @@
 }
 
 .container-color {
-  @apply border-l-sky-800 border-l-4 bg-gradient-to-r from-sky-50/50 to-white;
+  @apply border-l-sky-800 border-l-4 bg-gradient-to-r from-sky-50/50 to-white dark:from-sky-950/40 dark:to-neutral-900;
+}
+
+.card-title {
+  @apply text-2xl font-semibold text-sky-900 dark:text-sky-50;
 }

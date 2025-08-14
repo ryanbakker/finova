@@ -8,7 +8,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MoveRight } from "lucide-react";
+import {
+  MoveRight,
+  Building2,
+  TrendingUp,
+  Home,
+  PiggyBank,
+} from "lucide-react";
 
 // Asset data structure
 interface Asset {
@@ -17,14 +23,7 @@ interface Asset {
   institution: string;
   amount: string;
   change: string;
-  icon: string;
-  color: {
-    bg: string;
-    border: string;
-    text: string;
-    iconBg: string;
-    iconText: string;
-  };
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 const assetsData: Asset[] = [
@@ -34,14 +33,7 @@ const assetsData: Asset[] = [
     institution: "Bank of America",
     amount: "$15,420",
     change: "+2.1%",
-    icon: "🏦",
-    color: {
-      bg: "bg-emerald-50 dark:bg-emerald-950/20",
-      border: "border-emerald-200 dark:border-emerald-800",
-      text: "text-emerald-600",
-      iconBg: "bg-emerald-100 dark:bg-emerald-900",
-      iconText: "text-emerald-600",
-    },
+    icon: Building2,
   },
   {
     id: "2",
@@ -49,14 +41,7 @@ const assetsData: Asset[] = [
     institution: "Vanguard 401(k)",
     amount: "$42,800",
     change: "+8.5%",
-    icon: "📈",
-    color: {
-      bg: "bg-blue-50 dark:bg-blue-950/20",
-      border: "border-blue-200 dark:border-blue-800",
-      text: "text-blue-600",
-      iconBg: "bg-blue-100 dark:bg-blue-900",
-      iconText: "text-blue-600",
-    },
+    icon: TrendingUp,
   },
   {
     id: "3",
@@ -64,14 +49,7 @@ const assetsData: Asset[] = [
     institution: "Primary Residence",
     amount: "$125,000",
     change: "+5.2%",
-    icon: "🏠",
-    color: {
-      bg: "bg-purple-50 dark:bg-purple-950/20",
-      border: "border-purple-200 dark:border-purple-800",
-      text: "text-purple-600",
-      iconBg: "bg-purple-100 dark:bg-purple-900",
-      iconText: "text-purple-600",
-    },
+    icon: Home,
   },
   {
     id: "4",
@@ -79,14 +57,7 @@ const assetsData: Asset[] = [
     institution: "High-Yield Savings",
     amount: "$8,500",
     change: "+3.8%",
-    icon: "💰",
-    color: {
-      bg: "bg-orange-50 dark:bg-orange-950/20",
-      border: "border-orange-200 dark:border-orange-800",
-      text: "text-orange-600",
-      iconBg: "bg-orange-100 dark:bg-orange-900",
-      iconText: "text-orange-600",
-    },
+    icon: PiggyBank,
   },
 ];
 
@@ -96,12 +67,12 @@ export function FinancialAssets() {
       <CardHeader className="flex-shrink-0">
         <div className="flex items-end justify-between">
           <div>
-            <CardTitle className="text-sky-900">Financial Assets</CardTitle>
+            <CardTitle className="card-title">Financial Assets</CardTitle>
             <CardDescription>
               Track your individual financial assets and investments
             </CardDescription>
           </div>
-          <Button>
+          <Button className="bg-gradient-to-r from-sky-500 via-sky-500 to-sky-600 text-white hover:from-sky-600 hover:via-sky-600 hover:text-white transition-colors cursor-pointer shadow-sm">
             Assets
             <MoveRight className="h-4 w-4" />
           </Button>
@@ -109,7 +80,7 @@ export function FinancialAssets() {
       </CardHeader>
       <CardContent className="flex-1 flex flex-col min-h-0">
         {/* Total Assets Summary */}
-        <div className="mb-6 p-4 bg-neutral-50 dark:bg-neutral-950/20 rounded-lg border border-neutral-200 dark:border-neutral-800">
+        <div className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-3 max-h-[250px] overflow-y-auto category-breakdown-scroll mb-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
               Total Assets
@@ -133,24 +104,20 @@ export function FinancialAssets() {
             Individual Assets
           </h3>
           {/* Mapped Assets */}
-          <ul className="space-y-3 category-breakdown-scroll max-h-[280px] overflow-y-auto bg-neutral-50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <ul className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-3 max-h-[280px] overflow-y-auto category-breakdown-scroll space-y-3">
             {assetsData.map((asset) => (
               <li
                 key={asset.id}
-                className={`flex items-center justify-between p-3 ${asset.color.bg} rounded-lg border ${asset.color.border}`}
+                className={`flex items-center justify-between p-3 rounded-lg border border-sky-200 bg-gradient-to-r from-sky-50 to-cyan-50 hover:from-sky-100 hover:to-cyan-100 transition-colors dark:from-sky-950/50 dark:to-cyan-950/50 dark:border-sky-900/50 dark:hover:from-sky-900/50 dark:hover:to-cyan-900/50`}
               >
                 <div className="flex items-center space-x-3">
                   <div
-                    className={`w-10 h-10 ${asset.color.iconBg} rounded-full flex items-center justify-center`}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center bg-sky-100 dark:bg-sky-900/20`}
                   >
-                    <span
-                      className={`${asset.color.iconText} font-semibold text-sm`}
-                    >
-                      {asset.icon}
-                    </span>
+                    <asset.icon className="w-5 h-5 text-sky-600 dark:text-sky-400" />
                   </div>
                   <div>
-                    <p className="font-medium text-sm text-gray-900 dark:text-gray-100">
+                    <p className="font-medium text-sm text-sky-900 dark:text-gray-100">
                       {asset.name}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -159,7 +126,7 @@ export function FinancialAssets() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className={`text-sm font-semibold ${asset.color.text}`}>
+                  <div className={`text-sm font-semibold text-sky-800`}>
                     {asset.amount}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">

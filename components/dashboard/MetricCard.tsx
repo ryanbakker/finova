@@ -21,10 +21,10 @@ export function MetricCard({
 }: MetricCardProps) {
   return (
     <Card
-      className={`h-25 col-span-1 border-l-4 bg-gradient-to-r to-white ${borderColor} bg-gradient-to-br ${bgGradientFrom} to-white ${className}`}
+      className={`h-25 col-span-1 border-l-4 bg-gradient-to-r to-white ${borderColor} bg-gradient-to-r ${bgGradientFrom} to-white ${className}`}
     >
       <CardHeader className="px-5 pt-4 pb-0">
-        <CardTitle className="text-sm font-medium text-sky-900">
+        <CardTitle className="text-sm font-medium text-neutral-900 dark:text-neutral-300">
           {title}
         </CardTitle>
       </CardHeader>

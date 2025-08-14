@@ -97,30 +97,30 @@ export function NetWorthSummary() {
         <div className="flex flex-row gap-8">
           <div className="space-y-6">
             <div className="space-y-1">
-              <div className="text-2xl font-semibold text-sky-900">
-                Net Worth Summary
-              </div>
+              <h3 className="card-title">Net Worth Summary</h3>
               <div className="text-sm text-muted-foreground">
                 Your total financial position over time
               </div>
             </div>
 
             <div className="space-y-2">
-              <div className="text-3xl font-bold">
+              <div className="text-3xl font-extrabold text-sky-950 dark:text-sky-100">
                 ${currentNetWorth.toLocaleString()}
               </div>
               <div className="flex items-center space-x-2">
                 {isPositive ? (
-                  <CircleArrowUp className="h-4 w-4 text-emerald-700" />
+                  <CircleArrowUp className="h-4 w-4 text-emerald-700 dark:text-emerald-500" />
                 ) : (
-                  <CircleArrowDown className="h-4 w-4 text-red-700" />
+                  <CircleArrowDown className="h-4 w-4 text-red-700 dark:text-red-500" />
                 )}
                 <span
                   className={`text-sm font-medium ${
-                    isPositive ? "text-emerald-700" : "text-red-700"
+                    isPositive
+                      ? "text-emerald-700 dark:text-emerald-500"
+                      : "text-red-700 dark:text-red-500"
                   }`}
                 >
-                  {isPositive ? "+" : ""}
+                  {isPositive ? "+" : "-"}
                   {changePercentage}% from last quarter
                 </span>
               </div>
@@ -140,21 +140,21 @@ export function NetWorthSummary() {
             {/* Custom Graph Key */}
             <div className="flex flex-col items-start space-y-2 text-xs bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 w-fit">
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-sky-700 rounded-full"></div>
+                <div className="w-3 h-3 bg-sky-700 dark:invert rounded-full"></div>
                 <span className="text-muted-foreground">Net Worth</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-emerald-700 rounded-full"></div>
+                <div className="w-3 h-3 bg-emerald-700 dark:invert rounded-full"></div>
                 <span className="text-muted-foreground">Total Assets</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-red-700 rounded-full"></div>
+                <div className="w-3 h-3 bg-red-700 dark:invert rounded-full"></div>
                 <span className="text-muted-foreground">Total Liabilities</span>
               </div>
             </div>
           </div>
 
-          <div className="flex-1 flex items-center justify-center bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+          <div className="flex-1 flex items-center justify-center bg-neutral-50 p-4 rounded-lg border border-neutral-200 dark:invert dark:bg-neutral-100/40">
             <LineChart
               data={exampleData}
               index="quarter"
@@ -176,8 +176,8 @@ export function NetWorthSummary() {
                   };
 
                   return (
-                    <div className="bg-white dark:bg-gray-900 p-3 border border-gray-200 dark:border-gray-600 rounded-lg shadow-xl text-xs backdrop-blur-sm">
-                      <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2 pb-2 border-b border-gray-200 dark:border-gray-600">
+                    <div className="bg-white dark:bg-neutral-100 p-3 border border-gray-200 dark:border-neutral-300 rounded-lg shadow-xl text-xs backdrop-blur-sm">
+                      <p className="font-semibold text-gray-900 dark:text-neutral-800 mb-2 pb-2 border-b border-gray-200 dark:border-neutral-300">
                         {payload[0]?.payload?.quarter}
                       </p>
                       {payload.map((entry, index) => {
@@ -186,7 +186,7 @@ export function NetWorthSummary() {
                         return (
                           <p
                             key={index}
-                            className="font-medium py-1 text-gray-700 dark:text-gray-300"
+                            className="font-medium py-1 text-gray-700 dark:text-neutral-500"
                           >
                             {entry.name === "netWorth"
                               ? "Net Worth"

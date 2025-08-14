@@ -7,8 +7,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { AreaChart } from "@tremor/react";
-import { TrendingUp, TrendingDown, CircleDollarSign } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  CircleDollarSign,
+  Plus,
+  MoveRight,
+} from "lucide-react";
 
 interface MonthlyData {
   month: string;
@@ -50,58 +57,62 @@ export function IncomeVsSpendingChart() {
 
   return (
     <Card className="flex flex-col h-full container-color !w-full">
-      <CardHeader>
-        <CardTitle className="text-sky-900">
-          Income vs Spending Over Time
-        </CardTitle>
-        <CardDescription>
-          Monthly trends in your income and spending patterns
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle className="card-title pb-1">
+            Income vs Spending Over Time
+          </CardTitle>
+          <CardDescription>
+            Monthly trends in your income and spending patterns
+          </CardDescription>
+        </div>
+        <Button className="bg-gradient-to-r from-sky-500 via-sky-500 to-sky-600 text-white hover:from-sky-600 hover:via-sky-600 hover:text-white transition-colors cursor-pointer shadow-sm">
+          Transactions
+          <MoveRight className="h-4 w-4" />
+        </Button>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex flex-col">
         {/* Summary Metrics */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="text-center p-3 rounded-lg bg-green-50 dark:bg-green-950/20">
+          <div className="text-center p-3 rounded-lg bg-green-50 dark:bg-pink-950/20">
             <div className="flex items-center justify-center mb-2">
-              <TrendingUp className="h-4 w-4 text-green-600" />
+              <TrendingUp className="h-4 w-4 text-green-600 dark:text-pink-500" />
             </div>
-            <div className="text-lg font-bold text-green-600">
+            <div className="text-lg font-bold text-green-600 dark:text-pink-500">
               ${currentMonth.income.toLocaleString()}
             </div>
-            <div className="text-xs text-muted-foreground">
-              {incomeChange >= 0 ? "+" : ""}
-              {incomeChangePercent}% from last month
+            <div className="text-xs text-muted-foreground dark:text-pink-700">
+              Income this month
             </div>
           </div>
 
-          <div className="text-center p-3 rounded-lg bg-red-50 dark:bg-red-950/20">
+          <div className="text-center p-3 rounded-lg bg-red-50 dark:bg-cyan-950/20">
             <div className="flex items-center justify-center mb-2">
-              <TrendingDown className="h-4 w-4 text-red-600" />
+              <TrendingDown className="h-4 w-4 text-red-600 dark:text-cyan-700" />
             </div>
-            <div className="text-lg font-bold text-red-600">
+            <div className="text-lg font-bold text-red-600 dark:text-cyan-500">
               ${currentMonth.spending.toLocaleString()}
             </div>
-            <div className="text-xs text-muted-foreground">
-              {spendingChange >= 0 ? "+" : ""}
-              {spendingChangePercent}% from last month
+            <div className="text-xs text-muted-foreground dark:text-cyan-700">
+              Spending this month
             </div>
           </div>
 
-          <div className="text-center p-3 rounded-lg bg-sky-50 dark:bg-sky-950/20">
+          <div className="text-center p-3 rounded-lg bg-sky-50 dark:bg-amber-950/20">
             <div className="flex items-center justify-center mb-2">
-              <CircleDollarSign className="h-4 w-4 text-sky-600" />
+              <CircleDollarSign className="h-4 w-4 text-sky-600 dark:text-amber-600" />
             </div>
-            <div className="text-lg font-bold text-sky-600 dark:text-sky-400">
+            <div className="text-lg font-bold text-sky-600 dark:text-amber-500">
               ${(currentMonth.income - currentMonth.spending).toLocaleString()}
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-muted-foreground dark:text-amber-700">
               Surplus this month
             </div>
           </div>
         </div>
 
         {/* Area Chart */}
-        <div className="p-6 bg-neutral-50 border border-gray-200 dark:border-gray-700 rounded-lg text-xs">
+        <div className="p-6 bg-neutral-50 border border-gray-200 rounded-lg text-xs dark:invert dark:bg-neutral-100/40 flex-1">
           <AreaChart
             data={exampleData}
             index="month"
@@ -112,7 +123,7 @@ export function IncomeVsSpendingChart() {
             showAnimation={true}
             valueFormatter={(value) => `$${value.toLocaleString()}`}
             curveType="monotone"
-            className="w-full h-[300px]"
+            className="w-full max-h-[400px] flex-1"
             customTooltip={({ payload, active }) => {
               if (active && payload && payload.length) {
                 const colorMap = {
@@ -122,8 +133,8 @@ export function IncomeVsSpendingChart() {
                 };
 
                 return (
-                  <div className="bg-white dark:bg-gray-900 p-3 border border-gray-200 dark:border-gray-600 rounded-lg shadow-xl text-xs backdrop-blur-sm">
-                    <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2 pb-2 border-b border-gray-200 dark:border-gray-600">
+                  <div className="bg-white dark:bg-neutral-100 p-3 border border-gray-200 dark:border-neutral-300 rounded-lg shadow-xl text-xs backdrop-blur-sm">
+                    <p className="font-semibold text-gray-900 dark:text-neutral-800 mb-2 pb-2 border-b border-gray-200 dark:border-neutral-300">
                       {payload[0]?.payload?.month}
                     </p>
                     {payload.map((entry, index) => {
@@ -132,7 +143,7 @@ export function IncomeVsSpendingChart() {
                       return (
                         <p
                           key={index}
-                          className="font-medium py-1 text-gray-700 dark:text-gray-300"
+                          className="font-medium py-1 text-gray-700 dark:text-neutral-500"
                         >
                           {entry.name === "income"
                             ? "Income"

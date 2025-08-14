@@ -147,49 +147,47 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               ? menuItems.map((item, index) => {
                   const isActive = pathname === item.href;
                   return (
-                    <>
-                      <SidebarMenuItem key={index}>
-                        <SidebarMenuButton
-                          asChild
-                          className={`h-9 px-3 rounded-md transition-colors ${
-                            isActive
-                              ? "bg-sky-500 text-white hover:bg-sky-600 hover:text-white"
-                              : "hover:bg-accent hover:text-accent-foreground"
-                          }`}
-                          title={item.title}
+                    <SidebarMenuItem key={index}>
+                      <SidebarMenuButton
+                        asChild
+                        className={`h-9 px-3 rounded-md transition-colors ${
+                          isActive
+                            ? "bg-gradient-to-r from-sky-500 via-sky-500 to-sky-600 text-white hover:from-sky-600 hover:via-sky-600 hover:text-white transition-colors shadow-sm"
+                            : "hover:bg-accent hover:text-accent-foreground"
+                        }`}
+                        title={item.title}
+                      >
+                        <Link
+                          href={item.href}
+                          className="flex items-center gap-3"
                         >
-                          <Link
-                            href={item.href}
-                            className="flex items-center gap-3"
-                          >
-                            {item.icon === "dashboard" && (
-                              <LayoutDashboard className="w-6 h-6" />
-                            )}
-                            {item.icon === "transactions" && (
-                              <ArrowRightLeft className="w-6 h-6" />
-                            )}
-                            {item.icon === "budgets" && (
-                              <ChartPie className="w-6 h-6" />
-                            )}
-                            {item.icon === "assets" && (
-                              <ChartNoAxesCombined className="w-6 h-6" />
-                            )}
-                            {item.icon === "liabilities" && (
-                              <CreditCard className="w-6 h-6" />
-                            )}
-                            {item.icon === "bills" && (
-                              <Receipt className="w-6 h-6" />
-                            )}
-                            {item.icon === "goals" && (
-                              <Target className="w-6 h-6" />
-                            )}
-                            <span className="text-sm font-medium">
-                              {item.label}
-                            </span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    </>
+                          {item.icon === "dashboard" && (
+                            <LayoutDashboard className="w-6 h-6" />
+                          )}
+                          {item.icon === "transactions" && (
+                            <ArrowRightLeft className="w-6 h-6" />
+                          )}
+                          {item.icon === "budgets" && (
+                            <ChartPie className="w-6 h-6" />
+                          )}
+                          {item.icon === "assets" && (
+                            <ChartNoAxesCombined className="w-6 h-6" />
+                          )}
+                          {item.icon === "liabilities" && (
+                            <CreditCard className="w-6 h-6" />
+                          )}
+                          {item.icon === "bills" && (
+                            <Receipt className="w-6 h-6" />
+                          )}
+                          {item.icon === "goals" && (
+                            <Target className="w-6 h-6" />
+                          )}
+                          <span className="text-sm font-medium">
+                            {item.label}
+                          </span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
                   );
                 })
               : // Skeleton loaders for menu items
@@ -282,7 +280,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   onClick={handleSignOut}
-                  className="flex items-center gap-3 p-2 rounded-md  transition-colors cursor-pointer text-red-800 hover:text-red-950 w-fit"
+                  className="flex items-center gap-3 p-2 rounded-md  transition-colors cursor-pointer text-red-800 hover:text-red-950 dark:hover:text-red-500 w-fit"
                   title="Sign Out"
                 >
                   <LogOut className="w-5 h-5" />

@@ -66,7 +66,7 @@ export function CategoryBreakdownChart() {
             <CardTitle className="text-sky-900">Category Breakdown</CardTitle>
             <CardDescription>Spending breakdown by category</CardDescription>
           </div>
-          <Button>
+          <Button className="bg-gradient-to-r from-sky-500 via-sky-500 to-sky-600 text-white hover:from-sky-600 hover:via-sky-600 hover:text-white transition-colors cursor-pointer shadow-sm">
             Categories
             <MoveRight className="h-4 w-4" />
           </Button>

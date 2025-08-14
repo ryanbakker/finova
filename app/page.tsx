@@ -87,9 +87,34 @@ function DashboardContent({
     },
   ];
 
+  // Quick actions data
+  const quickActions = [
+    {
+      id: 1,
+      title: "Add Transaction",
+      description: "Record a new expense or income",
+      icon: Plus,
+      action: () => console.log("Add Transaction clicked"),
+    },
+    {
+      id: 2,
+      title: "Add Contribution",
+      description: "Record a new savings or balance contribution",
+      icon: Plus,
+      action: () => console.log("Add Contribution clicked"),
+    },
+    {
+      id: 3,
+      title: "Generate Report",
+      description: "Use AI to create a report to get financial insights",
+      icon: FileText,
+      action: () => console.log("Generate Report clicked"),
+    },
+  ];
+
   return (
     <>
-      <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+      <header className="flex h-16 shrink-0 items-center gap-2 px-4">
         <div className="mx-auto w-full flex items-center gap-2">
           <SidebarTrigger className="-ml-1 text-sky-600 cursor-pointer hover:text-sky-800" />
           <Separator
@@ -99,6 +124,9 @@ function DashboardContent({
           <DynamicBreadcrumb />
         </div>
       </header>
+      <div className="mr-4 overflow-hidden">
+        <Separator className="mx-4" />
+      </div>
       <main className="flex-1 w-full p-6 overflow-y-auto category-breakdown-scroll">
         <div className="space-y-6 w-full">
           <div className="mx-auto">
@@ -118,33 +146,33 @@ function DashboardContent({
               title="Total Income"
               value={8450}
               subtitle="This month"
-              dataValueColor="text-emerald-600"
+              dataValueColor="text-emerald-600 dark:text-emerald-400"
               borderColor="border-l-emerald-700"
-              bgGradientFrom="from-emerald-50/50"
+              bgGradientFrom="from-emerald-50/50 dark:from-emerald-950/40 dark:to-neutral-900"
             />
             <MetricCard
               title="Total Expenses"
               value={5230}
               subtitle="This month"
-              dataValueColor="text-red-600"
+              dataValueColor="text-red-600 dark:text-red-400"
               borderColor="border-l-red-700"
-              bgGradientFrom="from-red-50/50"
+              bgGradientFrom="from-red-50/50 dark:from-red-950/40 dark:to-neutral-900"
             />
             <MetricCard
               title="Savings"
               value={3220}
               subtitle="This month"
-              dataValueColor="text-sky-600"
+              dataValueColor="text-sky-600 dark:text-sky-400"
               borderColor="border-l-sky-700"
-              bgGradientFrom="from-sky-50/50"
+              bgGradientFrom="from-sky-50/50 dark:from-sky-950/40 dark:to-neutral-900"
             />
             <MetricCard
               title="Net Income"
               value={3220}
               subtitle="This month"
-              dataValueColor="text-sky-600"
+              dataValueColor="text-sky-600 dark:text-sky-400"
               borderColor="border-l-sky-700"
-              bgGradientFrom="from-sky-50/50"
+              bgGradientFrom="from-sky-50/50 dark:from-sky-950/40 dark:to-neutral-900"
             />
           </div>
 
@@ -155,46 +183,33 @@ function DashboardContent({
             </div>
             <Card className="w-full lg:col-span-1 container-color">
               <CardHeader>
-                <CardTitle className="text-sky-900">Quick Actions</CardTitle>
+                <CardTitle className="card-title">Quick Actions</CardTitle>
                 <CardDescription>
                   Update your financial data and generate reports.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <button className="w-full rounded-lg border transition-colors flex justify-between group cursor-pointer bg-white">
-                    <div className="p-3 text-left">
-                      <div className="font-medium">Add Transaction</div>
-                      <div className="text-xs text-muted-foreground">
-                        Record a new expense or income
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-center border-l px-3 bg-neutral-50 group-hover:bg-sky-50">
-                      <Plus className="w-5 h-5 group-hover:text-sky-600 transition-colors" />
-                    </div>
-                  </button>
-                  <button className="w-full rounded-lg border transition-colors flex justify-between group cursor-pointer bg-white">
-                    <div className="p-3 text-left">
-                      <div className="font-medium">Add Contribution</div>
-                      <div className="text-xs text-muted-foreground">
-                        Record a new savings or balance contribution
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-center border-l px-3 bg-neutral-50 group-hover:bg-sky-50">
-                      <Plus className="w-5 h-5 group-hover:text-sky-600 transition-colors" />
-                    </div>
-                  </button>
-                  <button className="w-full rounded-lg border transition-colors flex justify-between group cursor-pointer bg-white">
-                    <div className="p-3 text-left">
-                      <div className="font-medium">Generate Report</div>
-                      <div className="text-xs text-muted-foreground">
-                        Use AI to create a report to get financial insights
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-center border-l px-3 bg-neutral-50 group-hover:bg-sky-50">
-                      <FileText className="w-5 h-5 group-hover:text-sky-600 transition-colors" />
-                    </div>
-                  </button>
+                  {quickActions.map((action) => {
+                    const IconComponent = action.icon;
+                    return (
+                      <button
+                        key={action.id}
+                        onClick={action.action}
+                        className="w-full rounded-lg border transition-colors flex justify-between group cursor-pointer bg-neutral-50 dark:bg-neutral-900"
+                      >
+                        <div className="p-3 text-left">
+                          <div className="font-medium">{action.title}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {action.description}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-center border-l px-3 bg-neutral-50 group-hover:bg-sky-50 rounded-r-lg dark:bg-neutral-900 dark:group-hover:bg-sky-950 transition-colors">
+                          <IconComponent className="w-5 h-5 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors" />
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -206,28 +221,26 @@ function DashboardContent({
               {/* Recent Activity Container */}
               <Card className="flex-1 container-color">
                 <CardHeader>
-                  <CardTitle className="text-sky-900">
-                    Recent Activity
-                  </CardTitle>
+                  <CardTitle className="card-title">Recent Activity</CardTitle>
                   <CardDescription>
                     Your latest financial updates.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="border border-gray-200 rounded-lg bg-gray-50 p-3 max-h-[250px] overflow-y-auto category-breakdown-scroll">
+                  <div className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-3 max-h-[250px] overflow-y-auto category-breakdown-scroll">
                     <div className="space-y-3">
                       {recentActivities.map((activity) => (
                         <div
                           key={activity.id}
-                          className={`py-2 px-3 border rounded-lg transition-colors ${
+                          className={`py-2 px-3 border rounded-sm transition-colors ${
                             activity.type === "income"
-                              ? "border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100"
-                              : "border-red-200 bg-gradient-to-r from-red-50 to-rose-50 hover:from-red-100 hover:to-rose-100"
+                              ? "border-green-200 bg-gradient-to-r from-green-50 to-cyan-50 hover:from-green-100 hover:to-emerald-100 dark:from-green-950/50 dark:to-cyan-950/50 dark:border-green-900/50 dark:hover:from-green-900/50 dark:hover:to-cyan-900/50"
+                              : "border-red-200 bg-gradient-to-r from-red-50 to-rose-50 hover:from-red-100 hover:to-rose-100 dark:from-red-950/50 dark:to-rose-950/50 dark:border-red-900/50 dark:hover:from-red-900/50 dark:hover:to-rose-900/50"
                           }`}
                         >
                           <div className="flex flex-col items-start space-x-4">
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-neutral-900 truncate max-w-[170px]">
+                              <p className="text-sm font-medium text-neutral-900 dark:text-neutral-50 truncate max-w-[170px]">
                                 {activity.title}
                               </p>
                               <p className="text-xs text-muted-foreground truncate max-w-[175px]">
@@ -255,59 +268,53 @@ function DashboardContent({
               {/* Upcoming Bills Container */}
               <Card className="flex-1 w-full container-color">
                 <CardHeader>
-                  <CardTitle className="text-sky-900">Upcoming Bills</CardTitle>
+                  <CardTitle className="card-title">Upcoming Bills</CardTitle>
                   <CardDescription>
                     Bills due in the next 30 days.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="border border-gray-200 rounded-lg bg-gray-50 p-4 max-h-[250px] overflow-y-auto category-breakdown-scroll">
+                  <div className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-3 max-h-[250px] overflow-y-auto category-breakdown-scroll">
                     <div className="space-y-3">
                       {[
                         {
                           name: "Rent",
                           dueDate: "Dec 1",
                           amount: 1200,
-                          color: "text-red-600",
                         },
                         {
                           name: "Electric Bill",
                           dueDate: "Dec 5",
                           amount: 85,
-                          color: "text-orange-600",
                         },
                         {
                           name: "Internet",
                           dueDate: "Dec 10",
                           amount: 65,
-                          color: "text-blue-600",
                         },
                         {
                           name: "Phone Bill",
                           dueDate: "Dec 15",
                           amount: 45,
-                          color: "text-purple-600",
                         },
                         {
                           name: "Gym Membership",
                           dueDate: "Dec 20",
                           amount: 35,
-                          color: "text-indigo-600",
                         },
                         {
                           name: "Car Insurance",
                           dueDate: "Dec 25",
                           amount: 120,
-                          color: "text-amber-600",
                         },
                       ].map((bill, index) => (
                         <div
                           key={index}
-                          className="p-3 border border-sky-200 rounded-lg bg-gradient-to-r from-sky-50 to-cyan-50 hover:from-sky-100 hover:to-cyan-100 transition-colors"
+                          className="p-3 border border-sky-200 rounded-sm bg-gradient-to-r from-sky-50 to-cyan-50 hover:from-sky-100 hover:to-cyan-100 transition-colors dark:from-sky-950/50 dark:to-cyan-950/50 dark:border-sky-900/50 dark:hover:from-sky-900/50 dark:hover:to-cyan-900/50"
                         >
                           <div className="flex justify-between items-center">
                             <div>
-                              <p className="font-medium text-sm text-sky-800">
+                              <p className="font-medium text-sm text-sky-800 dark:text-sky-500">
                                 {bill.name}
                               </p>
                               <p className="text-xs text-muted-foreground">
@@ -315,7 +322,7 @@ function DashboardContent({
                               </p>
                             </div>
                             <span
-                              className={`text-sm font-medium ${bill.color}`}
+                              className={`text-sm font-medium text-sky-900 dark:text-sky-500`}
                             >
                               ${bill.amount.toLocaleString()}
                             </span>
