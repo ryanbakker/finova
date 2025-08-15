@@ -40,7 +40,7 @@ export function MetricCard({
 
   return (
     <Card
-      className={`h-25 col-span-1 border-l-4 bg-gradient-to-r to-white ${borderColor} bg-gradient-to-r ${bgGradientFrom} to-white ${className}`}
+      className={`h-25 col-span-1 border-l-4 bg-gradient-to-r  ${borderColor} bg-gradient-to-r ${bgGradientFrom} ${className}`}
     >
       <CardHeader className="px-5 pt-4 pb-0">
         <CardTitle className="text-sm font-medium text-neutral-900 dark:text-neutral-300">

@@ -130,7 +130,7 @@ export function CategoryBreakdownChart({
           {/* Chart and Legend Section */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-6 items-start justify-items-center h-full">
             {/* Donut Chart Column */}
-            <div className="w-full flex justify-center items-start">
+            <div className="w-full flex justify-center items-center bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm h-full">
               <div className="w-48 aspect-square p-0 scale-90">
                 <DonutChart
                   data={chartData}
@@ -145,7 +145,7 @@ export function CategoryBreakdownChart({
             </div>
 
             {/* Category Legend/Key Column */}
-            <div className="w-full max-w-xs xl:max-w-sm bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col max-h-[32vh] overflow-hidden category-legend-container pb-1">
+            <div className="w-full max-w-xs xl:max-w-sm bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col overflow-hidden category-legend-container pb-1 h-full">
               {/* Header Section */}
               <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">

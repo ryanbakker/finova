@@ -1,5 +1,57 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/forms";
+@import "react-day-picker/dist/style.css";
+
+/* Basic calendar styles to ensure functionality */
+.rdp {
+  --rdp-cell-size: 40px;
+  --rdp-accent-color: hsl(var(--primary));
+  --rdp-background-color: hsl(var(--accent));
+  --rdp-accent-color-dark: hsl(var(--primary));
+  --rdp-background-color-dark: hsl(var(--accent));
+  --rdp-outline: 2px solid var(--rdp-accent-color);
+  --rdp-outline-selected: 2px solid rgba(0, 0, 0, 0.75);
+  margin: 1em;
+}
+
+.rdp-day_selected,
+.rdp-day_selected:focus-visible,
+.rdp-day_selected:hover {
+  color: hsl(var(--primary-foreground));
+  opacity: 1;
+  background-color: hsl(var(--primary));
+}
+
+.rdp-day_range_start,
+.rdp-day_range_end {
+  color: hsl(var(--primary-foreground));
+  background-color: hsl(var(--primary));
+}
+
+.rdp-day_range_middle {
+  background-color: hsl(var(--accent));
+}
+
+.rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+  background-color: hsl(var(--accent));
+}
+
+/* Custom styles for sorted table headers */
+.table-header-sorted {
+  @apply bg-gradient-to-r from-sky-200/30 to-cyan-200/30 text-accent-foreground transition-all duration-200 ease-in-out;
+}
+
+.table-header-sorted:hover {
+  @apply bg-gradient-to-r from-sky-200/50 to-cyan-200/50 text-accent-foreground transition-all duration-200 ease-in-out cursor-pointer;
+}
+
+.dark .table-header-sorted {
+  @apply bg-accent/30 border-l-primary/80;
+}
+
+.dark .table-header-sorted:hover {
+  @apply bg-accent/50 shadow-lg;
+}
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -505,7 +557,7 @@
 }
 
 .container-color {
-  @apply border-l-sky-800 border-l-4 bg-gradient-to-r from-sky-50/50 to-white dark:from-sky-950/40 dark:to-neutral-900;
+  @apply border-l-sky-800 border-l-4 bg-gradient-to-r from-sky-50/90 to-cyan-50/90 dark:from-sky-950/40 dark:to-neutral-900;
 }
 
 .card-title {

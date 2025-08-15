@@ -159,7 +159,7 @@ function DashboardContent({
               subtitle="This month"
               dataValueColor="text-emerald-600 dark:text-emerald-400"
               borderColor="border-l-emerald-700"
-              bgGradientFrom="from-emerald-50/50 dark:from-emerald-950/40 dark:to-neutral-900"
+              bgGradientFrom="from-emerald-50/90 to-teal-50/90 dark:from-emerald-950/40 dark:to-neutral-900"
               isLoading={isLoading}
             />
             <MetricCard
@@ -168,7 +168,7 @@ function DashboardContent({
               subtitle="This month"
               dataValueColor="text-red-600 dark:text-red-400"
               borderColor="border-l-red-700"
-              bgGradientFrom="from-red-50/50 dark:from-red-950/40 dark:to-neutral-900"
+              bgGradientFrom="from-red-50/90 to-rose-50/90 dark:from-red-950/40 dark:to-neutral-900"
               isLoading={isLoading}
             />
             <MetricCard
@@ -177,7 +177,7 @@ function DashboardContent({
               subtitle="This month"
               dataValueColor="text-sky-600 dark:text-sky-400"
               borderColor="border-l-sky-700"
-              bgGradientFrom="from-sky-50/50 dark:from-sky-950/40 dark:to-neutral-900"
+              bgGradientFrom="from-sky-50/90 to-cyan-50/90 dark:from-sky-950/40 dark:to-neutral-900"
               isLoading={isLoading}
             />
             <MetricCard
@@ -186,7 +186,7 @@ function DashboardContent({
               subtitle="This month"
               dataValueColor="text-sky-600 dark:text-sky-400"
               borderColor="border-l-sky-700"
-              bgGradientFrom="from-sky-50/50 dark:from-sky-950/40 dark:to-neutral-900"
+              bgGradientFrom="from-sky-50/90 to-cyan-50/90 dark:from-sky-950/40 dark:to-neutral-900"
               isLoading={isLoading}
             />
           </div>
