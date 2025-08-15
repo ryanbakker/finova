@@ -29,6 +29,7 @@ import {
   EditTransactionDialog,
   DeleteTransactionDialog,
   TransactionFilters,
+  TransactionTableSkeleton,
 } from "@/components/transactions";
 import { setGlobalActionHandlers } from "./columns";
 import { Transaction } from "@/lib/types";
@@ -42,11 +43,13 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isLoading?: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  isLoading = false,
 }: DataTableProps<TData, TValue>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -244,6 +247,11 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  // Show skeleton if loading or no data
+  if (isLoading || !data || data.length === 0) {
+    return <TransactionTableSkeleton rowCount={8} isMobile={isMobile} />;
+  }
+
   // Handle delete selected transactions
   const handleDeleteSelected = () => {
     const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -297,6 +305,7 @@ export function DataTable<TData, TValue>({
         accounts={sampleAccounts}
         categories={sampleCategories}
         table={table}
+        isLoading={isLoading}
       />
 
       {/* Delete Selected Button */}
@@ -390,7 +399,7 @@ export function DataTable<TData, TValue>({
                 >
                   {filteredData.length === 0 && data.length > 0
                     ? "No results found for your search criteria."
-                    : "No results."}
+                    : "No transactions available."}
                 </TableCell>
               </TableRow>
             )}

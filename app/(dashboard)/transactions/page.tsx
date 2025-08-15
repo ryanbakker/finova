@@ -7,14 +7,34 @@ import { Transaction } from "@/lib/types";
 import { Plus } from "lucide-react";
 import { DataTable } from "./data-table";
 import { createColumns } from "./columns";
-import { Suspense } from "react";
-import { useState } from "react";
+import { Suspense, useState, useEffect } from "react";
+import { TransactionPageSkeleton } from "@/components/transactions";
 
 function TransactionsPage() {
-  const [transactions] = useState<Transaction[]>(sampleTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Create columns
   const columns = createColumns();
+
+  // Simulate loading state
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setTransactions(sampleTransactions);
+      setIsLoading(false);
+    }, 1500); // Simulate 1.5s loading time
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <TransactionPageSkeleton />
+        <DashboardFooter />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -32,8 +52,12 @@ function TransactionsPage() {
         </Button>
       </div>
 
-      <Suspense fallback={<div>Loading transactions...</div>}>
-        <DataTable columns={columns} data={transactions} />
+      <Suspense fallback={<TransactionPageSkeleton />}>
+        <DataTable
+          columns={columns}
+          data={transactions}
+          isLoading={isLoading}
+        />
       </Suspense>
 
       <DashboardFooter />
