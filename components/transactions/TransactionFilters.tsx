@@ -4,7 +4,18 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateRangePicker } from "@/components/ui/date-picker";
-import { Search, Filter, X, ChevronDown } from "lucide-react";
+import {
+  Search,
+  Filter,
+  X,
+  ChevronDown,
+  CreditCard,
+  PiggyBank,
+  Wallet,
+  TrendingUp,
+  Coins,
+  Tag,
+} from "lucide-react";
 import { Account, Category } from "@/lib/types";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import {
@@ -103,6 +114,24 @@ export function TransactionFilters({
     router.push(pathname);
   };
 
+  // Helper function to get account type icon
+  const getAccountIcon = (accountType: string) => {
+    switch (accountType) {
+      case "checking":
+        return <CreditCard className="h-4 w-4" />;
+      case "savings":
+        return <PiggyBank className="h-4 w-4" />;
+      case "credit":
+        return <CreditCard className="h-4 w-4" />;
+      case "investment":
+        return <TrendingUp className="h-4 w-4" />;
+      case "cash":
+        return <Coins className="h-4 w-4" />;
+      default:
+        return <Wallet className="h-4 w-4" />;
+    }
+  };
+
   // Show skeleton if data is loading
   if (isLoading || !accounts || !categories) {
     return (
@@ -187,15 +216,15 @@ export function TransactionFilters({
         {/* Payee Search */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-muted-foreground">
-            Search Payee
+            Search
           </label>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-100" />
             <Input
               placeholder="Search payee..."
               value={localPayeeFilter}
               onChange={(e) => handlePayeeChange(e.target.value)}
-              className="pl-10 shadow-sm"
+              className="pl-10 shadow-sm dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-100"
             />
           </div>
         </div>
@@ -203,7 +232,7 @@ export function TransactionFilters({
         {/* Date Range */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-muted-foreground">
-            Date Range
+            Date
           </label>
           <DateRangePicker
             value={dateRange}
@@ -223,7 +252,7 @@ export function TransactionFilters({
             }}
             placeholder="Select date range"
             name="date"
-            className="shadow-sm"
+            className="shadow-sm dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-100 cursor-pointer"
           />
         </div>
 
@@ -232,23 +261,54 @@ export function TransactionFilters({
           <label className="text-sm font-medium text-muted-foreground">
             Account
           </label>
-          <select
-            name="account"
-            value={selectedAccount}
-            onChange={(e) =>
-              updateURL({
-                account: e.target.value === "all" ? null : e.target.value,
-              })
-            }
-            className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
-          >
-            <option value="all">All Accounts</option>
-            {accounts.map((account) => (
-              <option key={account.id} value={account.id}>
-                {account.name}
-              </option>
-            ))}
-          </select>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between shadow-sm dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-100 cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  {selectedAccount !== "all" ? (
+                    <>
+                      {getAccountIcon(
+                        accounts.find((a) => a.id === selectedAccount)?.type ||
+                          "checking"
+                      )}
+                      <span>
+                        {accounts.find((a) => a.id === selectedAccount)?.name ||
+                          "All Accounts"}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Wallet className="h-4 w-4" />
+                      <span>All Accounts</span>
+                    </>
+                  )}
+                </div>
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-full min-w-[200px]">
+              <DropdownMenuCheckboxItem
+                checked={selectedAccount === "all"}
+                onCheckedChange={() => updateURL({ account: null })}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                All Accounts
+              </DropdownMenuCheckboxItem>
+              {accounts.map((account) => (
+                <DropdownMenuCheckboxItem
+                  key={account.id}
+                  checked={selectedAccount === account.id}
+                  onCheckedChange={() => updateURL({ account: account.id })}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  {account.name}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Category Filter */}
@@ -256,23 +316,56 @@ export function TransactionFilters({
           <label className="text-sm font-medium text-muted-foreground">
             Category
           </label>
-          <select
-            name="category"
-            value={selectedCategory}
-            onChange={(e) =>
-              updateURL({
-                category: e.target.value === "all" ? null : e.target.value,
-              })
-            }
-            className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
-          >
-            <option value="all">All Categories</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between shadow-sm dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-100 cursor-pointer"
+              >
+                <div className="flex items-center gap-2 cursor-pointer">
+                  {selectedCategory !== "all" ? (
+                    <>
+                      <span className="text-lg">
+                        {
+                          categories.find((c) => c.id === selectedCategory)
+                            ?.icon
+                        }
+                      </span>
+                      <span>
+                        {categories.find((c) => c.id === selectedCategory)
+                          ?.name || "All Categories"}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Tag className="h-4 w-4" />
+                      <span>All Categories</span>
+                    </>
+                  )}
+                </div>
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-full min-w-[200px]">
+              <DropdownMenuCheckboxItem
+                checked={selectedCategory === "all"}
+                onCheckedChange={() => updateURL({ category: null })}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                All Categories
+              </DropdownMenuCheckboxItem>
+              {categories.map((category) => (
+                <DropdownMenuCheckboxItem
+                  key={category.id}
+                  checked={selectedCategory === category.id}
+                  onCheckedChange={() => updateURL({ category: category.id })}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  {category.name}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -291,7 +384,7 @@ export function TransactionFilters({
                 onClick={() => updateURL({ type: null })}
                 className={`transaction-type-button cursor-pointer ${
                   !selectedType || selectedType === "all"
-                    ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white shadow-sm"
+                    ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white shadow-sm dark:bg-sky-500 dark:text-white dark:border-sky-500 dark:hover:bg-sky-600 dark:hover:border-sky-600 dark:hover:text-white"
                     : "hover:bg-sky-50 dark:hover:bg-sky-950 shadow-sm"
                 }`}
               >
@@ -304,7 +397,7 @@ export function TransactionFilters({
                 onClick={() => updateURL({ type: "income" })}
                 className={`transaction-type-button cursor-pointer ${
                   selectedType === "income"
-                    ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white shadow-sm"
+                    ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white shadow-sm dark:bg-sky-500 dark:text-white dark:border-sky-500 dark:hover:bg-sky-600 dark:hover:border-sky-600 dark:hover:text-white"
                     : "hover:bg-sky-50 dark:hover:bg-sky-950 shadow-sm"
                 }`}
               >
@@ -317,7 +410,7 @@ export function TransactionFilters({
                 onClick={() => updateURL({ type: "expense" })}
                 className={`transaction-type-button cursor-pointer ${
                   selectedType === "expense"
-                    ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white shadow-sm"
+                    ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white shadow-sm dark:bg-sky-500 dark:text-white dark:border-sky-500 dark:hover:bg-sky-600 dark:hover:border-sky-600 dark:hover:text-white"
                     : "hover:bg-sky-50 dark:hover:bg-sky-950 shadow-sm"
                 }`}
               >
@@ -370,57 +463,64 @@ export function TransactionFilters({
         <div className="pt-4 border-t border-border">
           <div className="flex flex-wrap gap-2">
             {payeeFilter && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-neutral-900 text-blue-800 dark:text-blue-200 text-xs rounded-full">
                 Payee: {payeeFilter}
                 <button
                   onClick={() => updateURL({ payee: null })}
-                  className="ml-1 hover:bg-blue-200 dark:hover:bg-blue-800/50 rounded-full p-0.5"
+                  className="ml-1 hover:bg-blue-200 dark:hover:bg-neutral-800 rounded-full p-0.5"
                 >
                   <X className="h-3 w-3" />
                 </button>
               </span>
             )}
             {dateRange && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-xs rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-neutral-900 text-green-800 dark:text-green-200 text-xs rounded-full">
                 Date: {dateRange.from.toLocaleDateString()} -{" "}
                 {dateRange.to.toLocaleDateString()}
                 <button
                   onClick={() => updateURL({ dateFrom: null, dateTo: null })}
-                  className="ml-1 hover:bg-green-200 dark:hover:bg-green-800/50 rounded-full p-0.5"
+                  className="ml-1 hover:bg-green-200 dark:hover:bg-neutral-800 rounded-full p-0.5"
                 >
                   <X className="h-3 w-3" />
                 </button>
               </span>
             )}
             {selectedAccount !== "all" && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 text-xs rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 dark:bg-neutral-900 text-purple-800 dark:text-purple-200 text-xs rounded-full">
+                {getAccountIcon(
+                  accounts.find((a) => a.id === selectedAccount)?.type ||
+                    "checking"
+                )}
                 Account: {accounts.find((a) => a.id === selectedAccount)?.name}
                 <button
                   onClick={() => updateURL({ account: null })}
-                  className="ml-1 hover:bg-purple-200 dark:hover:bg-purple-800/50 rounded-full p-0.5"
+                  className="ml-1 hover:bg-purple-200 dark:hover:bg-neutral-800 rounded-full p-0.5"
                 >
                   <X className="h-3 w-3" />
                 </button>
               </span>
             )}
             {selectedCategory !== "all" && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 text-xs rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 dark:bg-neutral-900 text-orange-800 dark:text-orange-200 text-xs rounded-full">
+                <span className="text-sm">
+                  {categories.find((c) => c.id === selectedCategory)?.icon}
+                </span>
                 Category:{" "}
                 {categories.find((c) => c.id === selectedCategory)?.name}
                 <button
                   onClick={() => updateURL({ category: null })}
-                  className="ml-1 hover:bg-orange-200 dark:hover:bg-orange-800/50 rounded-full p-0.5"
+                  className="ml-1 hover:bg-orange-200 dark:hover:bg-neutral-800 rounded-full p-0.5"
                 >
                   <X className="h-3 w-3" />
                 </button>
               </span>
             )}
             {selectedType !== "all" && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200 text-xs rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-indigo-100 dark:bg-neutral-900 text-indigo-800 dark:text-indigo-200 text-xs rounded-full">
                 Type: {selectedType === "income" ? "Income" : "Expense"}
                 <button
                   onClick={() => updateURL({ type: null })}
-                  className="ml-1 hover:bg-indigo-200 dark:hover:bg-indigo-800/50 rounded-full p-0.5"
+                  className="ml-1 hover:bg-indigo-200 dark:hover:bg-neutral-800 rounded-full p-0.5"
                 >
                   <X className="h-3 w-3" />
                 </button>
