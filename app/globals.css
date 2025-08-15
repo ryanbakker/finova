@@ -38,7 +38,7 @@
 
 /* Custom styles for sorted table headers */
 .table-header-sorted {
-  @apply bg-gradient-to-r from-sky-200/30 to-cyan-200/30 text-accent-foreground transition-all duration-200 ease-in-out;
+  @apply bg-gradient-to-r from-sky-200/30 to-cyan-200/30 text-accent-foreground transition-all duration-200 ease-in-out dark:from-sky-200/10 dark:to-cyan-200/10;
 }
 
 .table-header-sorted:hover {

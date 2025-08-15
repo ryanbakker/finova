@@ -4,7 +4,6 @@ import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -136,7 +135,7 @@ export function TransactionDetailsDialog({
               >
                 <div className="flex items-center gap-2">
                   <div className="bg-slate-500/10 rounded-md p-2">
-                    <detail.icon className="h-4 w-4 text-slate-600" />
+                    <detail.icon className="h-4 w-4 text-slate-600 dark:text-slate-400" />
                   </div>
                   <span className="font-medium">{detail.label}</span>
                 </div>

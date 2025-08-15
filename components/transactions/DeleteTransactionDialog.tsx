@@ -62,97 +62,51 @@ export function DeleteTransactionDialog({
     onClose();
   };
 
-  return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-md">
-        <AlertDialogHeader className="flex flex-col gap-1">
-          <AlertDialogTitle className="flex items-center gap-2 text-red-600">
-            <Trash2 className="h-5 w-5" />
-            Delete Transaction
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to delete this transaction? This action cannot
-            be undone.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-
-        {/* Warning */}
-        <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <AlertTriangle className="h-4 w-4 text-red-600" />
-          <span className="text-sm text-red-700 dark:text-red-300 font-medium">
-            This action will permanently remove the transaction from your
-            records.
-          </span>
-        </div>
-
-        {/* Transaction Details */}
-        <div className="space-y-3 py-2">
-          <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-            Transaction to be deleted:
-          </div>
-
-          {/* Amount */}
-          <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-slate-600" />
-              <span className="font-medium">Amount</span>
-            </div>
-            <span
-              className={`text-lg font-bold ${
-                transaction.amount >= 0 ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {formatAmount(transaction.amount)}
-            </span>
-          </div>
-
-          {/* Payee */}
-          <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-slate-600" />
-              <span className="font-medium">Payee</span>
-            </div>
-            <span className="font-medium">{transaction.payee}</span>
-          </div>
-
-          {/* Date */}
-          <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-slate-600" />
-              <span className="font-medium">Date</span>
-            </div>
-            <span className="font-medium">{formatDate(transaction.date)}</span>
-          </div>
-
-          {/* Account */}
-          <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-            <div className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4 text-slate-600" />
-              <span className="font-medium">Account</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-medium">{transaction.account.name}</span>
-            </div>
-          </div>
-
-          {/* Category */}
-          <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-            <div className="flex items-center gap-2">
-              <Tag className="h-4 w-4 text-slate-600" />
-              <span className="font-medium">Category</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-medium">{transaction.category.name}</span>
-            </div>
-          </div>
-
-          {/* Status */}
-          {transaction.status && (
-            <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-              <div className="flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-slate-600" />
-                <span className="font-medium">Status</span>
-              </div>
+  // Define transaction details to map over
+  const transactionDetails = [
+    {
+      icon: DollarSign,
+      label: "Amount",
+      value: (
+        <span
+          className={`text-lg font-bold ${
+            transaction.amount >= 0
+              ? "text-green-600"
+              : "text-red-600 dark:text-red-500"
+          }`}
+        >
+          {formatAmount(transaction.amount)}
+        </span>
+      ),
+    },
+    {
+      icon: User,
+      label: "Payee",
+      value: <span className="font-medium">{transaction.payee}</span>,
+    },
+    {
+      icon: Calendar,
+      label: "Date",
+      value: (
+        <span className="font-medium">{formatDate(transaction.date)}</span>
+      ),
+    },
+    {
+      icon: CreditCard,
+      label: "Account",
+      value: <span className="font-medium">{transaction.account.name}</span>,
+    },
+    {
+      icon: Tag,
+      label: "Category",
+      value: <span className="font-medium">{transaction.category.name}</span>,
+    },
+    ...(transaction.status
+      ? [
+          {
+            icon: Building2,
+            label: "Status",
+            value: (
               <Badge
                 variant={
                   transaction.status === "completed" ? "default" : "secondary"
@@ -165,8 +119,57 @@ export function DeleteTransactionDialog({
               >
                 {transaction.status}
               </Badge>
-            </div>
-          )}
+            ),
+          },
+        ]
+      : []),
+  ];
+
+  return (
+    <AlertDialog open={isOpen} onOpenChange={onClose}>
+      <AlertDialogContent className="max-w-md">
+        <AlertDialogHeader className="flex flex-col gap-1">
+          <AlertDialogTitle className="flex items-center gap-2 text-red-600 dark:text-red-500">
+            <Trash2 className="h-5 w-5" />
+            Delete Transaction
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this transaction?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        {/* Warning */}
+        <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <AlertTriangle className="h-4 w-4 text-red-600" />
+          <span className="text-sm text-red-700 dark:text-red-300 font-medium">
+            This action will permanently remove the transaction.
+          </span>
+        </div>
+
+        {/* Transaction Details */}
+        <div className="space-y-3 py-2">
+          <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+            Transaction to be deleted:
+          </div>
+
+          {/* Map over transaction details */}
+          {transactionDetails.map((detail, index) => {
+            const IconComponent = detail.icon;
+            return (
+              <div
+                key={index}
+                className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="bg-slate-500/10 rounded-md p-2">
+                    <IconComponent className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                  </div>
+                  <span className="font-medium">{detail.label}</span>
+                </div>
+                {detail.value}
+              </div>
+            );
+          })}
         </div>
 
         <AlertDialogFooter>
@@ -174,7 +177,7 @@ export function DeleteTransactionDialog({
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
-            className="bg-red-600 hover:bg-red-700 cursor-pointer"
+            className="bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 cursor-pointer dark:text-white"
             onClick={handleConfirm}
           >
             Delete Transaction

@@ -61,11 +61,11 @@ const SortableHeader = ({
     >
       {children}
       {isSorted === "asc" ? (
-        <MoveUp className="ml-2 h-4 w-4 text-blue-600 dark:text-blue-400" />
+        <MoveUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
       ) : isSorted === "desc" ? (
-        <MoveDown className="ml-2 h-4 w-4 text-blue-600 dark:text-blue-400" />
+        <MoveDown className="h-4 w-4 text-blue-600 dark:text-blue-400" />
       ) : (
-        <ArrowUpDown className="ml-2 h-4 w-4 text-slate-400" />
+        <ArrowUpDown className="h-4 w-4 text-slate-400" />
       )}
     </Button>
   );

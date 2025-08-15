@@ -67,6 +67,100 @@ export function EditTransactionDialog({
   const [formData, setFormData] = useState<Partial<Transaction>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Form fields configuration
+  const formFields = [
+    {
+      id: "amount",
+      label: "Amount",
+      icon: DollarSign,
+      type: "number" as const,
+      step: "0.01",
+      placeholder: "Enter amount",
+      field: "amount" as keyof Transaction,
+      validation: (value: any) =>
+        !value || value === 0 ? "Amount is required and cannot be zero" : "",
+      renderValue: (value: any) =>
+        value && (
+          <p
+            className={`text-sm font-medium ${
+              (value || 0) >= 0
+                ? "text-green-600 dark:text-green-500"
+                : "text-red-600 dark:text-red-500"
+            }`}
+          >
+            {formatAmount(value)}
+          </p>
+        ),
+    },
+    {
+      id: "payee",
+      label: "Payee",
+      icon: User,
+      type: "text" as const,
+      placeholder: "Enter payee name",
+      field: "payee" as keyof Transaction,
+      validation: (value: any) => (!value?.trim() ? "Payee is required" : ""),
+    },
+    {
+      id: "date",
+      label: "Date",
+      icon: Calendar,
+      type: "date" as const,
+      field: "date" as keyof Transaction,
+      validation: (value: any) => (!value ? "Date is required" : ""),
+      getValue: (value: any) => (value ? formatDateForInput(value) : ""),
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => e.target.value,
+    },
+    {
+      id: "account",
+      label: "Account",
+      icon: CreditCard,
+      type: "select" as const,
+      field: "account" as keyof Transaction,
+      validation: (value: any) => (!value?.id ? "Account is required" : ""),
+      options: accounts.map((account) => ({
+        value: account.id,
+        label: `${account.name} (${account.type})`,
+      })),
+      onValueChange: (value: string) => {
+        const account = accounts.find((acc) => acc.id === value);
+        return account;
+      },
+    },
+    {
+      id: "category",
+      label: "Category",
+      icon: Tag,
+      type: "select" as const,
+      field: "category" as keyof Transaction,
+      validation: (value: any) => (!value?.id ? "Category is required" : ""),
+      options: categories.map((category) => ({
+        value: category.id,
+        label: (
+          <span className="flex items-center gap-2">
+            <span>{category.icon}</span>
+            <span>{category.name}</span>
+          </span>
+        ),
+      })),
+      onValueChange: (value: string) => {
+        const category = categories.find((cat) => cat.id === value);
+        return category;
+      },
+    },
+    {
+      id: "status",
+      label: "Status",
+      icon: Building2,
+      type: "select" as const,
+      field: "status" as keyof Transaction,
+      options: [
+        { value: "pending", label: "Pending" },
+        { value: "completed", label: "Completed" },
+      ],
+    },
+  ];
+
   useEffect(() => {
     if (transaction) {
       setFormData({
@@ -96,25 +190,14 @@ export function EditTransactionDialog({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.payee?.trim()) {
-      newErrors.payee = "Payee is required";
-    }
-
-    if (!formData.amount || formData.amount === 0) {
-      newErrors.amount = "Amount is required and cannot be zero";
-    }
-
-    if (!formData.date) {
-      newErrors.date = "Date is required";
-    }
-
-    if (!formData.account?.id) {
-      newErrors.account = "Account is required";
-    }
-
-    if (!formData.category?.id) {
-      newErrors.category = "Category is required";
-    }
+    formFields.forEach((field) => {
+      if (field.validation) {
+        const error = field.validation(formData[field.field]);
+        if (error) {
+          newErrors[field.field] = error;
+        }
+      }
+    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -148,157 +231,74 @@ export function EditTransactionDialog({
         </AlertDialogHeader>
 
         <div className="space-y-4 py-2">
-          {/* Amount */}
-          <div className="space-y-2">
-            <Label htmlFor="amount" className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-slate-600" />
-              Amount
-            </Label>
-            <Input
-              id="amount"
-              type="number"
-              step="0.01"
-              value={formData.amount || ""}
-              onChange={(e) =>
-                handleInputChange("amount", parseFloat(e.target.value) || 0)
-              }
-              className={errors.amount ? "border-red-500" : ""}
-              placeholder="Enter amount"
-            />
-            {errors.amount && (
-              <p className="text-sm text-red-500">{errors.amount}</p>
-            )}
-            {formData.amount && (
-              <p
-                className={`text-sm font-medium ${
-                  (formData.amount || 0) >= 0
-                    ? "text-green-600"
-                    : "text-red-600"
-                }`}
-              >
-                {formatAmount(formData.amount)}
-              </p>
-            )}
-          </div>
+          {formFields.map((field) => (
+            <div key={field.id} className="space-y-2">
+              <Label htmlFor={field.id} className="flex items-center gap-2">
+                <field.icon className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                {field.label}
+              </Label>
 
-          {/* Payee */}
-          <div className="space-y-2">
-            <Label htmlFor="payee" className="flex items-center gap-2">
-              <User className="h-4 w-4 text-slate-600" />
-              Payee
-            </Label>
-            <Input
-              id="payee"
-              value={formData.payee || ""}
-              onChange={(e) => handleInputChange("payee", e.target.value)}
-              className={errors.payee ? "border-red-500" : ""}
-              placeholder="Enter payee name"
-            />
-            {errors.payee && (
-              <p className="text-sm text-red-500">{errors.payee}</p>
-            )}
-          </div>
+              {field.type === "select" ? (
+                <Select
+                  value={
+                    field.field === "account"
+                      ? formData.account?.id || ""
+                      : field.field === "category"
+                      ? formData.category?.id || ""
+                      : (formData[field.field] as string) || ""
+                  }
+                  onValueChange={(value) => {
+                    const processedValue = field.onValueChange
+                      ? field.onValueChange(value)
+                      : value;
+                    handleInputChange(field.field, processedValue);
+                  }}
+                >
+                  <SelectTrigger
+                    className={errors[field.field] ? "border-red-500" : ""}
+                  >
+                    <SelectValue
+                      placeholder={`Select ${field.label.toLowerCase()}`}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {field.options?.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  id={field.id}
+                  type={field.type}
+                  step={field.step}
+                  value={
+                    field.getValue
+                      ? field.getValue(formData[field.field])
+                      : (formData[field.field] as string) || ""
+                  }
+                  onChange={(e) => {
+                    const value = field.onChange
+                      ? field.onChange(e)
+                      : field.type === "number"
+                      ? parseFloat(e.target.value) || 0
+                      : e.target.value;
+                    handleInputChange(field.field, value);
+                  }}
+                  className={errors[field.field] ? "border-red-500" : ""}
+                  placeholder={field.placeholder}
+                />
+              )}
 
-          {/* Date */}
-          <div className="space-y-2">
-            <Label htmlFor="date" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-slate-600" />
-              Date
-            </Label>
-            <Input
-              id="date"
-              type="date"
-              value={formData.date ? formatDateForInput(formData.date) : ""}
-              onChange={(e) => handleInputChange("date", e.target.value)}
-              className={errors.date ? "border-red-500" : ""}
-            />
-            {errors.date && (
-              <p className="text-sm text-red-500">{errors.date}</p>
-            )}
-          </div>
+              {errors[field.field] && (
+                <p className="text-sm text-red-500">{errors[field.field]}</p>
+              )}
 
-          {/* Account */}
-          <div className="space-y-2">
-            <Label htmlFor="account" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4 text-slate-600" />
-              Account
-            </Label>
-            <Select
-              value={formData.account?.id || ""}
-              onValueChange={(value) => {
-                const account = accounts.find((acc) => acc.id === value);
-                handleInputChange("account", account);
-              }}
-            >
-              <SelectTrigger className={errors.account ? "border-red-500" : ""}>
-                <SelectValue placeholder="Select account" />
-              </SelectTrigger>
-              <SelectContent>
-                {accounts.map((account) => (
-                  <SelectItem key={account.id} value={account.id}>
-                    {account.name} ({account.type})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.account && (
-              <p className="text-sm text-red-500">{errors.account}</p>
-            )}
-          </div>
-
-          {/* Category */}
-          <div className="space-y-2">
-            <Label htmlFor="category" className="flex items-center gap-2">
-              <Tag className="h-4 w-4 text-slate-600" />
-              Category
-            </Label>
-            <Select
-              value={formData.category?.id || ""}
-              onValueChange={(value) => {
-                const category = categories.find((cat) => cat.id === value);
-                handleInputChange("category", category);
-              }}
-            >
-              <SelectTrigger
-                className={errors.category ? "border-red-500" : ""}
-              >
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    <span className="flex items-center gap-2">
-                      <span>{category.icon}</span>
-                      <span>{category.name}</span>
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.category && (
-              <p className="text-sm text-red-500">{errors.category}</p>
-            )}
-          </div>
-
-          {/* Status */}
-          <div className="space-y-2">
-            <Label htmlFor="status" className="flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-slate-600" />
-              Status
-            </Label>
-            <Select
-              value={formData.status || ""}
-              onValueChange={(value) => handleInputChange("status", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+              {field.renderValue && field.renderValue(formData[field.field])}
+            </div>
+          ))}
         </div>
 
         <AlertDialogFooter>
@@ -307,7 +307,7 @@ export function EditTransactionDialog({
           </AlertDialogCancel>
           <Button
             onClick={handleSave}
-            className="bg-sky-600 hover:bg-sky-700 cursor-pointer"
+            className="bg-sky-600 hover:bg-sky-700 cursor-pointer dark:text-white"
           >
             Save Changes
           </Button>
