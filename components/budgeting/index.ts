@@ -10,3 +10,7 @@ export { MonthlySpendingChart } from "./MonthlySpendingChart";
 export { BudgetVsActualChart } from "./BudgetVsActualChart";
 export { CategoryBreakdownChart } from "./CategoryBreakdownChart";
 export { WeeklySpendingChart } from "./WeeklySpendingChart";
+
+// New budget components
+export { BudgetDialog } from "./BudgetDialog";
+export { BudgetTable } from "./BudgetTable";

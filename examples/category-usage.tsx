@@ -1,10 +1,5 @@
-import React from "react";
-import {
-  financialCategories,
-  getCategoriesByType,
-  getCategoryNamesByType,
-  findCategoryByName,
-} from "../constants";
+import { createElement } from "react";
+import { getCategoriesByType, findCategoryByName } from "../constants";
 import { CategoryType } from "../lib/types/categories";
 import * as LucideIcons from "lucide-react";
 
@@ -53,7 +48,7 @@ export const BudgetCategoryBreakdown: React.FC<{
         return (
           <div key={item.category} className="flex items-center space-x-3">
             {category &&
-              React.createElement(getIconComponent(category.icon), {
+              createElement(getIconComponent(category.icon), {
                 className: "w-5 h-5 text-gray-600",
               })}
             <div className="flex-1">
@@ -105,7 +100,7 @@ export const CategoryFilter: React.FC<{
                 : "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
             }`}
           >
-            {React.createElement(getIconComponent(category.icon), {
+            {createElement(getIconComponent(category.icon), {
               className: "w-4 h-4",
             })}
             <span>{category.name}</span>
@@ -138,7 +133,7 @@ export const CategoryStats: React.FC<{
             >
               <div className="flex items-center space-x-3">
                 {category &&
-                  React.createElement(getIconComponent(category.icon), {
+                  createElement(getIconComponent(category.icon), {
                     className: "w-5 h-5 text-gray-600",
                   })}
                 <span className="font-medium">{item.category}</span>
@@ -170,7 +165,7 @@ export const QuickCategorySelector: React.FC<{
             onClick={() => onCategorySelect(category.name)}
             className="flex flex-col items-center space-y-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
           >
-            {React.createElement(getIconComponent(category.icon), {
+            {createElement(getIconComponent(category.icon), {
               className: "w-6 h-6 text-gray-600",
             })}
             <span className="text-xs text-center">{category.name}</span>
@@ -200,7 +195,7 @@ export const GoalCategoryTracker: React.FC<{
           <div key={goal.name} className="p-4 border rounded-lg">
             <div className="flex items-center space-x-3 mb-3">
               {category &&
-                React.createElement(getIconComponent(category.icon), {
+                createElement(getIconComponent(category.icon), {
                   className: "w-6 h-6 text-blue-600",
                 })}
               <div>
@@ -242,7 +237,7 @@ export const CategoryDataTable: React.FC<{
   const getCategoryIcon = (categoryName: string) => {
     const category = findCategoryByName(type, categoryName);
     return category
-      ? React.createElement(getIconComponent(category.icon), {
+      ? createElement(getIconComponent(category.icon), {
           className: "w-4 h-4",
         })
       : null;

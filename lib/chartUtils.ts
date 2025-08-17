@@ -265,3 +265,48 @@ export function hasOnlyOneValueForKey(
 
   return true;
 }
+
+// Utility functions for formatting and display
+
+// Format currency for display
+export const formatCurrency = (
+  amount: number,
+  currency: string = "AUD"
+): string => {
+  return new Intl.NumberFormat("en-AU", {
+    style: "currency",
+    currency: currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
+// Format percentage for display
+export const formatPercentage = (value: number): string => {
+  return `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
+};
+
+// Format large numbers with abbreviations
+export const formatLargeNumber = (num: number): string => {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + "M";
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + "K";
+  }
+  return num.toString();
+};
+
+// Get color for positive/negative values
+export const getValueColor = (value: number): string => {
+  if (value > 0) return "text-green-600";
+  if (value < 0) return "text-red-600";
+  return "text-gray-600";
+};
+
+// Get background color for positive/negative values
+export const getValueBgColor = (value: number): string => {
+  if (value > 0) return "bg-green-100 dark:bg-green-900/20";
+  if (value < 0) return "bg-red-100 dark:bg-red-900/20";
+  return "bg-gray-100 dark:bg-gray-900/20";
+};

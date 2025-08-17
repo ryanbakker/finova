@@ -23,8 +23,14 @@ import { cx } from "@/lib/utils";
 const sumNumericArray = (arr: number[]): number =>
   arr.reduce((sum, num) => sum + num, 0);
 
-// Convert color names to actual color values for recharts
-const getColorValue = (colorName: AvailableChartColorsKeys): string => {
+// Convert color names or hex values to actual color values for recharts
+const getColorValue = (colorInput: string): string => {
+  // If it's already a hex color, return it directly
+  if (colorInput.startsWith('#')) {
+    return colorInput;
+  }
+  
+  // Otherwise, treat it as a color name and look it up
   const colorMap: Record<AvailableChartColorsKeys, string> = {
     // Sky color gradient (lightest to darkest) - Enhanced darker values for better contrast
     sky50: "#f0f9ff",
@@ -64,7 +70,7 @@ const getColorValue = (colorName: AvailableChartColorsKeys): string => {
     rose: "#f43f5e",
     yellow: "#eab308",
   };
-  return colorMap[colorName] || "#6b7280"; // fallback to gray
+  return colorMap[colorInput as AvailableChartColorsKeys] || "#6b7280"; // fallback to gray
 };
 
 const parseData = (
@@ -74,14 +80,14 @@ const parseData = (
 ) => {
   return data.map((dataPoint) => {
     // If the data already has a color property, use it; otherwise fall back to category mapping
-    const colorName =
+    const colorValue =
       dataPoint.color ||
       categoryColors.get(dataPoint[category]) ||
       AvailableChartColors[0];
 
     return {
       ...dataPoint,
-      color: colorName,
+      color: colorValue,
     };
   });
 };
@@ -104,7 +110,7 @@ type TooltipProps = Pick<ChartTooltipProps, "active" | "payload">;
 type PayloadItem = {
   category: string;
   value: number;
-  color: AvailableChartColorsKeys;
+  color: string; // Can be either AvailableChartColorsKeys or hex color
 };
 
 interface ChartTooltipProps {
@@ -139,9 +145,10 @@ const ChartTooltip = ({
               <div className="flex items-center space-x-2">
                 <span
                   aria-hidden="true"
+                  style={{ backgroundColor: color.startsWith('#') ? color : undefined }}
                   className={cx(
                     "size-2 shrink-0 rounded-full",
-                    getColorClassName(color, "bg")
+                    !color.startsWith('#') ? getColorClassName(color as AvailableChartColorsKeys, "bg") : ""
                   )}
                 />
                 <p

@@ -1,8 +1,41 @@
+"use client";
+
+import { useState } from "react";
 import { DashboardFooter } from "@/components/DashboardFooter";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { DataTable } from "./data-table";
+import { columns } from "./columns";
+import { sampleGoals } from "@/components/goals";
+import { FinancialGoal } from "@/lib/types";
+import { EditGoalDialog } from "@/components/goals";
 
 function GoalsPage() {
+  const [goals, setGoals] = useState<FinancialGoal[]>(sampleGoals);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<FinancialGoal | null>(null);
+
+  const handleCreateGoal = () => {
+    setEditingGoal(null); // null means we're creating a new goal
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleSaveGoal = (goal: FinancialGoal) => {
+    if (editingGoal) {
+      // Update existing goal
+      setGoals((prev) => prev.map((g) => (g.id === editingGoal.id ? goal : g)));
+    } else {
+      // Add new goal
+      setGoals((prev) => [...prev, goal]);
+    }
+    setIsCreateDialogOpen(false);
+    setEditingGoal(null);
+  };
+
+  const handleDeleteGoal = (goalId: string) => {
+    setGoals((prev) => prev.filter((g) => g.id !== goalId));
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between">
@@ -13,11 +46,33 @@ function GoalsPage() {
             monitoring and milestone tracking.
           </p>
         </div>
-        <Button className="button-blue-bg hover:cursor-pointer">
+        <Button
+          className="button-blue-bg hover:cursor-pointer"
+          onClick={handleCreateGoal}
+        >
           <Plus className="mr-1 h-4 w-4" />
           Create Goal
         </Button>
       </div>
+
+      {/* Goals Data Table */}
+      <DataTable
+        columns={columns}
+        data={goals}
+        isLoading={false}
+        onDelete={handleDeleteGoal}
+      />
+
+      {/* Create/Edit Goal Dialog */}
+      <EditGoalDialog
+        goal={editingGoal}
+        isOpen={isCreateDialogOpen}
+        onClose={() => {
+          setIsCreateDialogOpen(false);
+          setEditingGoal(null);
+        }}
+        onSave={handleSaveGoal}
+      />
 
       <DashboardFooter />
     </div>

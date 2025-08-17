@@ -1,12 +1,10 @@
 "use client";
 
-import * as React from "react";
 import {
   LogOut,
   Moon,
   Sun,
   LayoutDashboard,
-  Plus,
   ChevronRight,
   ArrowRightLeft,
   ChartPie,
@@ -15,6 +13,7 @@ import {
   CreditCard,
   Target,
   FileChartColumn,
+  Plus,
 } from "lucide-react";
 import {
   Sidebar,

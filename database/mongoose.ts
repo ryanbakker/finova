@@ -1,10 +1,10 @@
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
 
 const MONGODB_URL = process.env.MONGODB_URL;
 
 interface MongooseConnection {
-  conn: Mongoose | null;
-  promise: Promise<Mongoose> | null;
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
 }
 
 let cached: MongooseConnection = (global as any).mongoose;
