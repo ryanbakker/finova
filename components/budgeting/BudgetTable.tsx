@@ -31,7 +31,7 @@ export function BudgetTable({ budgets, onEdit, onDelete }: BudgetTableProps) {
 
   const getStatusBadge = (budget: Budget) => {
     const percentage = (budget.spent / budget.amount) * 100;
-    
+
     if (percentage > 100) {
       return <Badge variant="destructive">Over Budget</Badge>;
     } else if (percentage > 80) {
@@ -94,7 +94,13 @@ export function BudgetTable({ budgets, onEdit, onDelete }: BudgetTableProps) {
                   {formatCurrency(budget.spent, budget.currency)}
                 </TableCell>
                 <TableCell>
-                  <span className={remaining < 0 ? "text-red-600 font-medium" : ""}>
+                  <span
+                    className={
+                      remaining < 0
+                        ? "text-red-600 dark:text-red-400 font-medium"
+                        : ""
+                    }
+                  >
                     {formatCurrency(remaining, budget.currency)}
                   </span>
                 </TableCell>

@@ -79,7 +79,9 @@ export function CategoryBreakdownChart({
     return (
       <Card className="border-l-4 border-l-sky-500 h-full flex flex-col">
         <CardHeader className="flex-shrink-0">
-          <CardTitle className="text-sky-700">Category Breakdown</CardTitle>
+          <CardTitle className="text-sky-700 dark:text-sky-300">
+            Category Breakdown
+          </CardTitle>
           <CardDescription>
             Visual representation of spending by category
           </CardDescription>
@@ -100,7 +102,9 @@ export function CategoryBreakdownChart({
     return (
       <Card className="border-l-4 border-l-sky-500 h-full flex flex-col">
         <CardHeader className="flex-shrink-0">
-          <CardTitle className="text-sky-700">Category Breakdown</CardTitle>
+          <CardTitle className="text-sky-700 dark:text-sky-300">
+            Category Breakdown
+          </CardTitle>
           <CardDescription>
             Visual representation of spending by category
           </CardDescription>
@@ -145,7 +149,9 @@ export function CategoryBreakdownChart({
   return (
     <Card className="border-l-4 border-l-sky-500 h-full flex flex-col">
       <CardHeader className="flex-shrink-0">
-        <CardTitle className="text-sky-700">Category Breakdown</CardTitle>
+        <CardTitle className="text-sky-700 dark:text-sky-300">
+          Category Breakdown
+        </CardTitle>
         <CardDescription>Spending breakdown by category</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col min-h-0">

@@ -14,3 +14,12 @@ export { WeeklySpendingChart } from "./WeeklySpendingChart";
 // New budget components
 export { BudgetDialog } from "./BudgetDialog";
 export { BudgetTable } from "./BudgetTable";
+
+// Skeleton components
+export { BudgetPageSkeleton } from "./BudgetPageSkeleton";
+export { BudgetTableSkeleton } from "./BudgetTableSkeleton";
+export { BudgetChartsSkeleton } from "./BudgetChartsSkeleton";
+export { CategoryBudgetsSkeleton } from "./CategoryBudgetsSkeleton";
+export { FinancialGoalsSkeleton } from "./FinancialGoalsSkeleton";
+export { BudgetMetricsSkeleton } from "./BudgetMetricsSkeleton";
+export { BudgetProgressSkeleton } from "./BudgetProgressSkeleton";

@@ -31,7 +31,7 @@ export function BudgetAlerts({
     return (
       <Card className="border-l-4 border-l-red-500 h-full">
         <CardHeader className="pb-2">
-          <div className="flex items-center space-x-2 text-red-700 text-sm mb-2">
+          <div className="flex items-center space-x-2 text-red-700 dark:text-red-400 text-sm mb-2">
             <Skeleton className="h-4 w-4 rounded" />
             <Skeleton className="h-4 w-24" />
           </div>
@@ -60,8 +60,8 @@ export function BudgetAlerts({
   return (
     <Card className="border-l-4 border-l-red-500 h-full">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center space-x-2 text-red-700 text-sm">
-          <AlertCircle className="h-4 w-4 text-red-600" />
+        <CardTitle className="flex items-center space-x-2 text-red-700 dark:text-red-400 text-sm">
+          <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
           <span>Budget Alerts</span>
         </CardTitle>
         <CardDescription className="text-xs">
@@ -72,13 +72,13 @@ export function BudgetAlerts({
         <div className="space-y-2 max-h-32 overflow-y-auto">
           {/* Alert - Red */}
           {overBudgetCategories.length > 0 && (
-            <div className="flex items-center space-x-2 p-2 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg">
-              <AlertOctagon className="h-4 w-4 text-red-600 flex-shrink-0" />
+            <div className="flex items-center space-x-2 p-2 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 border border-red-200 dark:border-red-800 rounded-lg">
+              <AlertOctagon className="h-4 w-4 text-red-600 dark:text-red-400 flex-shrink-0" />
               <div className="min-w-0 flex-1">
-                <p className="font-medium text-red-800 text-xs truncate">
+                <p className="font-medium text-red-800 dark:text-red-200 text-xs truncate">
                   {overBudgetCategories[0]?.name} Budget
                 </p>
-                <p className="text-xs text-red-700">
+                <p className="text-xs text-red-700 dark:text-red-300">
                   {Math.round(
                     (overBudgetCategories[0]?.value /
                       overBudgetCategories[0]?.budget) *
@@ -91,26 +91,28 @@ export function BudgetAlerts({
           )}
 
           {/* Warning - Amber */}
-          <div className="flex items-center space-x-2 p-2 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg">
-            <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0" />
+          <div className="flex items-center space-x-2 p-2 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
             <div className="min-w-0 flex-1">
-              <p className="font-medium text-amber-800 text-xs truncate">
+              <p className="font-medium text-amber-800 dark:text-amber-200 text-xs truncate">
                 Entertainment Budget
               </p>
-              <p className="text-xs text-amber-700">
+              <p className="text-xs text-amber-700 dark:text-amber-300">
                 75% used - approaching limit
               </p>
             </div>
           </div>
 
           {/* Notice - Blue */}
-          <div className="flex items-center space-x-2 p-2 bg-gradient-to-r from-sky-50 to-indigo-50 border border-sky-200 rounded-lg">
-            <Bell className="h-4 w-4 text-sky-600 flex-shrink-0" />
+          <div className="flex items-center space-x-2 p-2 bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-sky-950/30 dark:to-indigo-950/30 border border-sky-200 dark:border-sky-800 rounded-lg">
+            <Bell className="h-4 w-4 text-sky-600 dark:text-sky-400 flex-shrink-0" />
             <div className="min-w-0 flex-1">
-              <p className="font-medium text-sky-800 text-xs truncate">
+              <p className="font-medium text-sky-800 dark:text-sky-200 text-xs truncate">
                 Emergency Fund Goal
               </p>
-              <p className="text-xs text-sky-700">85% to $10,000 goal</p>
+              <p className="text-xs text-sky-700 dark:text-sky-300">
+                85% to $10,000 goal
+              </p>
             </div>
           </div>
         </div>

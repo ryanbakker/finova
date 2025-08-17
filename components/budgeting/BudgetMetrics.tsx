@@ -22,7 +22,7 @@ export function BudgetMetrics({
         {[1, 2, 3, 4].map((i) => (
           <Card
             key={i}
-            className="border-l-4 border-l-sky-500 bg-gradient-to-r from-sky-50 to-white"
+            className="border-l-4 border-l-sky-500 bg-gradient-to-r from-sky-50 to-white dark:from-sky-950/30 dark:to-neutral-900/50"
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <Skeleton className="h-4 w-24" />
@@ -40,52 +40,52 @@ export function BudgetMetrics({
 
   return (
     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-      <Card className="border-l-4 border-l-sky-500 bg-gradient-to-r from-sky-50 to-white">
+      <Card className="border-l-4 border-l-sky-500 bg-gradient-to-r from-sky-50 to-white dark:from-sky-950/30 dark:to-neutral-900/50">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Monthly Budget</CardTitle>
-          <DollarSign className="h-6 opacity-80 w-6 text-sky-600" />
+          <DollarSign className="h-6 opacity-80 w-6 text-sky-600 dark:text-sky-400" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-sky-700">
+          <div className="text-2xl font-bold text-sky-700 dark:text-sky-300">
             ${totalBudget.toLocaleString()}
           </div>
           <p className="text-xs text-muted-foreground">Target spending limit</p>
         </CardContent>
       </Card>
 
-      <Card className="border-l-4 border-l-red-500 bg-gradient-to-r from-red-50 to-white">
+      <Card className="border-l-4 border-l-red-500 bg-gradient-to-r from-red-50 to-white dark:from-red-950/30 dark:to-neutral-900/50">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Spent So Far</CardTitle>
-          <TrendingUp className="h-6 opacity-80 w-6 text-red-600" />
+          <TrendingUp className="h-6 opacity-80 w-6 text-red-600 dark:text-red-400" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-red-600">
+          <div className="text-2xl font-bold text-red-600 dark:text-red-400">
             ${totalSpent.toLocaleString()}
           </div>
           <p className="text-xs text-muted-foreground">This month</p>
         </CardContent>
       </Card>
 
-      <Card className="border-l-4 border-l-green-500 bg-gradient-to-r from-green-50 to-white">
+      <Card className="border-l-4 border-l-green-500 bg-gradient-to-r from-green-50 to-white dark:from-green-950/30 dark:to-neutral-900/50">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Remaining</CardTitle>
-          <Target className="h-6 opacity-80 w-6 text-green-600" />
+          <Target className="h-6 opacity-80 w-6 text-green-600 dark:text-green-400" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-green-600">
+          <div className="text-2xl font-bold text-green-600 dark:text-green-400">
             ${remainingBudget.toLocaleString()}
           </div>
           <p className="text-xs text-muted-foreground">Available to spend</p>
         </CardContent>
       </Card>
 
-      <Card className="border-l-4 border-l-sky-500 bg-gradient-to-r from-sky-50 to-white">
+      <Card className="border-l-4 border-l-sky-500 bg-gradient-to-r from-sky-50 to-white dark:from-sky-950/30 dark:to-neutral-900/50">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Utilization</CardTitle>
-          <PieChart className="h-6 opacity-80 w-6 text-sky-600" />
+          <PieChart className="h-6 opacity-80 w-6 text-sky-600 dark:text-sky-400" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-sky-600">
+          <div className="text-2xl font-bold text-sky-600 dark:text-sky-400">
             {utilizationPercentage}%
           </div>
           <p className="text-xs text-muted-foreground">Budget used</p>

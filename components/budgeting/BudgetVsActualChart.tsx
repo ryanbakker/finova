@@ -45,7 +45,7 @@ export function BudgetVsActualChart({
   return (
     <Card className="border-l-4 border-l-sky-500 h-full flex flex-col">
       <CardHeader className="flex-shrink-0">
-        <CardTitle className="text-sky-700">
+        <CardTitle className="text-sky-700 dark:text-sky-300">
           Budget vs Actual Spending
         </CardTitle>
         <CardDescription>
@@ -69,8 +69,8 @@ export function BudgetVsActualChart({
             customTooltip={({ payload, active }) => {
               if (active && payload && payload.length) {
                 return (
-                  <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-                    <p className="font-medium">
+                  <div className="bg-white dark:bg-neutral-800 p-3 border border-gray-200 dark:border-neutral-600 rounded-lg shadow-lg">
+                    <p className="font-medium text-foreground">
                       {payload[0]?.payload?.category}
                     </p>
                     {payload.map((entry, index: number) => (

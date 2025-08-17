@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, TrendingUp, Target, AlertTriangle } from "lucide-react";
 import { DashboardFooter } from "@/components/DashboardFooter";
@@ -13,6 +13,11 @@ import {
   FinancialGoals,
   BudgetDialog,
   BudgetTable,
+  BudgetPageSkeleton,
+  BudgetTableSkeleton,
+  BudgetChartsSkeleton,
+  CategoryBudgetsSkeleton,
+  FinancialGoalsSkeleton,
 } from "@/components/budgeting";
 import {
   sampleBudgets,
@@ -30,9 +35,20 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function BudgetingPage() {
-  const [budgets, setBudgets] = useState<Budget[]>(sampleBudgets);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<Budget | undefined>();
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate loading state
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setBudgets(sampleBudgets);
+      setIsLoading(false);
+    }, 1500); // Simulate 1.5s loading time
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const { totalBudget, totalSpent } = getBudgetTotals(budgets);
   const categoryData = getCategoryData(budgets);
@@ -119,6 +135,15 @@ export default function BudgetingPage() {
 
   const insights = getBudgetInsights();
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <BudgetPageSkeleton />
+        <DashboardFooter />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -140,13 +165,13 @@ export default function BudgetingPage() {
 
       {/* Quick Insights */}
       <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
-        <Card className="border-l-4 border-l-green-500 bg-gradient-to-r from-green-50 to-white">
+        <Card className="border-l-4 border-l-green-500 bg-gradient-to-r from-green-50 to-white dark:from-green-950/30 dark:to-neutral-900/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">On Track</CardTitle>
-            <Target className="h-5 w-5 text-green-600" />
+            <Target className="h-5 w-5 text-green-600 dark:text-green-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
               {insights.onTrack.length}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -155,13 +180,13 @@ export default function BudgetingPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-amber-500 bg-gradient-to-r from-amber-50 to-white">
+        <Card className="border-l-4 border-l-amber-500 bg-gradient-to-r from-amber-50 to-white dark:from-amber-950/30 dark:to-neutral-900/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Warning</CardTitle>
-            <AlertTriangle className="h-5 w-5 text-amber-600" />
+            <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-600">
+            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
               {insights.warningBudget.length}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -170,13 +195,13 @@ export default function BudgetingPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-red-500 bg-gradient-to-r from-red-50 to-white">
+        <Card className="border-l-4 border-l-red-500 bg-gradient-to-r from-red-50 to-white dark:from-red-950/30 dark:to-neutral-900/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Over Budget</CardTitle>
-            <TrendingUp className="h-5 w-5 text-red-600" />
+            <TrendingUp className="h-5 w-5 text-red-600 dark:text-red-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
               {insights.overBudget.length}
             </div>
             <p className="text-xs text-muted-foreground">Categories exceeded</p>

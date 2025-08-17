@@ -43,7 +43,9 @@ export function WeeklySpendingChart({
   return (
     <Card className="border-l-4 border-l-sky-500 overflow-hidden h-full flex flex-col">
       <CardHeader className="flex-shrink-0">
-        <CardTitle className="text-sky-700">Weekly Spending Pattern</CardTitle>
+        <CardTitle className="text-sky-700 dark:text-sky-300">
+          Weekly Spending Pattern
+        </CardTitle>
         <CardDescription>
           Daily spending trends throughout the week
         </CardDescription>
@@ -70,8 +72,10 @@ export function WeeklySpendingChart({
               if (active && payload && payload.length) {
                 const data = payload[0];
                 return (
-                  <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-                    <p className="font-medium">{data.payload?.day}</p>
+                  <div className="bg-white dark:bg-neutral-800 p-3 border border-gray-200 dark:border-neutral-600 rounded-lg shadow-lg">
+                    <p className="font-medium text-foreground">
+                      {data.payload?.day}
+                    </p>
                     <p className="text-sm" style={{ color: data.color }}>
                       ${data.value?.toLocaleString()}
                     </p>

@@ -45,7 +45,7 @@ export function BudgetProgress({
   return (
     <Card className="border-l-4 border-l-sky-500 h-full">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sky-700 text-base">
+        <CardTitle className="text-sky-700 dark:text-sky-300 text-base">
           Budget Overview
         </CardTitle>
         <CardDescription className="text-xs">

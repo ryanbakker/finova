@@ -1,11 +1,10 @@
+import { BudgetPageSkeleton } from "@/components/budgeting";
 import { DashboardFooter } from "@/components/DashboardFooter";
-import { GoalPageSkeleton } from "@/components/goals";
 
-export default function GoalsLoading() {
+export default function BudgetingLoading() {
   return (
     <div className="space-y-6">
-      <GoalPageSkeleton />
-
+      <BudgetPageSkeleton />
       <DashboardFooter />
     </div>
   );

@@ -57,7 +57,9 @@ export function CategoryBudgets({
   return (
     <Card className="border-l-4 border-l-sky-500">
       <CardHeader>
-        <CardTitle className="text-sky-700">Category Budgets</CardTitle>
+        <CardTitle className="text-sky-700 dark:text-sky-300">
+          Category Budgets
+        </CardTitle>
         <CardDescription>
           Individual spending limits by category with visual progress.
         </CardDescription>

@@ -1,19 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardFooter } from "@/components/DashboardFooter";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-import { sampleGoals } from "@/components/goals";
+import { sampleGoals, GoalPageSkeleton } from "@/components/goals";
 import { FinancialGoal } from "@/lib/types";
 import { EditGoalDialog } from "@/components/goals";
 
 function GoalsPage() {
-  const [goals, setGoals] = useState<FinancialGoal[]>(sampleGoals);
+  const [goals, setGoals] = useState<FinancialGoal[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<FinancialGoal | null>(null);
+
+  // Simulate loading state
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setGoals(sampleGoals);
+      setIsLoading(false);
+    }, 1500); // Simulate 1.5s loading time
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <GoalPageSkeleton />
+        <DashboardFooter />
+      </div>
+    );
+  }
 
   const handleCreateGoal = () => {
     setEditingGoal(null); // null means we're creating a new goal
@@ -59,7 +79,7 @@ function GoalsPage() {
       <DataTable
         columns={columns}
         data={goals}
-        isLoading={false}
+        isLoading={isLoading}
         onDelete={handleDeleteGoal}
       />
 
