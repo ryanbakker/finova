@@ -40,6 +40,28 @@ interface EditTransactionDialogProps {
   categories: Category[];
 }
 
+type FormField = {
+  id: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  type: "text" | "number" | "date" | "select";
+  field: keyof Transaction;
+  placeholder?: string;
+  step?: string;
+  validation?: (
+    value: string | number | Account | Category | undefined
+  ) => string;
+  renderValue?: (
+    value: string | number | Account | Category | undefined
+  ) => React.ReactNode;
+  getValue?: (
+    value: string | number | Account | Category | undefined
+  ) => string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => string | number;
+  options?: Array<{ value: string; label: string | React.ReactNode }>;
+  onValueChange?: (value: string) => Account | Category | string;
+};
+
 // Helper function to format date for input field
 const formatDateForInput = (dateString: string): string => {
   const date = new Date(dateString);
@@ -68,7 +90,7 @@ export function EditTransactionDialog({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Form fields configuration
-  const formFields = [
+  const formFields: FormField[] = [
     {
       id: "amount",
       label: "Amount",
@@ -77,13 +99,14 @@ export function EditTransactionDialog({
       step: "0.01",
       placeholder: "Enter amount",
       field: "amount" as keyof Transaction,
-      validation: (value: any) =>
+      validation: (value: string | number | Account | Category | undefined) =>
         !value || value === 0 ? "Amount is required and cannot be zero" : "",
-      renderValue: (value: any) =>
+      renderValue: (value: string | number | Account | Category | undefined) =>
+        typeof value === "number" &&
         value && (
           <p
             className={`text-sm font-medium ${
-              (value || 0) >= 0
+              value >= 0
                 ? "text-green-600 dark:text-green-500"
                 : "text-red-600 dark:text-red-500"
             }`}
@@ -99,7 +122,8 @@ export function EditTransactionDialog({
       type: "text" as const,
       placeholder: "Enter payee name",
       field: "payee" as keyof Transaction,
-      validation: (value: any) => (!value?.trim() ? "Payee is required" : ""),
+      validation: (value: string | number | Account | Category | undefined) =>
+        typeof value === "string" && !value?.trim() ? "Payee is required" : "",
     },
     {
       id: "date",
@@ -107,8 +131,10 @@ export function EditTransactionDialog({
       icon: Calendar,
       type: "date" as const,
       field: "date" as keyof Transaction,
-      validation: (value: any) => (!value ? "Date is required" : ""),
-      getValue: (value: any) => (value ? formatDateForInput(value) : ""),
+      validation: (value: string | number | Account | Category | undefined) =>
+        typeof value === "string" && !value ? "Date is required" : "",
+      getValue: (value: string | number | Account | Category | undefined) =>
+        typeof value === "string" && value ? formatDateForInput(value) : "",
       onChange: (e: React.ChangeEvent<HTMLInputElement>) => e.target.value,
     },
     {
@@ -117,14 +143,17 @@ export function EditTransactionDialog({
       icon: CreditCard,
       type: "select" as const,
       field: "account" as keyof Transaction,
-      validation: (value: any) => (!value?.id ? "Account is required" : ""),
+      validation: (value: string | number | Account | Category | undefined) =>
+        typeof value === "object" && value && "id" in value && !value.id
+          ? "Account is required"
+          : "",
       options: accounts.map((account) => ({
         value: account.id,
         label: `${account.name} (${account.type})`,
       })),
       onValueChange: (value: string) => {
         const account = accounts.find((acc) => acc.id === value);
-        return account;
+        return account || value;
       },
     },
     {
@@ -133,7 +162,10 @@ export function EditTransactionDialog({
       icon: Tag,
       type: "select" as const,
       field: "category" as keyof Transaction,
-      validation: (value: any) => (!value?.id ? "Category is required" : ""),
+      validation: (value: string | number | Account | Category | undefined) =>
+        typeof value === "object" && value && "id" in value && !value.id
+          ? "Category is required"
+          : "",
       options: categories.map((category) => ({
         value: category.id,
         label: (
@@ -145,7 +177,7 @@ export function EditTransactionDialog({
       })),
       onValueChange: (value: string) => {
         const category = categories.find((cat) => cat.id === value);
-        return category;
+        return category || value;
       },
     },
     {

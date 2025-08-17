@@ -22,5 +22,19 @@ export type Transaction = {
   category: Category;
   account: Account;
   payee: string;
-  status?: "pending" | "completed";
+  status?: "pending" | "completed" | "incomplete";
+};
+
+export type Bill = {
+  id: string;
+  name: string;
+  amount: number;
+  dueDate: string;
+  category: string;
+  isRecurring: boolean;
+  icon: React.ReactNode;
+  status?: "paid" | "unpaid" | "overdue";
+  account?: Account;
+  notes?: string;
+  frequency?: "monthly" | "quarterly" | "yearly" | "weekly";
 };

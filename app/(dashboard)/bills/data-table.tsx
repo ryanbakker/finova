@@ -22,21 +22,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
-import {
-  TransactionDetailsDialog,
-  EditTransactionDialog,
-  DeleteTransactionDialog,
-  TransactionFilters,
-  TransactionTableSkeleton,
-} from "@/components/transactions";
 import { setGlobalActionHandlers } from "./columns";
-import { Transaction } from "@/lib/types";
-import {
-  sampleAccounts,
-  sampleCategories,
-} from "@/database/test-data/sample-transactions";
+import { Bill } from "@/lib/types";
 import { useSearchParams } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  BillDetailsDialog,
+  EditBillDialog,
+  DeleteBillDialog,
+  BillFilters,
+  BillTableSkeleton,
+} from "@/components/bills";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -56,8 +52,7 @@ export function DataTable<TData, TValue>({
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  const [selectedTransaction, setSelectedTransaction] =
-    useState<Transaction | null>(null);
+  const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -67,37 +62,37 @@ export function DataTable<TData, TValue>({
   const isMobile = useIsMobile();
 
   // Get filter values from URL search params
-  const payeeFilter = searchParams.get("payee") || "";
+  const nameFilter = searchParams.get("name") || "";
   const dateFrom = searchParams.get("dateFrom");
   const dateTo = searchParams.get("dateTo");
-  const selectedAccount = searchParams.get("account") || "all";
   const selectedCategory = searchParams.get("category") || "all";
-  const selectedType = searchParams.get("type") || "all";
+  const selectedStatus = searchParams.get("status") || "all";
+  const selectedRecurring = searchParams.get("recurring") || "all";
 
   // Set column visibility based on screen size
   useEffect(() => {
     if (isMobile) {
-      // On mobile: show select, payee, amount, date, and actions
+      // On mobile: show select, name, amount, dueDate, and actions
       setColumnVisibility({
         select: true,
-        payee: true,
+        name: true,
         amount: true,
-        date: true,
-        account: false,
+        dueDate: true,
         category: false,
         status: false,
+        isRecurring: false,
         actions: true,
       });
     } else {
       // On medium+ devices: show all columns
       setColumnVisibility({
         select: true,
-        payee: true,
+        name: true,
         amount: true,
-        date: true,
-        account: true,
+        dueDate: true,
         category: true,
         status: true,
+        isRecurring: true,
         actions: true,
       });
     }
@@ -105,59 +100,59 @@ export function DataTable<TData, TValue>({
 
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
-    setSelectedTransaction(null);
+    setSelectedBill(null);
   };
 
-  const handleViewTransaction = (transaction: Transaction) => {
-    setSelectedTransaction(transaction);
+  const handleViewBill = (bill: Bill) => {
+    setSelectedBill(bill);
     setIsDialogOpen(true);
   };
 
-  const handleEditTransaction = (transaction: Transaction) => {
-    setSelectedTransaction(transaction);
+  const handleEditBill = (bill: Bill) => {
+    setSelectedBill(bill);
     setIsEditDialogOpen(true);
   };
 
-  const handleDeleteTransaction = (transaction: Transaction) => {
-    setSelectedTransaction(transaction);
+  const handleDeleteBill = (bill: Bill) => {
+    setSelectedBill(bill);
     setIsDeleteDialogOpen(true);
   };
 
   // Set global action handlers
   useEffect(() => {
     setGlobalActionHandlers({
-      onView: handleViewTransaction,
-      onEdit: handleEditTransaction,
-      onDelete: handleDeleteTransaction,
+      onView: handleViewBill,
+      onEdit: handleEditBill,
+      onDelete: handleDeleteBill,
     });
   }, []);
 
-  const handleSaveTransaction = (updatedTransaction: Transaction) => {
+  const handleSaveBill = (updatedBill: Bill) => {
     // TODO: Implement actual update logic here
-    console.log("Updating transaction:", updatedTransaction);
+    console.log("Updating bill:", updatedBill);
 
     // For now, just close the dialog
     setIsEditDialogOpen(false);
-    setSelectedTransaction(null);
+    setSelectedBill(null);
   };
 
-  const handleConfirmDelete = (transaction: Transaction) => {
+  const handleConfirmDelete = (bill: Bill) => {
     // TODO: Implement actual deletion logic here
-    console.log("Deleting transaction:", transaction);
+    console.log("Deleting bill:", bill);
 
     // For now, just close the dialog
     setIsDeleteDialogOpen(false);
-    setSelectedTransaction(null);
+    setSelectedBill(null);
   };
 
   // Apply custom filters and sorting based on URL search params
   const filteredAndSortedData = useMemo(() => {
-    let filtered = data as Transaction[];
+    let filtered = data as Bill[];
 
-    // Payee filter
-    if (payeeFilter) {
-      filtered = filtered.filter((transaction) =>
-        transaction.payee.toLowerCase().includes(payeeFilter.toLowerCase())
+    // Name filter
+    if (nameFilter) {
+      filtered = filtered.filter((bill) =>
+        bill.name.toLowerCase().includes(nameFilter.toLowerCase())
       );
     }
 
@@ -165,33 +160,29 @@ export function DataTable<TData, TValue>({
     if (dateFrom && dateTo) {
       const fromDate = new Date(dateFrom);
       const toDate = new Date(dateTo);
-      filtered = filtered.filter((transaction) => {
-        const transactionDate = new Date(transaction.date);
-        return transactionDate >= fromDate && transactionDate <= toDate;
+      filtered = filtered.filter((bill) => {
+        const billDate = new Date(bill.dueDate);
+        return billDate >= fromDate && billDate <= toDate;
       });
-    }
-
-    // Account filter
-    if (selectedAccount !== "all") {
-      filtered = filtered.filter(
-        (transaction) => transaction.account.id === selectedAccount
-      );
     }
 
     // Category filter
     if (selectedCategory !== "all") {
-      filtered = filtered.filter(
-        (transaction) => transaction.category.id === selectedCategory
-      );
+      filtered = filtered.filter((bill) => bill.category === selectedCategory);
     }
 
-    // Transaction type filter
-    if (selectedType !== "all") {
-      filtered = filtered.filter((transaction) => {
-        if (selectedType === "income") {
-          return transaction.amount > 0;
+    // Status filter
+    if (selectedStatus !== "all") {
+      filtered = filtered.filter((bill) => bill.status === selectedStatus);
+    }
+
+    // Recurring filter
+    if (selectedRecurring !== "all") {
+      filtered = filtered.filter((bill) => {
+        if (selectedRecurring === "yes") {
+          return bill.isRecurring === true;
         } else {
-          return transaction.amount < 0;
+          return bill.isRecurring === false;
         }
       });
     }
@@ -205,20 +196,11 @@ export function DataTable<TData, TValue>({
         const [columnId, sortDirection] = activeSort;
 
         filtered = [...filtered].sort((a, b) => {
-          let aValue: unknown = a[columnId as keyof Transaction];
-          let bValue: unknown = b[columnId as keyof Transaction];
-
-          // Handle nested objects
-          if (columnId === "account") {
-            aValue = (aValue as { name: string })?.name || "";
-            bValue = (bValue as { name: string })?.name || "";
-          } else if (columnId === "category") {
-            aValue = (aValue as { name: string })?.name || "";
-            bValue = (bValue as { name: string })?.name || "";
-          }
+          let aValue: unknown = a[columnId as keyof Bill];
+          let bValue: unknown = b[columnId as keyof Bill];
 
           // Handle dates
-          if (columnId === "date") {
+          if (columnId === "dueDate") {
             aValue = new Date(aValue as string).getTime();
             bValue = new Date(bValue as string).getTime();
           }
@@ -227,6 +209,12 @@ export function DataTable<TData, TValue>({
           if (columnId === "amount") {
             aValue = Number(aValue);
             bValue = Number(bValue);
+          }
+
+          // Handle booleans
+          if (columnId === "isRecurring") {
+            aValue = (aValue as boolean) ? 1 : 0;
+            bValue = (bValue as boolean) ? 1 : 0;
           }
 
           // Handle strings
@@ -255,24 +243,14 @@ export function DataTable<TData, TValue>({
     return filtered;
   }, [
     data,
-    payeeFilter,
+    nameFilter,
     dateFrom,
     dateTo,
-    selectedAccount,
     selectedCategory,
-    selectedType,
+    selectedStatus,
+    selectedRecurring,
     sortStates,
   ]);
-
-  // Calculate total pages
-  const totalPages = Math.ceil(filteredAndSortedData.length / pageSize);
-
-  // Reset to first page when filtered results change
-  useEffect(() => {
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(1);
-    }
-  }, [totalPages, currentPage]);
 
   const table = useReactTable({
     data: filteredAndSortedData as TData[],
@@ -282,7 +260,7 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     // Disable built-in sorting since we handle it manually
     // getSortedRowModel: getSortedRowModel(),
-    // onSortingChange: onSortingChange || setSorting,
+    // onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: (updater) => {
@@ -314,65 +292,66 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  // Show skeleton if loading or no data
-  if (isLoading || !data || data.length === 0) {
-    return <TransactionTableSkeleton rowCount={8} isMobile={isMobile} />;
-  }
-
-  // Handle delete selected transactions
-  const handleDeleteSelected = () => {
-    const selectedRows = table.getFilteredSelectedRowModel().rows;
-    const selectedTransactions = selectedRows.map(
-      (row) => row.original as Transaction
-    );
-
-    if (selectedTransactions.length === 0) {
-      return;
-    }
-
-    // Show confirmation dialog
-    const confirmMessage =
-      selectedTransactions.length === 1
-        ? `Are you sure you want to delete the transaction "${selectedTransactions[0].payee}"?`
-        : `Are you sure you want to delete ${selectedTransactions.length} selected transactions?`;
-
-    if (window.confirm(confirmMessage)) {
-      // TODO: Implement actual deletion logic here
-      console.log("Deleting transactions:", selectedTransactions);
-
-      // Clear selection after deletion
-      setRowSelection({});
-
-      // You would typically call an API endpoint here to delete the transactions
-      // For now, we'll just log the action
-    }
-  };
-
   // Get selected count for display
   const selectedCount = table.getFilteredSelectedRowModel().rows.length;
+
+  const totalPages = Math.ceil(
+    table.getFilteredRowModel().rows.length / pageSize
+  );
+
+  // Reset to first page when filtered results change
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     table.setPageIndex(page - 1);
   };
 
+  // Handle delete selected bills
+  const handleDeleteSelected = () => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    const selectedBills = selectedRows.map((row) => row.original as Bill);
+
+    if (selectedBills.length === 0) return;
+
+    // Show confirmation dialog
+    const confirmMessage =
+      selectedBills.length === 1
+        ? `Are you sure you want to delete the bill "${selectedBills[0].name}"?`
+        : `Are you sure you want to delete ${selectedBills.length} selected bills?`;
+
+    if (window.confirm(confirmMessage)) {
+      // TODO: Implement actual deletion logic here
+      console.log("Deleting bills:", selectedBills);
+
+      // Clear selection after deletion
+      setRowSelection({});
+
+      // You would typically call an API endpoint here to delete the bills
+      // For now, we'll just log the action
+    }
+  };
+
+  // Show skeleton if loading or no data
+  if (isLoading || !data || data.length === 0) {
+    return <BillTableSkeleton rowCount={8} isMobile={isMobile} />;
+  }
+
   return (
     <div className="w-full space-y-4">
-      {/* Transaction Filters */}
-      <TransactionFilters
-        accounts={sampleAccounts}
-        categories={sampleCategories}
-        table={table}
-        isLoading={isLoading}
-      />
+      {/* Bill Filters */}
+      <BillFilters table={table} />
 
       {/* Delete Selected Button */}
       {selectedCount > 0 && (
         <div className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
           <div className="flex items-center space-x-2">
             <span className="text-sm font-medium text-red-700 dark:text-red-300">
-              {selectedCount} transaction{selectedCount === 1 ? "" : "s"}{" "}
-              selected:
+              {selectedCount} bill{selectedCount === 1 ? "" : "s"} selected:
             </span>
           </div>
           <Button
@@ -393,7 +372,7 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
                 key={headerGroup.id}
-                className="hover:!bg-white dark:hover:!bg-neutral-950"
+                className="hover:!bg-white dark:hover:!bg-white"
               >
                 {headerGroup.headers.map((header) => {
                   return (
@@ -431,7 +410,7 @@ export function DataTable<TData, TValue>({
                     ) {
                       return;
                     }
-                    handleViewTransaction(row.original as Transaction);
+                    handleViewBill(row.original as Bill);
                   }}
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -457,7 +436,7 @@ export function DataTable<TData, TValue>({
                 >
                   {filteredAndSortedData.length === 0 && data.length > 0
                     ? "No results found for your search criteria."
-                    : "No transactions available."}
+                    : "No bills available."}
                 </TableCell>
               </TableRow>
             )}
@@ -468,34 +447,9 @@ export function DataTable<TData, TValue>({
       {/* Mobile columns info */}
       {isMobile && (
         <div className="text-xs text-muted-foreground text-center py-2">
-          💡 Swipe to see more details • Tap row to view full transaction
+          💡 Swipe to see more details • Tap row to view full bill
         </div>
       )}
-
-      {/* Transaction Details Dialog */}
-      <TransactionDetailsDialog
-        transaction={selectedTransaction}
-        isOpen={isDialogOpen}
-        onClose={handleCloseDialog}
-      />
-
-      {/* Edit Transaction Dialog */}
-      <EditTransactionDialog
-        transaction={selectedTransaction}
-        isOpen={isEditDialogOpen}
-        onClose={() => setIsEditDialogOpen(false)}
-        onSave={handleSaveTransaction}
-        accounts={sampleAccounts}
-        categories={sampleCategories}
-      />
-
-      {/* Delete Transaction Dialog */}
-      <DeleteTransactionDialog
-        transaction={selectedTransaction}
-        isOpen={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-        onConfirm={handleConfirmDelete}
-      />
 
       {/* Pagination and Row Selection Info */}
       {totalPages > 1 && (
@@ -551,6 +505,30 @@ export function DataTable<TData, TValue>({
           </div>
         </div>
       )}
+
+      {/* Bill Details Dialog */}
+      <BillDetailsDialog
+        bill={selectedBill}
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+      />
+
+      {/* Edit Bill Dialog */}
+      <EditBillDialog
+        bill={selectedBill}
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        onSave={handleSaveBill}
+        accounts={[]}
+      />
+
+      {/* Delete Bill Dialog */}
+      <DeleteBillDialog
+        bill={selectedBill}
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

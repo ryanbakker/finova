@@ -24,13 +24,20 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Table } from "@tanstack/react-table";
+
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface TransactionFiltersProps {
   accounts: Account[];
   categories: Category[];
-  table?: Table<any>; // Properly type the table prop
+  table?: {
+    getAllColumns: () => Array<{
+      id: string;
+      getCanHide: () => boolean;
+      getIsVisible: () => boolean;
+      toggleVisibility: (value: boolean) => void;
+    }>;
+  };
   isLoading?: boolean;
 }
 
@@ -43,6 +50,7 @@ export function TransactionFilters({
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Get current values from URL search params
   const payeeFilter = searchParams.get("payee") || "";
@@ -135,70 +143,80 @@ export function TransactionFilters({
   // Show skeleton if data is loading
   if (isLoading || !accounts || !categories) {
     return (
-      <div className="space-y-4 p-4 bg-white dark:bg-neutral-900 rounded-lg border border-border shadow-sm">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-5 w-5" /> {/* Filter icon */}
-            <Skeleton className="h-6 w-20" /> {/* Filters title */}
+      <div className="space-y-4">
+        {/* Basic Search Bar */}
+        <div className="flex items-center space-x-2">
+          <div className="relative flex-1">
+            <Skeleton className="h-10 w-full" />
           </div>
-        </div>
-
-        {/* Filter Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Payee Search */}
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-24" /> {/* Label */}
-            <Skeleton className="h-9 w-full" /> {/* Input */}
-          </div>
-
-          {/* Date Range */}
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-20" /> {/* Label */}
-            <Skeleton className="h-9 w-full" /> {/* Date picker */}
-          </div>
-
-          {/* Account Filter */}
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-16" /> {/* Label */}
-            <Skeleton className="h-9 w-full" /> {/* Select */}
-          </div>
-
-          {/* Category Filter */}
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-20" /> {/* Label */}
-            <Skeleton className="h-9 w-full" /> {/* Select */}
-          </div>
-        </div>
-
-        {/* Transaction Type Filter */}
-        <div className="space-y-2">
-          <div className="flex items-end justify-between">
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-32" /> {/* Label */}
-              <div className="flex gap-2 mt-2">
-                <Skeleton className="h-8 w-16" /> {/* All button */}
-                <Skeleton className="h-8 w-20" /> {/* Income button */}
-                <Skeleton className="h-8 w-20" /> {/* Expense button */}
-              </div>
-            </div>
-            <div className="space-y-2 flex flex-col items-end">
-              <Skeleton className="h-4 w-24" /> {/* Columns label */}
-              <Skeleton className="h-8 w-24" /> {/* Columns dropdown */}
-            </div>
-          </div>
+          <Skeleton className="h-10 w-20" />
+          <Skeleton className="h-10 w-10" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 p-4 bg-white dark:bg-neutral-900 rounded-lg border border-border shadow-sm">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <Filter className="h-5 w-5" />
-          Filters
-        </h3>
+    <div className="space-y-4">
+      {/* Basic Search Bar */}
+      <div className="flex items-center space-x-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search transactions by payee..."
+            value={localPayeeFilter}
+            onChange={(e) => handlePayeeChange(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className={`flex items-center space-x-2 ${
+            isExpanded || hasActiveFilters
+              ? "bg-gradient-to-r from-sky-500 via-sky-500 to-sky-600 text-white border-sky-600 hover:from-sky-600 hover:via-sky-600 hover:to-sky-700 hover:border-sky-700 hover:text-white"
+              : ""
+          }`}
+        >
+          <Filter className="h-4 w-4" />
+          <span>Filters</span>
+          {hasActiveFilters && (
+            <span className="ml-1 h-2 w-2 rounded-full bg-white"></span>
+          )}
+        </Button>
+        {table && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="cursor-pointer shadow-sm"
+              >
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize cursor-pointer"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         {hasActiveFilters && (
           <Button
             variant="ghost"
@@ -206,177 +224,159 @@ export function TransactionFilters({
             onClick={clearAllFilters}
             className="text-muted-foreground hover:text-foreground"
           >
-            <X className="h-4 w-4 mr-1" />
-            Clear all
+            <X className="h-4 w-4" />
           </Button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Payee Search */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">
-            Search
-          </label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-100" />
-            <Input
-              placeholder="Search payee..."
-              value={localPayeeFilter}
-              onChange={(e) => handlePayeeChange(e.target.value)}
-              className="pl-10 shadow-sm dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-100"
+      {/* Expanded Filters */}
+      {isExpanded && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/50 rounded-lg border">
+          {/* Date Range */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">
+              Date Range
+            </label>
+            <DateRangePicker
+              value={dateRange}
+              onChange={(range) => {
+                // Update the URL with the new date range
+                if (range) {
+                  updateURL({
+                    dateFrom: range.from.toISOString().split("T")[0],
+                    dateTo: range.to.toISOString().split("T")[0],
+                  });
+                } else {
+                  updateURL({
+                    dateFrom: null,
+                    dateTo: null,
+                  });
+                }
+              }}
+              placeholder="Select date range"
+              name="date"
+              className="shadow-sm cursor-pointer"
             />
           </div>
-        </div>
 
-        {/* Date Range */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">
-            Date
-          </label>
-          <DateRangePicker
-            value={dateRange}
-            onChange={(range) => {
-              // Update the URL with the new date range
-              if (range) {
-                updateURL({
-                  dateFrom: range.from.toISOString().split("T")[0],
-                  dateTo: range.to.toISOString().split("T")[0],
-                });
-              } else {
-                updateURL({
-                  dateFrom: null,
-                  dateTo: null,
-                });
-              }
-            }}
-            placeholder="Select date range"
-            name="date"
-            className="shadow-sm dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-100 cursor-pointer"
-          />
-        </div>
-
-        {/* Account Filter */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">
-            Account
-          </label>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full justify-between shadow-sm dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-100 cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  {selectedAccount !== "all" ? (
-                    <>
-                      {getAccountIcon(
-                        accounts.find((a) => a.id === selectedAccount)?.type ||
-                          "checking"
-                      )}
-                      <span>
-                        {accounts.find((a) => a.id === selectedAccount)?.name ||
-                          "All Accounts"}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <Wallet className="h-4 w-4" />
-                      <span>All Accounts</span>
-                    </>
-                  )}
-                </div>
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-full min-w-[200px]">
-              <DropdownMenuCheckboxItem
-                checked={selectedAccount === "all"}
-                onCheckedChange={() => updateURL({ account: null })}
-                className="flex items-center gap-2 cursor-pointer"
-              >
-                All Accounts
-              </DropdownMenuCheckboxItem>
-              {accounts.map((account) => (
-                <DropdownMenuCheckboxItem
-                  key={account.id}
-                  checked={selectedAccount === account.id}
-                  onCheckedChange={() => updateURL({ account: account.id })}
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  {account.name}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        {/* Category Filter */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">
-            Category
-          </label>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full justify-between shadow-sm dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-100 cursor-pointer"
-              >
-                <div className="flex items-center gap-2 cursor-pointer">
-                  {selectedCategory !== "all" ? (
-                    <>
-                      <span className="text-lg">
-                        {
-                          categories.find((c) => c.id === selectedCategory)
-                            ?.icon
-                        }
-                      </span>
-                      <span>
-                        {categories.find((c) => c.id === selectedCategory)
-                          ?.name || "All Categories"}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <Tag className="h-4 w-4" />
-                      <span>All Categories</span>
-                    </>
-                  )}
-                </div>
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-full min-w-[200px]">
-              <DropdownMenuCheckboxItem
-                checked={selectedCategory === "all"}
-                onCheckedChange={() => updateURL({ category: null })}
-                className="flex items-center gap-2 cursor-pointer"
-              >
-                All Categories
-              </DropdownMenuCheckboxItem>
-              {categories.map((category) => (
-                <DropdownMenuCheckboxItem
-                  key={category.id}
-                  checked={selectedCategory === category.id}
-                  onCheckedChange={() => updateURL({ category: category.id })}
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  {category.name}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-
-      {/* Transaction Type Filter */}
-      <div className="space-y-2">
-        <div className="flex items-end justify-between">
+          {/* Account Filter */}
           <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">
+              Account
+            </label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between shadow-sm cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    {selectedAccount !== "all" ? (
+                      <>
+                        {getAccountIcon(
+                          accounts.find((a) => a.id === selectedAccount)
+                            ?.type || "checking"
+                        )}
+                        <span>
+                          {accounts.find((a) => a.id === selectedAccount)
+                            ?.name || "All Accounts"}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Wallet className="h-4 w-4" />
+                        <span>All Accounts</span>
+                      </>
+                    )}
+                  </div>
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full min-w-[200px]">
+                <DropdownMenuCheckboxItem
+                  checked={selectedAccount === "all"}
+                  onCheckedChange={() => updateURL({ account: null })}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  All Accounts
+                </DropdownMenuCheckboxItem>
+                {accounts.map((account) => (
+                  <DropdownMenuCheckboxItem
+                    key={account.id}
+                    checked={selectedAccount === account.id}
+                    onCheckedChange={() => updateURL({ account: account.id })}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    {account.name}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Category Filter */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">
+              Category
+            </label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between shadow-sm cursor-pointer"
+                >
+                  <div className="flex items-center gap-2 cursor-pointer">
+                    {selectedCategory !== "all" ? (
+                      <>
+                        <span className="text-lg">
+                          {
+                            categories.find((c) => c.id === selectedCategory)
+                              ?.icon
+                          }
+                        </span>
+                        <span>
+                          {categories.find((c) => c.id === selectedCategory)
+                            ?.name || "All Categories"}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Tag className="h-4 w-4" />
+                        <span>All Categories</span>
+                      </>
+                    )}
+                  </div>
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full min-w-[200px]">
+                <DropdownMenuCheckboxItem
+                  checked={selectedCategory === "all"}
+                  onCheckedChange={() => updateURL({ category: null })}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  All Categories
+                </DropdownMenuCheckboxItem>
+                {categories.map((category) => (
+                  <DropdownMenuCheckboxItem
+                    key={category.id}
+                    checked={selectedCategory === category.id}
+                    onCheckedChange={() => updateURL({ category: category.id })}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    {category.name}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Transaction Type Filter */}
+          <div>
             <label className="text-sm font-medium text-muted-foreground">
               Transaction Type
             </label>
-            <div className="flex gap-2 mt-2">
+            <div className="flex gap-2 mt-0.5">
               <Button
                 type="button"
                 variant="outline"
@@ -384,7 +384,7 @@ export function TransactionFilters({
                 onClick={() => updateURL({ type: null })}
                 className={`transaction-type-button cursor-pointer ${
                   !selectedType || selectedType === "all"
-                    ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white shadow-sm dark:bg-sky-500 dark:text-white dark:border-sky-500 dark:hover:bg-sky-600 dark:hover:border-sky-600 dark:hover:text-white"
+                    ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white !shadow-sm"
                     : "hover:bg-sky-50 dark:hover:bg-sky-950 shadow-sm"
                 }`}
               >
@@ -397,7 +397,7 @@ export function TransactionFilters({
                 onClick={() => updateURL({ type: "income" })}
                 className={`transaction-type-button cursor-pointer ${
                   selectedType === "income"
-                    ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white shadow-sm dark:bg-sky-500 dark:text-white dark:border-sky-500 dark:hover:bg-sky-600 dark:hover:border-sky-600 dark:hover:text-white"
+                    ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white !shadow-sm"
                     : "hover:bg-sky-50 dark:hover:bg-sky-950 shadow-sm"
                 }`}
               >
@@ -410,7 +410,7 @@ export function TransactionFilters({
                 onClick={() => updateURL({ type: "expense" })}
                 className={`transaction-type-button cursor-pointer ${
                   selectedType === "expense"
-                    ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white shadow-sm dark:bg-sky-500 dark:text-white dark:border-sky-500 dark:hover:bg-sky-600 dark:hover:border-sky-600 dark:hover:text-white"
+                    ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white !shadow-sm"
                     : "hover:bg-sky-50 dark:hover:bg-sky-950 shadow-sm"
                 }`}
               >
@@ -418,115 +418,47 @@ export function TransactionFilters({
               </Button>
             </div>
           </div>
-          {table && (
-            <div className="space-y-2 flex flex-col items-end">
-              <label className="text-sm font-medium text-muted-foreground">
-                Select Columns
-              </label>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="cursor-pointer shadow-sm"
-                  >
-                    Columns <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {table
-                    .getAllColumns()
-                    .filter((column) => column.getCanHide())
-                    .map((column) => {
-                      return (
-                        <DropdownMenuCheckboxItem
-                          key={column.id}
-                          className="capitalize cursor-pointer"
-                          checked={column.getIsVisible()}
-                          onCheckedChange={(value) =>
-                            column.toggleVisibility(!!value)
-                          }
-                        >
-                          {column.id}
-                        </DropdownMenuCheckboxItem>
-                      );
-                    })}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          )}
         </div>
-      </div>
+      )}
 
       {/* Active Filters Summary */}
       {hasActiveFilters && (
-        <div className="pt-4 border-t border-border">
-          <div className="flex flex-wrap gap-2">
-            {payeeFilter && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-neutral-900 text-blue-800 dark:text-blue-200 text-xs rounded-full">
-                Payee: {payeeFilter}
-                <button
-                  onClick={() => updateURL({ payee: null })}
-                  className="ml-1 hover:bg-blue-200 dark:hover:bg-neutral-800 rounded-full p-0.5"
-                >
-                  <X className="h-3 w-3" />
-                </button>
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-muted-foreground">Active filters:</span>
+          {payeeFilter && (
+            <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 rounded-full">
+              Payee: {payeeFilter}
+            </span>
+          )}
+          {dateRange && (
+            <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded-full">
+              Date: {dateRange.from.toLocaleDateString()} -{" "}
+              {dateRange.to.toLocaleDateString()}
+            </span>
+          )}
+          {selectedAccount !== "all" && (
+            <span className="px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 rounded-full">
+              {getAccountIcon(
+                accounts.find((a) => a.id === selectedAccount)?.type ||
+                  "checking"
+              )}
+              Account: {accounts.find((a) => a.id === selectedAccount)?.name}
+            </span>
+          )}
+          {selectedCategory !== "all" && (
+            <span className="px-2 py-1 bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 rounded-full">
+              <span className="text-sm">
+                {categories.find((c) => c.id === selectedCategory)?.icon}
               </span>
-            )}
-            {dateRange && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-neutral-900 text-green-800 dark:text-green-200 text-xs rounded-full">
-                Date: {dateRange.from.toLocaleDateString()} -{" "}
-                {dateRange.to.toLocaleDateString()}
-                <button
-                  onClick={() => updateURL({ dateFrom: null, dateTo: null })}
-                  className="ml-1 hover:bg-green-200 dark:hover:bg-neutral-800 rounded-full p-0.5"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            )}
-            {selectedAccount !== "all" && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 dark:bg-neutral-900 text-purple-800 dark:text-purple-200 text-xs rounded-full">
-                {getAccountIcon(
-                  accounts.find((a) => a.id === selectedAccount)?.type ||
-                    "checking"
-                )}
-                Account: {accounts.find((a) => a.id === selectedAccount)?.name}
-                <button
-                  onClick={() => updateURL({ account: null })}
-                  className="ml-1 hover:bg-purple-200 dark:hover:bg-neutral-800 rounded-full p-0.5"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            )}
-            {selectedCategory !== "all" && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 dark:bg-neutral-900 text-orange-800 dark:text-orange-200 text-xs rounded-full">
-                <span className="text-sm">
-                  {categories.find((c) => c.id === selectedCategory)?.icon}
-                </span>
-                Category:{" "}
-                {categories.find((c) => c.id === selectedCategory)?.name}
-                <button
-                  onClick={() => updateURL({ category: null })}
-                  className="ml-1 hover:bg-orange-200 dark:hover:bg-neutral-800 rounded-full p-0.5"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            )}
-            {selectedType !== "all" && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-indigo-100 dark:bg-neutral-900 text-indigo-800 dark:text-indigo-200 text-xs rounded-full">
-                Type: {selectedType === "income" ? "Income" : "Expense"}
-                <button
-                  onClick={() => updateURL({ type: null })}
-                  className="ml-1 hover:bg-indigo-200 dark:hover:bg-neutral-800 rounded-full p-0.5"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            )}
-          </div>
+              Category:{" "}
+              {categories.find((c) => c.id === selectedCategory)?.name}
+            </span>
+          )}
+          {selectedType !== "all" && (
+            <span className="px-2 py-1 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-full">
+              Type: {selectedType === "income" ? "Income" : "Expense"}
+            </span>
+          )}
         </div>
       )}
     </div>

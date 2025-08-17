@@ -301,6 +301,34 @@ export const sampleTransactions: Transaction[] = [
     payee: "Airbnb",
     status: "completed",
   },
+  // Additional transactions with different statuses for demonstration
+  {
+    id: "txn-027",
+    date: "2024-12-16T09:00:00Z",
+    amount: -75.50,
+    category: sampleCategories[0], // Food & Dining
+    account: sampleAccounts[0], // Chase Checking
+    payee: "Local Restaurant",
+    status: "pending",
+  },
+  {
+    id: "txn-028",
+    date: "2024-12-17T14:30:00Z",
+    amount: -120.00,
+    category: sampleCategories[2], // Shopping
+    account: sampleAccounts[2], // Chase Credit Card
+    payee: "Online Store",
+    status: "incomplete",
+  },
+  {
+    id: "txn-029",
+    date: "2024-12-18T11:15:00Z",
+    amount: -45.00,
+    category: sampleCategories[1], // Transportation
+    account: sampleAccounts[0], // Chase Checking
+    payee: "Taxi Service",
+    status: "pending",
+  },
 ];
 
 // Helper function to get transactions by date range

@@ -9,13 +9,15 @@ import { DataTable } from "./data-table";
 import { createColumns } from "./columns";
 import { Suspense, useState, useEffect } from "react";
 import { TransactionPageSkeleton } from "@/components/transactions";
+import { useSorting } from "@/hooks/use-sorting";
 
 function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { sortStates, toggleSorting } = useSorting();
 
   // Create columns
-  const columns = createColumns();
+  const columns = createColumns(sortStates, toggleSorting);
 
   // Simulate loading state
   useEffect(() => {
@@ -57,6 +59,7 @@ function TransactionsPage() {
           columns={columns}
           data={transactions}
           isLoading={isLoading}
+          sortStates={sortStates}
         />
       </Suspense>
 
