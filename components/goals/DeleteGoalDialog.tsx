@@ -37,8 +37,8 @@ export function DeleteGoalDialog({
             <span>Delete Financial Goal</span>
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete the goal "{goal.name}"? This action
-            cannot be undone.
+            Are you sure you want to delete the goal &quot;{goal.name}&quot;?
+            This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

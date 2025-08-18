@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -46,14 +45,6 @@ export function BudgetTable({ budgets, onEdit, onDelete }: BudgetTableProps) {
       style: "currency",
       currency: currency,
     }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
   };
 
   return (

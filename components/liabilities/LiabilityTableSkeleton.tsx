@@ -2,10 +2,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 interface LiabilityTableSkeletonProps {
   rowCount?: number;
+  isMobile?: boolean;
 }
 
 export function LiabilityTableSkeleton({
   rowCount = 8,
+  isMobile = false,
 }: LiabilityTableSkeletonProps) {
   return (
     <div className="w-full space-y-4">
@@ -18,8 +20,12 @@ export function LiabilityTableSkeleton({
               <Skeleton className="h-4 w-4" />
               <Skeleton className="h-4 w-32" />
               <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-28" />
-              <Skeleton className="h-4 w-24" />
+              {!isMobile && (
+                <>
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-4 w-24" />
+                </>
+              )}
               <Skeleton className="h-4 w-20" />
               <Skeleton className="h-4 w-16" />
             </div>
@@ -36,8 +42,12 @@ export function LiabilityTableSkeleton({
                   </div>
                 </div>
                 <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-4 w-20" />
+                {!isMobile && (
+                  <>
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-20" />
+                  </>
+                )}
                 <Skeleton className="h-4 w-16" />
                 <Skeleton className="h-4 w-16" />
               </div>

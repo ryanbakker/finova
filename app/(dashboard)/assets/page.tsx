@@ -4,7 +4,14 @@ import { DashboardFooter } from "@/components/DashboardFooter";
 import { Button } from "@/components/ui/button";
 import { sampleAssets } from "@/components/assets";
 import { Asset } from "@/lib/types";
-import { Plus, BarChart3, Table, Filter, ChevronDown } from "lucide-react";
+import {
+  Plus,
+  BarChart3,
+  Filter,
+  ChevronDown,
+  Table as TableIcon,
+} from "lucide-react";
+
 import { DataTable } from "./data-table";
 import { createColumns } from "./columns";
 import { Suspense, useState, useEffect, useRef } from "react";
@@ -18,7 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useSearchParams } from "next/navigation";
 
-function AssetsPage() {
+function AssetsPageContent() {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("table");
@@ -26,6 +33,7 @@ function AssetsPage() {
   const [tableReady, setTableReady] = useState(false);
   const { sortStates, toggleSorting } = useSorting();
   const searchParams = useSearchParams();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tableRef = useRef<any>(null);
 
   // Create columns
@@ -94,7 +102,7 @@ function AssetsPage() {
                 value="table"
                 className="flex items-center space-x-2"
               >
-                <Table className="h-4 w-4" />
+                <TableIcon className="h-4 w-4" />
                 <span>Asset List</span>
               </TabsTrigger>
               <TabsTrigger
@@ -102,22 +110,19 @@ function AssetsPage() {
                 className="flex items-center space-x-2"
               >
                 <BarChart3 className="h-4 w-4" />
-                <span>Insights & Analytics</span>
+                <span>Insights</span>
               </TabsTrigger>
             </TabsList>
           </Tabs>
 
-          {/* Filters Toggle and Clear Button - Only show when table tab is active */}
+          {/* Filter Toggle Button - Only show when table tab is active */}
           {activeTab === "table" && (
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               <Button
-                variant={showFilters ? "outline" : "secondary"}
+                variant="outline"
+                size="sm"
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2 shadow-sm transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                aria-label={`${showFilters ? "Hide" : "Show"} filters`}
-                title={`${
-                  showFilters ? "Hide" : "Show"
-                } filters (Click to toggle)`}
+                className="flex items-center space-x-2"
               >
                 <Filter className="h-4 w-4" />
                 <span>Filters</span>
@@ -183,7 +188,7 @@ function AssetsPage() {
           >
             {tableReady ? (
               <div className="w-full p-3 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg shadow-sm">
-                <AssetFilters table={tableRef.current} />
+                <AssetFilters table={tableRef.current || undefined} />
               </div>
             ) : (
               <div className="w-full p-4 text-center text-muted-foreground bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-700 rounded-lg animate-in fade-in duration-300">
@@ -221,6 +226,14 @@ function AssetsPage() {
 
       <DashboardFooter />
     </div>
+  );
+}
+
+function AssetsPage() {
+  return (
+    <Suspense fallback={<AssetPageSkeleton />}>
+      <AssetsPageContent />
+    </Suspense>
   );
 }
 

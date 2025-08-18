@@ -30,7 +30,6 @@ import {
   AssetDetailsDialog,
   EditAssetDialog,
   DeleteAssetDialog,
-  AssetFilters,
   AssetTableSkeleton,
 } from "../../../components/assets";
 
@@ -39,6 +38,7 @@ interface DataTableProps<TData extends Asset, TValue> {
   data: TData[];
   isLoading?: boolean;
   sortStates?: Record<string, "asc" | "desc" | false>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onTableReady?: (table: any) => void;
 }
 

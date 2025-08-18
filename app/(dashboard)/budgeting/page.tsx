@@ -14,10 +14,6 @@ import {
   BudgetDialog,
   BudgetTable,
   BudgetPageSkeleton,
-  BudgetTableSkeleton,
-  BudgetChartsSkeleton,
-  CategoryBudgetsSkeleton,
-  FinancialGoalsSkeleton,
 } from "@/components/budgeting";
 import {
   sampleBudgets,

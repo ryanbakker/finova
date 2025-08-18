@@ -8,6 +8,7 @@ import { Plus, BarChart3, Table, Filter, ChevronDown } from "lucide-react";
 import { DataTable } from "./data-table";
 import { createColumns } from "./columns";
 import { Suspense, useState, useEffect, useRef } from "react";
+import { useReactTable } from "@tanstack/react-table";
 import {
   LiabilityPageSkeleton,
   LiabilityInsights,
@@ -25,7 +26,9 @@ function LiabilitiesPage() {
   const [tableReady, setTableReady] = useState(false);
   const { sortStates, toggleSorting } = useSorting();
   const searchParams = useSearchParams();
-  const tableRef = useRef<unknown>(null);
+  const tableRef = useRef<ReturnType<typeof useReactTable<Liability>> | null>(
+    null
+  );
 
   // Create columns
   const columns = createColumns(sortStates, toggleSorting);
@@ -182,7 +185,7 @@ function LiabilitiesPage() {
           >
             {tableReady ? (
               <div className="w-full p-3 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg shadow-sm">
-                <LiabilityFilters table={tableRef.current} />
+                <LiabilityFilters table={tableRef.current || undefined} />
               </div>
             ) : (
               <div className="w-full p-4 text-center text-muted-foreground bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-700 rounded-lg animate-in fade-in duration-300">

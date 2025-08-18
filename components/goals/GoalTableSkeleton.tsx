@@ -24,12 +24,20 @@ export function GoalTableSkeleton({
       {/* Table Skeleton */}
       <div className="overflow-hidden rounded-md border w-full bg-neutral-50 dark:bg-neutral-900 shadow-sm">
         <div className="border-b bg-white dark:bg-neutral-950">
-          <div className="grid grid-cols-7 gap-4 p-4">
+          <div
+            className={`grid gap-4 p-4 ${
+              isMobile ? "grid-cols-5" : "grid-cols-7"
+            }`}
+          >
             <Skeleton className="h-4 w-16" />
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-4 w-20" />
+            {!isMobile && (
+              <>
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-20" />
+              </>
+            )}
             <Skeleton className="h-4 w-16" />
             <Skeleton className="h-4 w-16" />
           </div>
@@ -41,7 +49,11 @@ export function GoalTableSkeleton({
               key={index}
               className="p-4 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
-              <div className="grid grid-cols-7 gap-4 items-center">
+              <div
+                className={`grid gap-4 items-center ${
+                  isMobile ? "grid-cols-5" : "grid-cols-7"
+                }`}
+              >
                 <Skeleton className="h-4 w-4" />
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-32" />
@@ -55,11 +67,15 @@ export function GoalTableSkeleton({
                   <Skeleton className="h-2 w-full" />
                   <Skeleton className="h-3 w-16" />
                 </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-20" />
-                  <Skeleton className="h-3 w-24" />
-                </div>
-                <Skeleton className="h-6 w-16" />
+                {!isMobile && (
+                  <>
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                    <Skeleton className="h-6 w-16" />
+                  </>
+                )}
                 <Skeleton className="h-6 w-16" />
                 <Skeleton className="h-8 w-8" />
               </div>

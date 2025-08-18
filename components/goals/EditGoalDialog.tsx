@@ -22,7 +22,6 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { FinancialGoal } from "@/lib/types";
 import { getCategoriesByType } from "@/constants";
-import { X } from "lucide-react";
 
 interface EditGoalDialogProps {
   goal: FinancialGoal | null;

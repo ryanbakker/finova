@@ -272,8 +272,8 @@ export function AssetFilters<TData extends Asset>({
             >
               {table
                 .getAllColumns()
-                .filter((column: any) => column.getCanHide())
-                .map((column: any) => {
+                .filter((column) => column.getCanHide())
+                .map((column) => {
                   return (
                     <DropdownMenuCheckboxItem
                       key={column.id}

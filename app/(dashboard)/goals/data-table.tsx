@@ -37,7 +37,8 @@ interface DataTableProps<TData extends FinancialGoal, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   isLoading?: boolean;
-  sortStates?: Record<string, "asc" | "desc" | false>;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onTableReady?: (table: any) => void;
   onDelete?: (goalId: string) => void;
 }
@@ -46,11 +47,10 @@ export function DataTable<TData extends FinancialGoal, TValue>({
   columns,
   data,
   isLoading = false,
-  sortStates,
+
   onTableReady,
   onDelete,
 }: DataTableProps<TData, TValue>) {
-  const [currentPage, setCurrentPage] = useState(1);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -61,7 +61,7 @@ export function DataTable<TData extends FinancialGoal, TValue>({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const searchParams = useSearchParams();
-  const pageSize = 20;
+
   const isMobile = useIsMobile();
 
   // Get filter values from URL search params
@@ -255,6 +255,8 @@ export function DataTable<TData extends FinancialGoal, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => handleViewGoal(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

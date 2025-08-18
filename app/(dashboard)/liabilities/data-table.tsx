@@ -38,7 +38,7 @@ interface DataTableProps<TData extends Liability, TValue> {
   data: TData[];
   isLoading?: boolean;
   sortStates?: Record<string, "asc" | "desc" | false>;
-  onTableReady?: (table: unknown) => void;
+  onTableReady?: (table: ReturnType<typeof useReactTable<TData>>) => void;
 }
 
 export function DataTable<TData extends Liability, TValue>({

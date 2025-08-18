@@ -32,7 +32,6 @@ import {
   Building2,
   CreditCard,
 } from "lucide-react";
-import { getCategoriesByType } from "@/constants";
 
 // Action handlers interface
 interface ActionHandlers {
@@ -67,7 +66,10 @@ const SortableHeader = ({
   return (
     <Button
       variant="ghost"
-      onClick={() => onToggleSort(columnId)}
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggleSort(columnId);
+      }}
       className={`h-auto p-0 py-2 font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer ${
         sortState ? "table-header-sorted" : ""
       } ${className}`}
@@ -216,6 +218,7 @@ export const columns: ColumnDef<FinancialGoal>[] = [
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onClick={(e) => e.stopPropagation()}
         aria-label="Select row"
       />
     ),
@@ -224,7 +227,7 @@ export const columns: ColumnDef<FinancialGoal>[] = [
   },
   {
     accessorKey: "name",
-    header: ({ column }) => (
+    header: () => (
       <SortableHeader
         columnId="name"
         sortState={false}
@@ -249,7 +252,7 @@ export const columns: ColumnDef<FinancialGoal>[] = [
   },
   {
     accessorKey: "progress",
-    header: ({ column }) => (
+    header: () => (
       <SortableHeader
         columnId="progress"
         sortState={false}
@@ -302,7 +305,7 @@ export const columns: ColumnDef<FinancialGoal>[] = [
   },
   {
     accessorKey: "targetDate",
-    header: ({ column }) => (
+    header: () => (
       <SortableHeader
         columnId="targetDate"
         sortState={false}
@@ -336,7 +339,7 @@ export const columns: ColumnDef<FinancialGoal>[] = [
   },
   {
     accessorKey: "priority",
-    header: ({ column }) => (
+    header: () => (
       <SortableHeader
         columnId="priority"
         sortState={false}
@@ -352,7 +355,7 @@ export const columns: ColumnDef<FinancialGoal>[] = [
   },
   {
     accessorKey: "status",
-    header: ({ column }) => (
+    header: () => (
       <SortableHeader
         columnId="status"
         sortState={false}
@@ -375,28 +378,41 @@ export const columns: ColumnDef<FinancialGoal>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button
+              variant="ghost"
+              className="h-8 w-8 p-0"
+              onClick={(e) => e.stopPropagation()}
+            >
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
-              onClick={() => globalActionHandlers?.onView(goal)}
+              onClick={(e) => {
+                e.stopPropagation();
+                globalActionHandlers?.onView(goal);
+              }}
               className="cursor-pointer"
             >
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => globalActionHandlers?.onEdit(goal)}
+              onClick={(e) => {
+                e.stopPropagation();
+                globalActionHandlers?.onEdit(goal);
+              }}
               className="cursor-pointer"
             >
               <Edit className="mr-2 h-4 w-4" />
               Edit Goal
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => globalActionHandlers?.onDelete(goal)}
+              onClick={(e) => {
+                e.stopPropagation();
+                globalActionHandlers?.onDelete(goal);
+              }}
               className="cursor-pointer text-red-600"
             >
               <Trash2 className="mr-2 h-4 w-4" />

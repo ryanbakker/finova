@@ -11,12 +11,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Table } from "@tanstack/react-table";
+import { Liability } from "@/lib/types";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { X, Search, Filter as FilterIcon } from "lucide-react";
 
 interface LiabilityFiltersProps {
-  table: unknown;
+  table?: Table<Liability>;
 }
 
 const liabilityCategories = [
