@@ -13,7 +13,7 @@ export function TransactionFiltersSkeleton() {
 
       {/* Filter Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Payee Search */}
+        {/* Description Search */}
         <div className="space-y-2">
           <Skeleton className="h-4 w-24" /> {/* Label */}
           <Skeleton className="h-9 w-full" /> {/* Input */}

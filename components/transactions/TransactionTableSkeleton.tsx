@@ -16,7 +16,7 @@ export function TransactionTableSkeleton({
         <div className="text-semibold !bg-white dark:!bg-neutral-950 rounded-t-lg border-b">
           <div className="flex items-center h-12 px-4">
             <Skeleton className="h-4 w-4 mr-2" /> {/* Select checkbox */}
-            <Skeleton className="h-4 w-20 mr-4" /> {/* Payee */}
+            <Skeleton className="h-4 w-20 mr-4" /> {/* Description */}
             <Skeleton className="h-4 w-16 mr-4" /> {/* Amount */}
             <Skeleton className="h-4 w-16 mr-4" /> {/* Date */}
             {!isMobile && (
@@ -40,7 +40,7 @@ export function TransactionTableSkeleton({
               }`}
             >
               <Skeleton className="h-4 w-4 mr-2" /> {/* Select checkbox */}
-              <Skeleton className="h-4 w-24 mr-4" /> {/* Payee */}
+              <Skeleton className="h-4 w-24 mr-4" /> {/* Description */}
               <Skeleton className="h-4 w-20 mr-4" /> {/* Amount */}
               <Skeleton className="h-4 w-20 mr-4" /> {/* Date */}
               {!isMobile && (

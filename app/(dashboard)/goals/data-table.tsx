@@ -20,7 +20,7 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { setGlobalActionHandlers } from "./columns";
 import { FinancialGoal } from "@/lib/types";
 import { useSearchParams } from "next/navigation";
@@ -41,6 +41,7 @@ interface DataTableProps<TData extends FinancialGoal, TValue> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onTableReady?: (table: any) => void;
   onDelete?: (goalId: string) => void;
+  onEdit?: (goal: FinancialGoal) => void;
 }
 
 export function DataTable<TData extends FinancialGoal, TValue>({
@@ -50,6 +51,7 @@ export function DataTable<TData extends FinancialGoal, TValue>({
 
   onTableReady,
   onDelete,
+  onEdit,
 }: DataTableProps<TData, TValue>) {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -99,48 +101,61 @@ export function DataTable<TData extends FinancialGoal, TValue>({
     }
   }, [isMobile]);
 
-  const handleCloseDialog = () => {
+  const handleCloseDialog = useCallback(() => {
     setIsDialogOpen(false);
     setSelectedGoal(null);
-  };
+  }, []);
 
-  const handleCloseEditDialog = () => {
+  const handleCloseEditDialog = useCallback(() => {
     setIsEditDialogOpen(false);
     setSelectedGoal(null);
-  };
+  }, []);
 
-  const handleCloseDeleteDialog = () => {
+  const handleCloseDeleteDialog = useCallback(() => {
     setIsDeleteDialogOpen(false);
     setSelectedGoal(null);
-  };
+  }, []);
 
-  const handleViewGoal = (goal: FinancialGoal) => {
+  const handleViewGoal = useCallback((goal: FinancialGoal) => {
     setSelectedGoal(goal);
     setIsDialogOpen(true);
-  };
+  }, []);
 
-  const handleEditGoal = (goal: FinancialGoal) => {
-    setSelectedGoal(goal);
-    setIsEditDialogOpen(true);
-  };
+  const handleEditGoal = useCallback(
+    (goal: FinancialGoal) => {
+      if (onEdit) {
+        onEdit(goal);
+      } else {
+        setSelectedGoal(goal);
+        setIsEditDialogOpen(true);
+      }
+    },
+    [onEdit]
+  );
 
-  const handleDeleteGoal = (goal: FinancialGoal) => {
+  const handleDeleteGoal = useCallback((goal: FinancialGoal) => {
     setSelectedGoal(goal);
     setIsDeleteDialogOpen(true);
-  };
+  }, []);
 
-  const handleSaveGoal = (goal: FinancialGoal) => {
-    // TODO: Implement save logic
-    console.log("Saving goal:", goal);
-    handleCloseEditDialog();
-  };
+  const handleSaveGoal = useCallback(
+    (goal: FinancialGoal) => {
+      // TODO: Implement save logic
+      console.log("Saving goal:", goal);
+      handleCloseEditDialog();
+    },
+    [handleCloseEditDialog]
+  );
 
-  const handleDeleteGoalConfirm = () => {
+  const handleDeleteGoalConfirm = useCallback(() => {
     if (selectedGoal && onDelete) {
-      onDelete(selectedGoal.id);
-      handleCloseDeleteDialog();
+      const goalId = selectedGoal._id || selectedGoal.id;
+      if (goalId) {
+        onDelete(goalId);
+        handleCloseDeleteDialog();
+      }
     }
-  };
+  }, [selectedGoal, onDelete, handleCloseDeleteDialog]);
 
   // Set up global action handlers
   useEffect(() => {
@@ -149,7 +164,7 @@ export function DataTable<TData extends FinancialGoal, TValue>({
       onEdit: handleEditGoal,
       onDelete: handleDeleteGoal,
     });
-  }, []);
+  }, [handleEditGoal, handleViewGoal, handleDeleteGoal]);
 
   // Filter data based on search params
   const filteredData = useMemo(() => {

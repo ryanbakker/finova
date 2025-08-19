@@ -21,12 +21,13 @@ import {
 } from "@/components/ui/select";
 import { Budget } from "@/lib/types";
 import { getCategoriesByType } from "@/constants";
+import { toast } from "@/components/ui/use-toast";
 
 interface BudgetDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   budget?: Budget;
-  onSave: (budget: Omit<Budget, "id" | "createdAt" | "updatedAt">) => void;
+  onSave: (budget: Omit<Budget, "id" | "createdAt" | "updatedAt">) => Promise<void>;
 }
 
 export function BudgetDialog({
@@ -48,10 +49,19 @@ export function BudgetDialog({
 
   const budgetCategories = getCategoriesByType("budgets");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
-    onOpenChange(false);
+    
+    try {
+      await onSave(formData);
+      onOpenChange(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to save budget",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleInputChange = (

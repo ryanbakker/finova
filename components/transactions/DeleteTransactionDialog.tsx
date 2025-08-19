@@ -11,23 +11,24 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Transaction } from "@/lib/types";
-import { Badge } from "@/components/ui/badge";
 import {
   Calendar,
   DollarSign,
-  Building2,
   Tag,
   User,
   CreditCard,
   Trash2,
   AlertTriangle,
 } from "lucide-react";
+import { deleteTransaction } from "@/lib/actions/transaction.actions";
+import { toast } from "@/components/ui/use-toast";
+import { useState } from "react";
 
 interface DeleteTransactionDialogProps {
   transaction: Transaction | null;
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (transaction: Transaction) => void;
+  onSuccess: () => void;
 }
 
 // Helper function to format date to desired format
@@ -53,13 +54,40 @@ export function DeleteTransactionDialog({
   transaction,
   isOpen,
   onClose,
-  onConfirm,
+  onSuccess,
 }: DeleteTransactionDialogProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
   if (!transaction) return null;
 
-  const handleConfirm = () => {
-    onConfirm(transaction);
-    onClose();
+  const handleConfirm = async () => {
+    if (!transaction) return;
+
+    setIsDeleting(true);
+
+    try {
+      await deleteTransaction(transaction.id);
+
+      toast({
+        title: "Success",
+        description: "Transaction deleted successfully",
+      });
+
+      onSuccess();
+      onClose();
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to delete transaction",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   // Define transaction details to map over
@@ -81,8 +109,8 @@ export function DeleteTransactionDialog({
     },
     {
       icon: User,
-      label: "Payee",
-      value: <span className="font-medium">{transaction.payee}</span>,
+      label: "Description",
+      value: <span className="font-medium">{transaction.description}</span>,
     },
     {
       icon: Calendar,
@@ -94,35 +122,13 @@ export function DeleteTransactionDialog({
     {
       icon: CreditCard,
       label: "Account",
-      value: <span className="font-medium">{transaction.account.name}</span>,
+      value: <span className="font-medium">{transaction.accountName}</span>,
     },
     {
       icon: Tag,
       label: "Category",
       value: <span className="font-medium">{transaction.category.name}</span>,
     },
-    ...(transaction.status
-      ? [
-          {
-            icon: Building2,
-            label: "Status",
-            value: (
-              <Badge
-                variant={
-                  transaction.status === "completed" ? "default" : "secondary"
-                }
-                className={
-                  transaction.status === "completed"
-                    ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-                    : ""
-                }
-              >
-                {transaction.status}
-              </Badge>
-            ),
-          },
-        ]
-      : []),
   ];
 
   return (
@@ -179,8 +185,10 @@ export function DeleteTransactionDialog({
           <AlertDialogAction
             className="bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 cursor-pointer dark:text-white"
             onClick={handleConfirm}
+            disabled={isDeleting}
           >
-            Delete Transaction
+            <Trash2 className="mr-2 h-4 w-4" />
+            {isDeleting ? "Deleting..." : "Delete Transaction"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

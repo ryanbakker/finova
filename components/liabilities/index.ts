@@ -1,6 +1,7 @@
 export { LiabilityDetailsDialog } from "./LiabilityDetailsDialog";
 export { EditLiabilityDialog } from "./EditLiabilityDialog";
 export { DeleteLiabilityDialog } from "./DeleteLiabilityDialog";
+export { CreateLiabilityDialog } from "./CreateLiabilityDialog";
 export { LiabilityFilters } from "./LiabilityFilters";
 export { LiabilityInsights } from "./LiabilityInsights";
 export { LiabilityPageSkeleton } from "./LiabilityPageSkeleton";

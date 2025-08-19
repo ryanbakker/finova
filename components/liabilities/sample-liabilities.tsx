@@ -3,6 +3,7 @@ import { Liability } from "@/lib/types";
 export const sampleLiabilities: Liability[] = [
   {
     id: "1",
+    userId: "sample_user_1",
     name: "Home Mortgage",
     category: "Mortgage",
     amount: 450000,
@@ -21,6 +22,7 @@ export const sampleLiabilities: Liability[] = [
   },
   {
     id: "2",
+    userId: "sample_user_1",
     name: "Car Loan",
     category: "Vehicle Loan",
     amount: 25000,
@@ -39,6 +41,7 @@ export const sampleLiabilities: Liability[] = [
   },
   {
     id: "3",
+    userId: "sample_user_1",
     name: "Student Loan",
     category: "Education Loan",
     amount: 35000,
@@ -57,6 +60,7 @@ export const sampleLiabilities: Liability[] = [
   },
   {
     id: "4",
+    userId: "sample_user_1",
     name: "Credit Card",
     category: "Credit Card",
     amount: 8500,
@@ -75,6 +79,7 @@ export const sampleLiabilities: Liability[] = [
   },
   {
     id: "5",
+    userId: "sample_user_1",
     name: "Personal Loan",
     category: "Personal Loan",
     amount: 15000,
@@ -93,6 +98,7 @@ export const sampleLiabilities: Liability[] = [
   },
   {
     id: "6",
+    userId: "sample_user_1",
     name: "Business Loan",
     category: "Business Loan",
     amount: 75000,
@@ -111,6 +117,7 @@ export const sampleLiabilities: Liability[] = [
   },
   {
     id: "7",
+    userId: "sample_user_1",
     name: "Investment Property Mortgage",
     category: "Mortgage",
     amount: 320000,
@@ -129,6 +136,7 @@ export const sampleLiabilities: Liability[] = [
   },
   {
     id: "8",
+    userId: "sample_user_1",
     name: "Line of Credit",
     category: "Line of Credit",
     amount: 50000,

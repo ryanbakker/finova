@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Bill } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
+import { getBillCategoryIcon } from "@/lib/utils/categoryUtils";
 import {
   MoreHorizontal,
   Eye,
@@ -174,9 +175,17 @@ export const createColumns = (
     enableHiding: true,
     cell: ({ row }) => {
       const bill = row.original;
+      const IconComponent = getBillCategoryIcon(bill.category);
+
       return (
         <div className="flex items-center space-x-2">
-          <div className="p-1 rounded-lg bg-muted">{bill.icon}</div>
+          <div className="p-1 rounded-lg bg-muted">
+            {IconComponent ? (
+              <IconComponent className="h-4 w-4" />
+            ) : (
+              <span className="text-muted-foreground text-sm">📄</span>
+            )}
+          </div>
           <span className="font-medium">{bill.name}</span>
         </div>
       );

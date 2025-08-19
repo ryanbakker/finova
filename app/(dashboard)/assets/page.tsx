@@ -2,7 +2,6 @@
 
 import { DashboardFooter } from "@/components/DashboardFooter";
 import { Button } from "@/components/ui/button";
-import { sampleAssets } from "@/components/assets";
 import { Asset } from "@/lib/types";
 import {
   Plus,
@@ -19,9 +18,12 @@ import {
   AssetPageSkeleton,
   AssetInsights,
   AssetFilters,
+  CreateAssetDialog,
 } from "@/components/assets";
 import { useSorting } from "@/hooks/use-sorting";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getUserAssets } from "@/lib/actions/asset.actions";
+import { useToast } from "@/components/ui/use-toast";
 
 import { useSearchParams } from "next/navigation";
 
@@ -31,23 +33,37 @@ function AssetsPageContent() {
   const [activeTab, setActiveTab] = useState("table");
   const [showFilters, setShowFilters] = useState(false);
   const [tableReady, setTableReady] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const { sortStates, toggleSorting } = useSorting();
   const searchParams = useSearchParams();
+  const { toast } = useToast();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tableRef = useRef<any>(null);
 
   // Create columns
   const columns = createColumns(sortStates, toggleSorting);
 
-  // Simulate loading state
+  // Load assets from database
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setAssets(sampleAssets);
-      setIsLoading(false);
-    }, 1500); // Simulate 1.5s loading time
+    const loadAssets = async () => {
+      try {
+        setIsLoading(true);
+        const userAssets = await getUserAssets();
+        setAssets(userAssets);
+      } catch (error) {
+        console.error("Error loading assets:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load assets. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
-  }, []);
+    loadAssets();
+  }, [toast]);
 
   // Check if there are active filters to determine initial filter visibility
   useEffect(() => {
@@ -64,11 +80,52 @@ function AssetsPageContent() {
     }
   }, [searchParams]);
 
+  // Listen for create asset dialog events from empty state
+  useEffect(() => {
+    const handleOpenCreateDialog = () => {
+      setShowCreateDialog(true);
+    };
+
+    window.addEventListener("openCreateAssetDialog", handleOpenCreateDialog);
+
+    return () => {
+      window.removeEventListener(
+        "openCreateAssetDialog",
+        handleOpenCreateDialog
+      );
+    };
+  }, []);
+
+  // Function to refresh assets
+  const refreshAssets = async () => {
+    try {
+      setIsLoading(true);
+      const userAssets = await getUserAssets();
+      setAssets(userAssets);
+    } catch (error) {
+      console.error("Error refreshing assets:", error);
+      toast({
+        title: "Error",
+        description: "Failed to refresh assets. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
         <AssetPageSkeleton />
         <DashboardFooter />
+
+        {/* Create Asset Dialog */}
+        <CreateAssetDialog
+          isOpen={showCreateDialog}
+          onClose={() => setShowCreateDialog(false)}
+          onSuccess={refreshAssets}
+        />
       </div>
     );
   }
@@ -83,7 +140,10 @@ function AssetsPageContent() {
             values.
           </p>
         </div>
-        <Button className="button-blue-bg hover:cursor-pointer">
+        <Button
+          className="button-blue-bg hover:cursor-pointer"
+          onClick={() => setShowCreateDialog(true)}
+        >
           <Plus className="mr-1 h-4 w-4" />
           Add Asset
         </Button>
@@ -215,6 +275,7 @@ function AssetsPageContent() {
                 tableRef.current = table;
                 setTableReady(true);
               }}
+              onRefresh={refreshAssets}
             />
           </Suspense>
         </TabsContent>
@@ -225,6 +286,13 @@ function AssetsPageContent() {
       </Tabs>
 
       <DashboardFooter />
+
+      {/* Create Asset Dialog */}
+      <CreateAssetDialog
+        isOpen={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
+        onSuccess={refreshAssets}
+      />
     </div>
   );
 }

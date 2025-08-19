@@ -22,8 +22,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Bill, Account } from "@/lib/types";
+import { updateBill } from "@/lib/actions/bill.actions";
 import { Calendar, DollarSign, Edit } from "lucide-react";
 import { getCategoriesByType } from "@/constants";
+import { toast } from "@/components/ui/use-toast";
 
 interface EditBillDialogProps {
   bill: Bill | null;
@@ -58,17 +60,43 @@ export function EditBillDialog({
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (bill && formData.name && formData.amount && formData.dueDate) {
-      const updatedBill: Bill = {
-        ...bill,
-        ...formData,
-        amount: Number(formData.amount),
-        dueDate: formData.dueDate,
-        isRecurring: formData.isRecurring ?? false,
-      };
-      onSave(updatedBill);
+      try {
+        await updateBill({
+          id: bill.id,
+          name: formData.name,
+          amount: Number(formData.amount),
+          dueDate: new Date(formData.dueDate),
+          category: formData.category || bill.category,
+          isRecurring: formData.isRecurring ?? bill.isRecurring,
+          frequency: formData.isRecurring ? formData.frequency : undefined,
+          accountId: formData.accountId || undefined,
+          accountName: formData.accountName || undefined,
+          notes: formData.notes || undefined,
+        });
+
+        toast({
+          title: "Success",
+          description: "Bill updated successfully!",
+        });
+
+        onSave({
+          ...bill,
+          ...formData,
+          amount: Number(formData.amount),
+          dueDate: formData.dueDate,
+          isRecurring: formData.isRecurring ?? bill.isRecurring,
+        });
+      } catch (error) {
+        console.error("Error updating bill:", error);
+        toast({
+          title: "Error",
+          description: "Failed to update bill. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -216,10 +244,11 @@ export function EditBillDialog({
             <div className="space-y-2">
               <Label htmlFor="account">Payment Account</Label>
               <Select
-                value={formData.account?.id || ""}
+                value={formData.accountId || ""}
                 onValueChange={(value) => {
                   const account = accounts.find((acc) => acc.id === value);
-                  handleInputChange("account", account);
+                  handleInputChange("accountId", value);
+                  handleInputChange("accountName", account?.name || "");
                 }}
               >
                 <SelectTrigger>

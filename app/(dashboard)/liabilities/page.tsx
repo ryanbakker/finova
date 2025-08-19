@@ -2,21 +2,23 @@
 
 import { DashboardFooter } from "@/components/DashboardFooter";
 import { Button } from "@/components/ui/button";
-import { sampleLiabilities } from "@/components/liabilities";
 import { Liability } from "@/lib/types";
-import { Plus, BarChart3, Table, Filter, ChevronDown } from "lucide-react";
+import { BarChart3, Table, Filter, ChevronDown } from "lucide-react";
 import { DataTable } from "./data-table";
 import { createColumns } from "./columns";
-import { Suspense, useState, useEffect, useRef } from "react";
+import { Suspense, useState, useEffect, useRef, useCallback } from "react";
 import { useReactTable } from "@tanstack/react-table";
 import {
   LiabilityPageSkeleton,
   LiabilityInsights,
   LiabilityFilters,
+  CreateLiabilityDialog,
 } from "@/components/liabilities";
 import { useSorting } from "@/hooks/use-sorting";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams } from "next/navigation";
+import { getLiabilitiesByUserId } from "@/lib/actions/liability.actions";
+import { useToast } from "@/components/ui/use-toast";
 
 function LiabilitiesPage() {
   const [liabilities, setLiabilities] = useState<Liability[]>([]);
@@ -29,19 +31,35 @@ function LiabilitiesPage() {
   const tableRef = useRef<ReturnType<typeof useReactTable<Liability>> | null>(
     null
   );
+  const { toast } = useToast();
 
   // Create columns
   const columns = createColumns(sortStates, toggleSorting);
 
-  // Simulate loading state
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLiabilities(sampleLiabilities);
+  // Load liabilities from database
+  const loadLiabilities = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const data = await getLiabilitiesByUserId();
+      // Set the liabilities array regardless of whether it's empty or has data
+      setLiabilities(data || []);
+    } catch (error) {
+      console.error("Error loading liabilities:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load liabilities. Please try again.",
+        variant: "destructive",
+      });
+      // Set empty array on error to clear any previous data
+      setLiabilities([]);
+    } finally {
       setIsLoading(false);
-    }, 1500); // Simulate 1.5s loading time
+    }
+  }, [toast]);
 
-    return () => clearTimeout(timer);
-  }, []);
+  useEffect(() => {
+    loadLiabilities();
+  }, [loadLiabilities]);
 
   // Check if there are active filters to determine initial filter visibility
   useEffect(() => {
@@ -77,10 +95,7 @@ function LiabilitiesPage() {
             obligations.
           </p>
         </div>
-        <Button className="button-blue-bg hover:cursor-pointer">
-          <Plus className="mr-1 h-4 w-4" />
-          Add Liability
-        </Button>
+        <CreateLiabilityDialog onLiabilityCreated={loadLiabilities} />
       </div>
 
       {/* View Toggle Tabs - Always visible */}
@@ -212,6 +227,7 @@ function LiabilitiesPage() {
                 tableRef.current = table;
                 setTableReady(true);
               }}
+              onDataChange={loadLiabilities}
             />
           </Suspense>
         </TabsContent>

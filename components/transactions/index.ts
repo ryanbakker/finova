@@ -1,3 +1,4 @@
+export { CreateTransactionDialog } from "./CreateTransactionDialog";
 export { TransactionDetailsDialog } from "./TransactionDetailsDialog";
 export { EditTransactionDialog } from "./EditTransactionDialog";
 export { DeleteTransactionDialog } from "./DeleteTransactionDialog";

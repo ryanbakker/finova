@@ -32,6 +32,8 @@ import {
   DeleteLiabilityDialog,
   LiabilityTableSkeleton,
 } from "../../../components/liabilities";
+import { updateLiability, deleteLiability } from "@/lib/actions/liability.actions";
+import { useToast } from "@/components/ui/use-toast";
 
 interface DataTableProps<TData extends Liability, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -39,6 +41,7 @@ interface DataTableProps<TData extends Liability, TValue> {
   isLoading?: boolean;
   sortStates?: Record<string, "asc" | "desc" | false>;
   onTableReady?: (table: ReturnType<typeof useReactTable<TData>>) => void;
+  onDataChange?: () => void;
 }
 
 export function DataTable<TData extends Liability, TValue>({
@@ -47,11 +50,13 @@ export function DataTable<TData extends Liability, TValue>({
   isLoading = false,
   sortStates,
   onTableReady,
+  onDataChange,
 }: DataTableProps<TData, TValue>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const { toast } = useToast();
 
   const [selectedLiability, setSelectedLiability] = useState<Liability | null>(
     null
@@ -131,22 +136,76 @@ export function DataTable<TData extends Liability, TValue>({
     });
   }, []);
 
-  const handleSaveLiability = (updatedLiability: Liability) => {
-    // TODO: Implement actual update logic here
-    console.log("Updating liability:", updatedLiability);
+  const handleSaveLiability = async (updatedLiability: Liability) => {
+    try {
+      if (!updatedLiability.id) {
+        toast({
+          title: "Error",
+          description: "Cannot update liability without ID",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    // For now, just close the dialog
-    setIsEditDialogOpen(false);
-    setSelectedLiability(null);
+      await updateLiability(updatedLiability.id, updatedLiability);
+
+      toast({
+        title: "Success",
+        description: "Liability updated successfully",
+      });
+
+      // Close the dialog
+      setIsEditDialogOpen(false);
+      setSelectedLiability(null);
+
+      // Notify parent to refresh data
+      if (onDataChange) {
+        onDataChange();
+      }
+    } catch (error) {
+      console.error("Error updating liability:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update liability. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleConfirmDelete = (liability: Liability) => {
-    // TODO: Implement actual deletion logic here
-    console.log("Deleting liability:", liability);
+  const handleConfirmDelete = async (liability: Liability) => {
+    try {
+      if (!liability.id) {
+        toast({
+          title: "Error",
+          description: "Cannot delete liability without ID",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    // For now, just close the dialog
-    setIsDeleteDialogOpen(false);
-    setSelectedLiability(null);
+      await deleteLiability(liability.id);
+
+      toast({
+        title: "Success",
+        description: "Liability deleted successfully",
+      });
+
+      // Close the dialog
+      setIsDeleteDialogOpen(false);
+      setSelectedLiability(null);
+
+      // Notify parent to refresh data
+      if (onDataChange) {
+        onDataChange();
+      }
+    } catch (error) {
+      console.error("Error deleting liability:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete liability. Please try again.",
+        variant: "destructive",
+        });
+    }
   };
 
   // Apply custom filters and sorting based on URL search params

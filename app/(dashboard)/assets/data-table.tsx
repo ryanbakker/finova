@@ -20,7 +20,7 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Plus } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { setGlobalActionHandlers } from "./columns";
 import { Asset } from "@/lib/types";
@@ -40,6 +40,7 @@ interface DataTableProps<TData extends Asset, TValue> {
   sortStates?: Record<string, "asc" | "desc" | false>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onTableReady?: (table: any) => void;
+  onRefresh?: () => void;
 }
 
 export function DataTable<TData extends Asset, TValue>({
@@ -48,6 +49,7 @@ export function DataTable<TData extends Asset, TValue>({
   isLoading = false,
   sortStates,
   onTableReady,
+  onRefresh,
 }: DataTableProps<TData, TValue>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -126,22 +128,24 @@ export function DataTable<TData extends Asset, TValue>({
     });
   }, []);
 
-  const handleSaveAsset = (updatedAsset: Asset) => {
-    // TODO: Implement actual update logic here
-    console.log("Updating asset:", updatedAsset);
-
-    // For now, just close the dialog
+  const handleSaveAsset = () => {
+    // Asset update is handled by the EditAssetDialog component
+    // Just close the dialog and refresh the data
     setIsEditDialogOpen(false);
     setSelectedAsset(null);
+    if (onRefresh) {
+      onRefresh();
+    }
   };
 
-  const handleConfirmDelete = (asset: Asset) => {
-    // TODO: Implement actual deletion logic here
-    console.log("Deleting asset:", asset);
-
-    // For now, just close the dialog
+  const handleConfirmDelete = () => {
+    // Asset deletion is handled by the DeleteAssetDialog component
+    // Just close the dialog and refresh the data
     setIsDeleteDialogOpen(false);
     setSelectedAsset(null);
+    if (onRefresh) {
+      onRefresh();
+    }
   };
 
   // Apply custom filters and sorting based on URL search params
@@ -351,8 +355,8 @@ export function DataTable<TData extends Asset, TValue>({
     }
   };
 
-  // Show skeleton if loading or no data
-  if (isLoading || !data || data.length === 0) {
+  // Show skeleton only if loading
+  if (isLoading) {
     return <AssetTableSkeleton rowCount={8} isMobile={isMobile} />;
   }
 
@@ -446,11 +450,43 @@ export function DataTable<TData extends Asset, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-32 text-center"
                 >
-                  {filteredAndSortedData.length === 0 && data.length > 0
-                    ? "No results found for your search criteria."
-                    : "No assets available."}
+                  {filteredAndSortedData.length === 0 && data.length > 0 ? (
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <div className="text-muted-foreground">
+                        No results found for your search criteria.
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Try adjusting your filters or search terms.
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center space-y-3">
+                      <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                        <Plus className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                      <div className="text-lg font-medium">No assets yet</div>
+                      <div className="text-sm text-muted-foreground max-w-sm text-center">
+                        Start building your financial portfolio by adding your
+                        first asset. Track investments, property, savings
+                        accounts, and more.
+                      </div>
+                      <Button
+                        onClick={() => {
+                          // Trigger the create asset dialog
+                          const event = new CustomEvent(
+                            "openCreateAssetDialog"
+                          );
+                          window.dispatchEvent(event);
+                        }}
+                        className="button-blue-bg mt-2"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Your First Asset
+                      </Button>
+                    </div>
+                  )}
                 </TableCell>
               </TableRow>
             )}
@@ -532,7 +568,7 @@ export function DataTable<TData extends Asset, TValue>({
         asset={selectedAsset}
         isOpen={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}
-        onSave={handleSaveAsset}
+        onSuccess={handleSaveAsset}
       />
 
       {/* Delete Asset Dialog */}
@@ -540,7 +576,7 @@ export function DataTable<TData extends Asset, TValue>({
         asset={selectedAsset}
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
-        onConfirm={handleConfirmDelete}
+        onSuccess={handleConfirmDelete}
       />
     </div>
   );

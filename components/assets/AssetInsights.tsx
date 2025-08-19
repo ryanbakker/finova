@@ -52,10 +52,17 @@ export function AssetInsights({
   if (!assets || assets.length === 0) {
     return (
       <Card className="container-color">
-        <CardContent className="flex items-center justify-center h-32">
-          <p className="text-muted-foreground">
-            No assets available for insights
-          </p>
+        <CardContent className="flex items-center justify-center h-64">
+          <div className="flex flex-col items-center justify-center space-y-3">
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+              <Target className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <div className="text-lg font-medium">No insights available</div>
+            <div className="text-sm text-muted-foreground max-w-md text-center">
+              Add some assets to your portfolio to see detailed insights,
+              performance metrics, and category breakdowns.
+            </div>
+          </div>
         </CardContent>
       </Card>
     );

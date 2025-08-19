@@ -53,7 +53,7 @@ export function TransactionFilters({
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Get current values from URL search params
-  const payeeFilter = searchParams.get("payee") || "";
+  const descriptionFilter = searchParams.get("description") || "";
   const dateFrom = searchParams.get("dateFrom");
   const dateTo = searchParams.get("dateTo");
   const selectedAccount = searchParams.get("account") || "all";
@@ -61,7 +61,7 @@ export function TransactionFilters({
   const selectedType = searchParams.get("type") || "all";
 
   // Local state for debounced search
-  const [localPayeeFilter, setLocalPayeeFilter] = useState(payeeFilter);
+  const [localDescriptionFilter, setLocalDescriptionFilter] = useState(descriptionFilter);
 
   // Parse date range from URL params
   const dateRange =
@@ -70,7 +70,7 @@ export function TransactionFilters({
       : undefined;
 
   const hasActiveFilters =
-    payeeFilter ||
+    descriptionFilter ||
     dateRange ||
     selectedAccount !== "all" ||
     selectedCategory !== "all" ||
@@ -82,9 +82,9 @@ export function TransactionFilters({
       const timeoutId = setTimeout(() => {
         const params = new URLSearchParams(searchParams);
         if (value) {
-          params.set("payee", value);
+          params.set("description", value);
         } else {
-          params.delete("payee");
+          params.delete("description");
         }
         router.push(`${pathname}?${params.toString()}`);
       }, 800);
@@ -96,12 +96,12 @@ export function TransactionFilters({
 
   // Update local state when URL changes
   useEffect(() => {
-    setLocalPayeeFilter(payeeFilter);
-  }, [payeeFilter]);
+    setLocalDescriptionFilter(descriptionFilter);
+  }, [descriptionFilter]);
 
-  // Handle payee input change
-  const handlePayeeChange = (value: string) => {
-    setLocalPayeeFilter(value);
+  // Handle description input change
+  const handleDescriptionChange = (value: string) => {
+    setLocalDescriptionFilter(value);
     debouncedSearch(value);
   };
 
@@ -163,9 +163,9 @@ export function TransactionFilters({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search transactions by payee..."
-            value={localPayeeFilter}
-            onChange={(e) => handlePayeeChange(e.target.value)}
+            placeholder="Search transactions by description..."
+            value={localDescriptionFilter}
+            onChange={(e) => handleDescriptionChange(e.target.value)}
             className="pl-10"
           />
         </div>
@@ -425,9 +425,9 @@ export function TransactionFilters({
       {hasActiveFilters && (
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <span className="text-muted-foreground">Active filters:</span>
-          {payeeFilter && (
+          {descriptionFilter && (
             <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 rounded-full">
-              Payee: {payeeFilter}
+              Description: {descriptionFilter}
             </span>
           )}
           {dateRange && (

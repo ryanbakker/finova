@@ -117,14 +117,14 @@ export const createColumns = (
     enableHiding: false,
   },
   {
-    accessorKey: "payee",
+    accessorKey: "description",
     header: () => (
       <SortableHeader
-        columnId="payee"
-        sortState={sortStates.payee || false}
+        columnId="description"
+        sortState={sortStates.description || false}
         onToggleSort={onToggleSort}
       >
-        Payee
+        Description
       </SortableHeader>
     ),
     enableHiding: true,
@@ -184,63 +184,55 @@ export const createColumns = (
     },
   },
   {
-    accessorKey: "account",
+    accessorKey: "accountName",
     header: () => (
       <SortableHeader
-        columnId="account"
-        sortState={sortStates.account || false}
+        columnId="accountName"
+        sortState={sortStates.accountName || false}
         onToggleSort={onToggleSort}
       >
         Account
       </SortableHeader>
     ),
     enableHiding: true,
-    cell: ({ row }) => {
-      const account = row.getValue("account") as { name: string };
-      return account?.name || "Unknown";
-    },
   },
   {
-    accessorKey: "category",
+    accessorKey: "category.name",
     header: () => (
       <SortableHeader
-        columnId="category"
-        sortState={sortStates.category || false}
+        columnId="category.name"
+        sortState={sortStates["category.name"] || false}
         onToggleSort={onToggleSort}
       >
         Category
       </SortableHeader>
     ),
     enableHiding: true,
-    cell: ({ row }) => {
-      const category = row.getValue("category") as { name: string };
-      return category?.name || "Unknown";
-    },
   },
   {
-    accessorKey: "status",
+    accessorKey: "type",
     header: () => (
       <SortableHeader
-        columnId="status"
-        sortState={sortStates.status || false}
+        columnId="type"
+        sortState={sortStates.type || false}
         onToggleSort={onToggleSort}
       >
-        Status
+        Type
       </SortableHeader>
     ),
     enableHiding: true,
     cell: ({ row }) => {
-      const status = row.getValue("status") as string;
-      if (!status) return "Unknown";
+      const type = row.getValue("type") as string;
+      if (!type) return "Unknown";
 
-      const getStatusStyle = (status: string) => {
-        switch (status.toLowerCase()) {
-          case "completed":
+      const getTypeStyle = (type: string) => {
+        switch (type.toLowerCase()) {
+          case "income":
             return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800";
-          case "pending":
-            return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800";
-          case "incomplete":
+          case "expense":
             return "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400 border-rose-200 dark:border-rose-800";
+          case "transfer":
+            return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800";
           default:
             return "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-400 border-slate-200 dark:border-slate-800";
         }
@@ -248,11 +240,11 @@ export const createColumns = (
 
       return (
         <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(
-            status
+          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getTypeStyle(
+            type
           )}`}
         >
-          {status.charAt(0).toUpperCase() + status.slice(1)}
+          {type.charAt(0).toUpperCase() + type.slice(1)}
         </span>
       );
     },

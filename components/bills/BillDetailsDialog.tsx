@@ -187,14 +187,14 @@ export function BillDetailsDialog({
           )}
 
           {/* Account */}
-          {bill.account && (
+          {bill.accountName && (
             <>
               <Separator />
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
                   Payment Account
                 </span>
-                <span className="text-sm font-medium">{bill.account.name}</span>
+                <span className="text-sm font-medium">{bill.accountName}</span>
               </div>
             </>
           )}

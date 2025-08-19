@@ -39,6 +39,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   isLoading?: boolean;
   sortStates?: Record<string, "asc" | "desc" | false>;
+  onRefresh?: () => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -46,6 +47,7 @@ export function DataTable<TData, TValue>({
   data,
   isLoading = false,
   sortStates,
+  onRefresh,
 }: DataTableProps<TData, TValue>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -127,22 +129,24 @@ export function DataTable<TData, TValue>({
     });
   }, []);
 
-  const handleSaveBill = (updatedBill: Bill) => {
-    // TODO: Implement actual update logic here
-    console.log("Updating bill:", updatedBill);
-
-    // For now, just close the dialog
+  const handleSaveBill = (_updatedBill: Bill) => {
+    // The update is already handled in the EditBillDialog component
+    // We just need to close the dialog and refresh the data
     setIsEditDialogOpen(false);
     setSelectedBill(null);
+    if (onRefresh) {
+      onRefresh();
+    }
   };
 
-  const handleConfirmDelete = (bill: Bill) => {
-    // TODO: Implement actual deletion logic here
-    console.log("Deleting bill:", bill);
-
-    // For now, just close the dialog
+  const handleConfirmDelete = (_bill: Bill) => {
+    // The deletion is already handled in the DeleteBillDialog component
+    // We just need to close the dialog and refresh the data
     setIsDeleteDialogOpen(false);
     setSelectedBill(null);
+    if (onRefresh) {
+      onRefresh();
+    }
   };
 
   // Apply custom filters and sorting based on URL search params

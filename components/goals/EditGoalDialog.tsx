@@ -22,6 +22,9 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { FinancialGoal } from "@/lib/types";
 import { getCategoriesByType } from "@/constants";
+import { useUser } from "@clerk/nextjs";
+import { createGoal, updateGoal } from "@/lib/actions/goal.actions";
+import { toast } from "@/components/ui/use-toast";
 
 interface EditGoalDialogProps {
   goal: FinancialGoal | null;
@@ -36,8 +39,10 @@ export function EditGoalDialog({
   onClose,
   onSave,
 }: EditGoalDialogProps) {
+  const { user } = useUser();
   const [formData, setFormData] = useState<Partial<FinancialGoal>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get goal categories
   const goalCategories = getCategoriesByType("goals");
@@ -74,7 +79,7 @@ export function EditGoalDialog({
       });
     }
     setErrors({});
-  }, [goal]);
+  }, [goal, isOpen]);
 
   // Handle form field changes
   const handleInputChange = (
@@ -138,39 +143,86 @@ export function EditGoalDialog({
   };
 
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) return;
 
-    if (goal) {
-      // Editing existing goal
-      const updatedGoal: FinancialGoal = {
-        ...goal,
-        ...formData,
-        updatedAt: new Date().toISOString(),
-      } as FinancialGoal;
+    if (!user?.id) {
+      toast({
+        title: "Authentication Error",
+        description: "Please sign in to create or edit goals.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-      onSave(updatedGoal);
-    } else {
-      // Creating new goal
-      const newGoal: FinancialGoal = {
-        id: `goal-${Date.now()}`,
-        name: formData.name || "",
-        category: formData.category || "",
-        targetAmount: formData.targetAmount || 0,
-        currentAmount: formData.currentAmount || 0,
-        currency: formData.currency || "AUD",
-        targetDate: formData.targetDate || "",
-        priority: formData.priority || "medium",
-        status: formData.status || "active",
-        notes: formData.notes || "",
-        isActive: formData.isActive !== false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      } as FinancialGoal;
+    setIsSubmitting(true);
 
-      onSave(newGoal);
+    try {
+      if (goal) {
+        // Editing existing goal
+        const goalId = goal._id || goal.id;
+        if (!goalId) {
+          throw new Error("Goal ID is required for editing");
+        }
+
+        const updatedGoal = await updateGoal(goalId, user.id, {
+          name: formData.name,
+          category: formData.category,
+          targetAmount: formData.targetAmount,
+          currentAmount: formData.currentAmount,
+          currency: formData.currency,
+          targetDate: formData.targetDate,
+          priority: formData.priority,
+          status: formData.status,
+          notes: formData.notes,
+          isActive: formData.isActive,
+        });
+
+        if (updatedGoal) {
+          toast({
+            title: "Goal Updated",
+            description: "Your goal has been updated successfully.",
+          });
+          onSave(updatedGoal as FinancialGoal);
+        }
+      } else {
+        // Creating new goal
+        const newGoal = await createGoal({
+          userId: user.id,
+          name: formData.name || "",
+          category: formData.category || "",
+          targetAmount: formData.targetAmount || 0,
+          currentAmount: formData.currentAmount || 0,
+          currency: formData.currency || "AUD",
+          targetDate: formData.targetDate || "",
+          priority: formData.priority || "medium",
+          status: formData.status || "active",
+          notes: formData.notes || "",
+          isActive: formData.isActive !== false,
+        });
+
+        if (newGoal) {
+          toast({
+            title: "Goal Created",
+            description: "Your new goal has been created successfully.",
+          });
+          onSave(newGoal as FinancialGoal);
+        }
+      }
+    } catch (error) {
+      console.error("Error saving goal:", error);
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to save goal. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -417,8 +469,12 @@ export function EditGoalDialog({
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button type="submit">
-              {goal ? "Update Goal" : "Create Goal"}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting
+                ? "Saving..."
+                : goal
+                ? "Update Goal"
+                : "Create Goal"}
             </Button>
           </div>
         </form>

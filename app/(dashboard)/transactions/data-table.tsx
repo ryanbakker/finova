@@ -31,10 +31,7 @@ import {
 } from "@/components/transactions";
 import { setGlobalActionHandlers } from "./columns";
 import { Transaction } from "@/lib/types";
-import {
-  sampleAccounts,
-  sampleCategories,
-} from "@/database/test-data/sample-transactions";
+import { getCategoriesByType } from "@/constants";
 import { useSearchParams } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -67,37 +64,75 @@ export function DataTable<TData, TValue>({
   const isMobile = useIsMobile();
 
   // Get filter values from URL search params
-  const payeeFilter = searchParams.get("payee") || "";
+  const descriptionFilter = searchParams.get("description") || "";
   const dateFrom = searchParams.get("dateFrom");
   const dateTo = searchParams.get("dateTo");
   const selectedAccount = searchParams.get("account") || "all";
   const selectedCategory = searchParams.get("category") || "all";
   const selectedType = searchParams.get("type") || "all";
 
+  // Get categories and accounts for filters
+  const categories = getCategoriesByType("expenses").map((cat, index) => ({
+    ...cat,
+    id: `cat-${index + 1}`,
+  }));
+  const accounts = [
+    {
+      id: "chase-checking",
+      name: "Chase Checking",
+      type: "checking" as const,
+      balance: 0,
+      currency: "USD",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: "chase-savings",
+      name: "Chase Savings",
+      type: "savings" as const,
+      balance: 0,
+      currency: "USD",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: "chase-credit",
+      name: "Chase Credit Card",
+      type: "credit" as const,
+      balance: 0,
+      currency: "USD",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  ];
+
   // Set column visibility based on screen size
   useEffect(() => {
     if (isMobile) {
-      // On mobile: show select, payee, amount, date, and actions
+      // On mobile: show select, description, amount, date, and actions
       setColumnVisibility({
         select: true,
-        payee: true,
+        description: true,
         amount: true,
         date: true,
-        account: false,
-        category: false,
-        status: false,
+        accountName: false,
+        "category.name": false,
+        type: false,
         actions: true,
       });
     } else {
       // On medium+ devices: show all columns
       setColumnVisibility({
         select: true,
-        payee: true,
+        description: true,
         amount: true,
         date: true,
-        account: true,
-        category: true,
-        status: true,
+        accountName: true,
+        "category.name": true,
+        type: true,
         actions: true,
       });
     }
@@ -132,18 +167,18 @@ export function DataTable<TData, TValue>({
     });
   }, []);
 
-  const handleSaveTransaction = (updatedTransaction: Transaction) => {
+  const handleSaveTransaction = () => {
     // TODO: Implement actual update logic here
-    console.log("Updating transaction:", updatedTransaction);
+    console.log("Transaction updated successfully");
 
     // For now, just close the dialog
     setIsEditDialogOpen(false);
     setSelectedTransaction(null);
   };
 
-  const handleConfirmDelete = (transaction: Transaction) => {
+  const handleConfirmDelete = () => {
     // TODO: Implement actual deletion logic here
-    console.log("Deleting transaction:", transaction);
+    console.log("Transaction deleted successfully");
 
     // For now, just close the dialog
     setIsDeleteDialogOpen(false);
@@ -154,10 +189,12 @@ export function DataTable<TData, TValue>({
   const filteredAndSortedData = useMemo(() => {
     let filtered = data as Transaction[];
 
-    // Payee filter
-    if (payeeFilter) {
+    // Description filter
+    if (descriptionFilter) {
       filtered = filtered.filter((transaction) =>
-        transaction.payee.toLowerCase().includes(payeeFilter.toLowerCase())
+        transaction.description
+          .toLowerCase()
+          .includes(descriptionFilter.toLowerCase())
       );
     }
 
@@ -174,7 +211,7 @@ export function DataTable<TData, TValue>({
     // Account filter
     if (selectedAccount !== "all") {
       filtered = filtered.filter(
-        (transaction) => transaction.account.id === selectedAccount
+        (transaction) => transaction.accountId === selectedAccount
       );
     }
 
@@ -209,12 +246,12 @@ export function DataTable<TData, TValue>({
           let bValue: unknown = b[columnId as keyof Transaction];
 
           // Handle nested objects
-          if (columnId === "account") {
-            aValue = (aValue as { name: string })?.name || "";
-            bValue = (bValue as { name: string })?.name || "";
-          } else if (columnId === "category") {
-            aValue = (aValue as { name: string })?.name || "";
-            bValue = (bValue as { name: string })?.name || "";
+          if (columnId === "accountName") {
+            aValue = a.accountName || "";
+            bValue = b.accountName || "";
+          } else if (columnId === "category.name") {
+            aValue = a.category.name || "";
+            bValue = b.category.name || "";
           }
 
           // Handle dates
@@ -255,7 +292,7 @@ export function DataTable<TData, TValue>({
     return filtered;
   }, [
     data,
-    payeeFilter,
+    descriptionFilter,
     dateFrom,
     dateTo,
     selectedAccount,
@@ -314,8 +351,8 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  // Show skeleton if loading or no data
-  if (isLoading || !data || data.length === 0) {
+  // Show skeleton only when loading
+  if (isLoading) {
     return <TransactionTableSkeleton rowCount={8} isMobile={isMobile} />;
   }
 
@@ -333,7 +370,7 @@ export function DataTable<TData, TValue>({
     // Show confirmation dialog
     const confirmMessage =
       selectedTransactions.length === 1
-        ? `Are you sure you want to delete the transaction "${selectedTransactions[0].payee}"?`
+        ? `Are you sure you want to delete the transaction "${selectedTransactions[0].description}"?`
         : `Are you sure you want to delete ${selectedTransactions.length} selected transactions?`;
 
     if (window.confirm(confirmMessage)) {
@@ -360,8 +397,8 @@ export function DataTable<TData, TValue>({
     <div className="w-full space-y-4">
       {/* Transaction Filters */}
       <TransactionFilters
-        accounts={sampleAccounts}
-        categories={sampleCategories}
+        accounts={accounts}
+        categories={categories}
         table={table}
         isLoading={isLoading}
       />
@@ -457,6 +494,8 @@ export function DataTable<TData, TValue>({
                 >
                   {filteredAndSortedData.length === 0 && data.length > 0
                     ? "No results found for your search criteria."
+                    : data.length === 0
+                    ? "No transactions available. Create your first transaction to get started!"
                     : "No transactions available."}
                 </TableCell>
               </TableRow>
@@ -484,9 +523,9 @@ export function DataTable<TData, TValue>({
         transaction={selectedTransaction}
         isOpen={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}
-        onSave={handleSaveTransaction}
-        accounts={sampleAccounts}
-        categories={sampleCategories}
+        onSuccess={handleSaveTransaction}
+        accounts={accounts}
+        categories={categories}
       />
 
       {/* Delete Transaction Dialog */}
@@ -494,7 +533,7 @@ export function DataTable<TData, TValue>({
         transaction={selectedTransaction}
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
-        onConfirm={handleConfirmDelete}
+        onSuccess={handleConfirmDelete}
       />
 
       {/* Pagination and Row Selection Info */}

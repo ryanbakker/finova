@@ -1,0 +1,23 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/assets/[id]/route": "/api/assets/[id]",
+  "/api/budgets/[id]/route": "/api/budgets/[id]",
+  "/api/budgets/stats/route": "/api/budgets/stats",
+  "/api/health/route": "/api/health",
+  "/api/assets/route": "/api/assets",
+  "/api/liabilities/[id]/route": "/api/liabilities/[id]",
+  "/api/liabilities/route": "/api/liabilities",
+  "/api/webhooks/route": "/api/webhooks",
+  "/api/budgets/route": "/api/budgets",
+  "/api/assets/stats/route": "/api/assets/stats",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/",
+  "/(dashboard)/bills/page": "/bills",
+  "/(dashboard)/liabilities/page": "/liabilities",
+  "/(dashboard)/transactions/page": "/transactions",
+  "/(dashboard)/budgeting/page": "/budgeting",
+  "/(dashboard)/assets/page": "/assets",
+  "/(dashboard)/goals/page": "/goals",
+  "/(dashboard)/report/[reportId]/page": "/report/[reportId]",
+  "/(root)/welcome/page": "/welcome"
+}

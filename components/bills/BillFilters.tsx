@@ -14,7 +14,7 @@ import {
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { Search, Filter, X, ChevronDown } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { billCategories, billStatuses } from "./sample-bills";
+import { getCategoriesByType } from "@/constants";
 import { format } from "date-fns";
 import {
   DropdownMenu,
@@ -38,6 +38,10 @@ export function BillFilters({ table }: BillFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Get bill categories and statuses
+  const billCategories = getCategoriesByType("bills").map((cat) => cat.name);
+  const billStatuses = ["paid", "unpaid", "overdue"];
 
   // Get current filter values from URL
   const nameFilter = searchParams.get("name") || "";

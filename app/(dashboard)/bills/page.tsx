@@ -2,32 +2,59 @@
 
 import { DashboardFooter } from "@/components/DashboardFooter";
 import { Button } from "@/components/ui/button";
-import { sampleBills } from "@/components/bills/sample-bills";
 import { Bill } from "@/lib/types";
 import { Plus } from "lucide-react";
 import { DataTable } from "./data-table";
 import { createColumns } from "./columns";
 import { Suspense, useState, useEffect } from "react";
-import { BillPageSkeleton } from "@/components/bills";
+import { BillPageSkeleton, CreateBillDialog } from "@/components/bills";
 import { useSorting } from "@/hooks/use-sorting";
+import { getUserBills } from "@/lib/actions/bill.actions";
+import { toast } from "@/components/ui/use-toast";
 
 function BillsPage() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { sortStates, toggleSorting } = useSorting();
 
   // Create columns
   const columns = createColumns(sortStates, toggleSorting);
 
-  // Simulate loading state
+  // Fetch bills from database
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setBills(sampleBills);
-      setIsLoading(false);
-    }, 1500); // Simulate 1.5s loading time
+    const fetchBills = async () => {
+      try {
+        const userBills = await getUserBills();
+        setBills(userBills || []);
+      } catch (error) {
+        console.error("Error fetching bills:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch bills. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    fetchBills();
   }, []);
+
+  const refreshBills = async () => {
+    try {
+      const userBills = await getUserBills();
+      setBills(userBills || []);
+    } catch (error) {
+      console.error("Error refreshing bills:", error);
+      toast({
+        title: "Error",
+        description: "Failed to refresh bills. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -48,7 +75,10 @@ function BillsPage() {
             obligations to stay on top of your finances.
           </p>
         </div>
-        <Button className="button-blue-bg hover:cursor-pointer">
+        <Button
+          className="button-blue-bg hover:cursor-pointer"
+          onClick={() => setIsCreateDialogOpen(true)}
+        >
           <Plus className="mr-1 h-4 w-4" />
           Add Bill
         </Button>
@@ -60,10 +90,17 @@ function BillsPage() {
           data={bills}
           isLoading={isLoading}
           sortStates={sortStates}
+          onRefresh={refreshBills}
         />
       </Suspense>
 
       <DashboardFooter />
+
+      <CreateBillDialog
+        isOpen={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onSuccess={refreshBills}
+      />
     </div>
   );
 }

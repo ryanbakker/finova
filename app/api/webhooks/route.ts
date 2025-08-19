@@ -13,8 +13,12 @@ export async function POST(req: Request) {
 
   if (!SIGNING_SECRET) {
     console.error("Missing SIGNING_SECRET environment variable");
-    throw new Error(
-      "Error: Please add SIGNING_SECRET from Clerk Dashboard to .env or .env.local"
+    return NextResponse.json(
+      {
+        error:
+          "Missing SIGNING_SECRET. Add it from the Clerk Dashboard to your .env.local as SIGNING_SECRET.",
+      },
+      { status: 500 }
     );
   }
 
@@ -24,7 +28,7 @@ export async function POST(req: Request) {
     const wh = new Webhook(SIGNING_SECRET);
     console.log("Webhook instance created");
 
-    // Get headers
+    // Get headers (synchronously)
     const headerPayload = await headers();
     const svix_id = headerPayload.get("svix-id");
     const svix_timestamp = headerPayload.get("svix-timestamp");
@@ -47,13 +51,8 @@ export async function POST(req: Request) {
       });
     }
 
-    // Get body - read it once and store it
-    const payload = await req.json();
-    const body = JSON.stringify(payload);
-
-    console.log("Webhook payload received:", payload);
-    console.log("Event type:", payload.type);
-    console.log("User ID:", payload.data?.id);
+    // Get raw body - required for Svix signature verification
+    const body = await req.text();
 
     let evt: WebhookEvent;
     try {
@@ -109,8 +108,8 @@ export async function POST(req: Request) {
         if (newUser) {
           // Update Clerk user metadata with MongoDB user ID
           try {
-            const clerk = await clerkClient();
-            await clerk.users.updateUserMetadata(userInfo.id, {
+            const client = await clerkClient();
+            await client.users.updateUserMetadata(userInfo.id, {
               publicMetadata: {
                 userId: newUser._id,
               },

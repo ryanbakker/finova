@@ -1,4 +1,5 @@
 export { AssetDetailsDialog } from "./AssetDetailsDialog";
+export { CreateAssetDialog } from "./CreateAssetDialog";
 export { EditAssetDialog } from "./EditAssetDialog";
 export { DeleteAssetDialog } from "./DeleteAssetDialog";
 export { AssetFilters } from "./AssetFilters";

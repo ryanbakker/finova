@@ -13,6 +13,12 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.next();
   }
 
+  // Allow all non-webhook API routes to pass through so route handlers
+  // can return JSON (avoids redirects causing Failed to fetch on client)
+  if (pathname.startsWith("/api")) {
+    return NextResponse.next();
+  }
+
   // If user is not authenticated and trying to access protected routes
   if (!userId && !isPublicRoute(req)) {
     const welcomeUrl = new URL("/welcome", req.url);

@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -9,25 +11,51 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Asset } from "@/lib/types";
-import { Trash2, AlertTriangle, X } from "lucide-react";
+import { deleteAsset } from "@/lib/actions/asset.actions";
+import { useToast } from "@/components/ui/use-toast";
+import { Trash2, AlertTriangle, X, Loader2 } from "lucide-react";
 
 interface DeleteAssetDialogProps {
   asset: Asset | null;
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (asset: Asset) => void;
+  onSuccess: () => void;
 }
 
 export function DeleteAssetDialog({
   asset,
   isOpen,
   onClose,
-  onConfirm,
+  onSuccess,
 }: DeleteAssetDialogProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { toast } = useToast();
+
   if (!asset) return null;
 
-  const handleConfirm = () => {
-    onConfirm(asset);
+  const handleConfirm = async () => {
+    setIsDeleting(true);
+
+    try {
+      await deleteAsset(asset.id);
+
+      toast({
+        title: "Success",
+        description: "Asset deleted successfully",
+      });
+
+      onSuccess();
+      onClose();
+    } catch (error) {
+      console.error("Error deleting asset:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete asset. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -99,10 +127,20 @@ export function DeleteAssetDialog({
           <Button
             variant="destructive"
             onClick={handleConfirm}
-            className="bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
+            disabled={isDeleting}
+            className="bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 min-w-[120px]"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete Asset
+            {isDeleting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Deleting...
+              </>
+            ) : (
+              <>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Asset
+              </>
+            )}
           </Button>
         </div>
       </DialogContent>

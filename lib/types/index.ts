@@ -17,26 +17,45 @@ export type Category = {
 
 export type Transaction = {
   id: string;
+  userId: string;
   date: string;
   amount: number;
-  category: Category;
-  account: Account;
-  payee: string;
-  status?: "pending" | "completed" | "incomplete";
+  type: "income" | "expense" | "transfer";
+  category: {
+    id: string;
+    name: string;
+    icon: string;
+    color: string;
+    budget?: number;
+  };
+  description: string;
+  merchant?: string;
+  accountId: string;
+  accountName: string;
+  isRecurring: boolean;
+  recurringId?: string;
+  tags: string[];
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type Bill = {
   id: string;
+  userId: string;
   name: string;
   amount: number;
   dueDate: string;
   category: string;
   isRecurring: boolean;
-  icon: React.ReactNode;
-  status?: "paid" | "unpaid" | "overdue";
-  account?: Account;
+  icon?: React.ReactNode;
+  status: "paid" | "unpaid" | "overdue";
+  accountId?: string;
+  accountName?: string;
   notes?: string;
   frequency?: "monthly" | "quarterly" | "yearly" | "weekly";
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type Asset = {
@@ -59,6 +78,7 @@ export type Asset = {
 
 export type Liability = {
   id: string;
+  userId: string;
   name: string;
   category: string;
   amount: number;
@@ -77,7 +97,9 @@ export type Liability = {
 };
 
 export type FinancialGoal = {
-  id: string;
+  id?: string;
+  _id?: string;
+  userId: string;
   name: string;
   category: string;
   targetAmount: number;
@@ -93,7 +115,8 @@ export type FinancialGoal = {
 };
 
 export type Budget = {
-  id: string;
+  id?: string;
+  _id?: string;
   category: string;
   amount: number;
   spent: number;

@@ -69,7 +69,7 @@ export function BudgetTable({ budgets, onEdit, onDelete }: BudgetTableProps) {
             const IconComponent = getBudgetCategoryIcon(budget.category);
 
             return (
-              <TableRow key={budget.id}>
+              <TableRow key={budget._id || budget.id}>
                 <TableCell>
                   <div className="flex items-center space-x-2">
                     {IconComponent && (
@@ -125,7 +125,12 @@ export function BudgetTable({ budgets, onEdit, onDelete }: BudgetTableProps) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => onDelete(budget.id)}
+                      onClick={() => {
+                        const budgetId = budget._id || budget.id;
+                        if (budgetId) {
+                          onDelete(budgetId);
+                        }
+                      }}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

@@ -6,4 +6,3 @@ export { GoalTableSkeleton } from "./GoalTableSkeleton";
 export { GoalPageSkeleton } from "./GoalPageSkeleton";
 export { GoalPageHeaderSkeleton } from "./GoalPageHeaderSkeleton";
 export { GoalFiltersSkeleton } from "./GoalFiltersSkeleton";
-export { sampleGoals } from "./sample-goals";

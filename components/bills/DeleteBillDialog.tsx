@@ -10,7 +10,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Bill } from "@/lib/types";
+import { deleteBill } from "@/lib/actions/bill.actions";
 import { AlertTriangle, Trash2 } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 interface DeleteBillDialogProps {
   bill: Bill | null;
@@ -27,8 +29,24 @@ export function DeleteBillDialog({
 }: DeleteBillDialogProps) {
   if (!bill) return null;
 
-  const handleConfirm = () => {
-    onConfirm(bill);
+  const handleConfirm = async () => {
+    try {
+      await deleteBill(bill.id);
+
+      toast({
+        title: "Success",
+        description: "Bill deleted successfully!",
+      });
+
+      onConfirm(bill);
+    } catch (error) {
+      console.error("Error deleting bill:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete bill. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -40,16 +58,15 @@ export function DeleteBillDialog({
             <span>Delete Bill</span>
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this bill? This action cannot be undone.
+            Are you sure you want to delete this bill? This action cannot be
+            undone.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
             <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg bg-muted">
-                {bill.icon}
-              </div>
+              <div className="p-2 rounded-lg bg-muted">{bill.icon}</div>
               <div>
                 <h4 className="font-medium text-red-800 dark:text-red-200">
                   {bill.name}
@@ -65,8 +82,9 @@ export function DeleteBillDialog({
           </div>
 
           <p className="text-sm text-muted-foreground">
-            This will permanently remove the bill from your records. If this is a recurring bill, 
-            you may want to mark it as paid instead of deleting it.
+            This will permanently remove the bill from your records. If this is
+            a recurring bill, you may want to mark it as paid instead of
+            deleting it.
           </p>
         </div>
 

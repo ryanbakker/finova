@@ -15,11 +15,6 @@ import {
   BudgetTable,
   BudgetPageSkeleton,
 } from "@/components/budgeting";
-import {
-  sampleBudgets,
-  getBudgetTotals,
-  getCategoryData,
-} from "@/components/budgeting/sample-budgets";
 import { Budget } from "@/lib/types";
 import {
   Card,
@@ -29,25 +24,77 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/components/ui/use-toast";
+import {
+  createBudget,
+  updateBudget,
+  deleteBudget,
+  getUserBudgets,
+  getBudgetStats,
+} from "@/lib/actions/budget.actions";
 
 export default function BudgetingPage() {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<Budget | undefined>();
   const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalBudget: 0,
+    totalSpent: 0,
+    totalBudgets: 0,
+    overBudgetCount: 0,
+    warningBudgetCount: 0,
+  });
 
-  // Simulate loading state
+  // Load budgets from database
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setBudgets(sampleBudgets);
-      setIsLoading(false);
-    }, 1500); // Simulate 1.5s loading time
+    const loadBudgets = async () => {
+      try {
+        setIsLoading(true);
+        const [budgetsData, statsData] = await Promise.all([
+          getUserBudgets(),
+          getBudgetStats(),
+        ]);
 
-    return () => clearTimeout(timer);
+        setBudgets(budgetsData);
+        setStats({
+          totalBudget: statsData.totalBudgetAmount,
+          totalSpent: statsData.totalSpent,
+          totalBudgets: statsData.totalBudgets,
+          overBudgetCount: statsData.overBudgetCount,
+          warningBudgetCount: statsData.warningBudgetCount,
+        });
+      } catch (error) {
+        console.error("Error loading budgets:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load budgets",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadBudgets();
   }, []);
 
-  const { totalBudget, totalSpent } = getBudgetTotals(budgets);
-  const categoryData = getCategoryData(budgets);
+  // Calculate category data from budgets
+  const categoryData = budgets.reduce((acc, budget) => {
+    const existing = acc.find((cat) => cat.name === budget.category);
+    if (existing) {
+      existing.budget += budget.amount;
+      existing.value += budget.spent;
+    } else {
+      acc.push({
+        name: budget.category,
+        budget: budget.amount,
+        value: budget.spent,
+        percentage: (budget.spent / budget.amount) * 100,
+      });
+    }
+    return acc;
+  }, [] as Array<{ name: string; budget: number; value: number; percentage: number }>);
 
   // Sample data for charts
   const monthlySpending = [
@@ -69,12 +116,19 @@ export default function BudgetingPage() {
     { day: "Sun", amount: 100 },
   ];
 
-  const budgetVsActual = categoryData.map((cat) => ({
-    category: cat.name,
-    budget: cat.budget,
-    actual: cat.value,
-    remaining: cat.budget - cat.value,
-  }));
+  const budgetVsActual = categoryData.map(
+    (cat: {
+      name: string;
+      budget: number;
+      value: number;
+      percentage: number;
+    }) => ({
+      category: cat.name,
+      budget: cat.budget,
+      actual: cat.value,
+      remaining: cat.budget - cat.value,
+    })
+  );
 
   const handleCreateBudget = () => {
     setEditingBudget(undefined);
@@ -86,50 +140,89 @@ export default function BudgetingPage() {
     setDialogOpen(true);
   };
 
-  const handleDeleteBudget = (budgetId: string) => {
-    setBudgets((prev) => prev.filter((b) => b.id !== budgetId));
-  };
-
-  const handleSaveBudget = (
-    budgetData: Omit<Budget, "id" | "createdAt" | "updatedAt">
-  ) => {
-    if (editingBudget) {
-      // Update existing budget
-      setBudgets((prev) =>
-        prev.map((b) =>
-          b.id === editingBudget.id
-            ? {
-                ...b,
-                ...budgetData,
-                updatedAt: new Date().toISOString(),
-              }
-            : b
-        )
-      );
-    } else {
-      // Create new budget
-      const newBudget: Budget = {
-        ...budgetData,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      setBudgets((prev) => [...prev, newBudget]);
+  const handleDeleteBudget = async (budgetId: string) => {
+    try {
+      await deleteBudget(budgetId);
+      setBudgets((prev) => prev.filter((b) => (b._id || b.id) !== budgetId));
+      toast({
+        title: "Success",
+        description: "Budget deleted successfully",
+      });
+    } catch (error) {
+      console.error("Error deleting budget:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete budget",
+        variant: "destructive",
+      });
     }
   };
 
-  const getBudgetInsights = () => {
-    const overBudget = budgets.filter((b) => (b.spent / b.amount) * 100 > 100);
-    const warningBudget = budgets.filter(
-      (b) =>
-        (b.spent / b.amount) * 100 > 80 && (b.spent / b.amount) * 100 <= 100
-    );
-    const onTrack = budgets.filter((b) => (b.spent / b.amount) * 100 <= 80);
+  const handleSaveBudget = async (
+    budgetData: Omit<Budget, "id" | "createdAt" | "updatedAt">
+  ) => {
+    try {
+      // Convert string dates to Date objects
+      const processedData = {
+        ...budgetData,
+        startDate: new Date(budgetData.startDate),
+        endDate: new Date(budgetData.endDate),
+      };
 
-    return { overBudget, warningBudget, onTrack };
+      if (editingBudget) {
+        // Update existing budget
+        const budgetId = editingBudget._id || editingBudget.id;
+        if (!budgetId) {
+          throw new Error("Invalid budget ID");
+        }
+
+        const updatedBudget = await updateBudget({
+          id: budgetId,
+          ...processedData,
+        });
+        setBudgets((prev) =>
+          prev.map((b) =>
+            b._id === editingBudget._id || b.id === editingBudget.id
+              ? updatedBudget
+              : b
+          )
+        );
+        toast({
+          title: "Success",
+          description: "Budget updated successfully",
+        });
+      } else {
+        // Create new budget
+        const newBudget = await createBudget(processedData);
+        setBudgets((prev) => [...prev, newBudget]);
+        toast({
+          title: "Success",
+          description: "Budget created successfully",
+        });
+      }
+
+      // Refresh stats
+      const statsData = await getBudgetStats();
+      setStats({
+        totalBudget: statsData.totalBudgetAmount,
+        totalSpent: statsData.totalSpent,
+        totalBudgets: statsData.totalBudgets,
+        overBudgetCount: statsData.overBudgetCount,
+        warningBudgetCount: statsData.warningBudgetCount,
+      });
+    } catch (error) {
+      console.error("Error saving budget:", error);
+      throw error; // Re-throw to let the dialog handle the error
+    }
   };
 
-  const insights = getBudgetInsights();
+  // Calculate insights from stats
+  const insights = {
+    overBudget: stats.overBudgetCount,
+    warningBudget: stats.warningBudgetCount,
+    onTrack:
+      stats.totalBudgets - stats.overBudgetCount - stats.warningBudgetCount,
+  };
 
   if (isLoading) {
     return (
@@ -157,7 +250,10 @@ export default function BudgetingPage() {
       </div>
 
       {/* Budget Metrics */}
-      <BudgetMetrics totalSpent={totalSpent} totalBudget={totalBudget} />
+      <BudgetMetrics
+        totalSpent={stats.totalSpent}
+        totalBudget={stats.totalBudget}
+      />
 
       {/* Quick Insights */}
       <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
@@ -168,7 +264,7 @@ export default function BudgetingPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {insights.onTrack.length}
+              {insights.onTrack}
             </div>
             <p className="text-xs text-muted-foreground">
               Categories within budget
@@ -183,7 +279,7 @@ export default function BudgetingPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-              {insights.warningBudget.length}
+              {insights.warningBudget}
             </div>
             <p className="text-xs text-muted-foreground">
               Categories near limit
@@ -198,7 +294,7 @@ export default function BudgetingPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-              {insights.overBudget.length}
+              {insights.overBudget}
             </div>
             <p className="text-xs text-muted-foreground">Categories exceeded</p>
           </CardContent>
@@ -219,7 +315,10 @@ export default function BudgetingPage() {
           <CategoryBudgets categoryData={categoryData} />
 
           {/* Budget Progress */}
-          <BudgetProgress totalSpent={totalSpent} totalBudget={totalBudget} />
+          <BudgetProgress
+            totalSpent={stats.totalSpent}
+            totalBudget={stats.totalBudget}
+          />
 
           {/* Budget Alerts */}
           <BudgetAlerts categoryData={categoryData} />
@@ -251,7 +350,7 @@ export default function BudgetingPage() {
             dailySpending={dailySpending}
             budgetVsActual={budgetVsActual}
             categoryData={categoryData}
-            monthlyBudget={totalBudget}
+            monthlyBudget={stats.totalBudget}
           />
         </TabsContent>
 

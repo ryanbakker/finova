@@ -22,23 +22,27 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Asset } from "@/lib/types";
 import { getCategoriesByType } from "@/constants";
-import { X } from "lucide-react";
+import { updateAsset } from "@/lib/actions/asset.actions";
+import { useToast } from "@/components/ui/use-toast";
+import { Loader2, X } from "lucide-react";
 
 interface EditAssetDialogProps {
   asset: Asset | null;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (asset: Asset) => void;
+  onSuccess: () => void;
 }
 
 export function EditAssetDialog({
   asset,
   isOpen,
   onClose,
-  onSave,
+  onSuccess,
 }: EditAssetDialogProps) {
   const [formData, setFormData] = useState<Partial<Asset>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   // Get asset categories
   const assetCategories = getCategoriesByType("assets");
@@ -120,18 +124,38 @@ export function EditAssetDialog({
   };
 
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm() || !asset) return;
 
-    const updatedAsset: Asset = {
-      ...asset,
-      ...formData,
-      updatedAt: new Date().toISOString(),
-    };
+    setIsSubmitting(true);
 
-    onSave(updatedAsset);
+    try {
+      const updateData = {
+        id: asset.id,
+        ...formData,
+      };
+
+      await updateAsset(updateData);
+
+      toast({
+        title: "Success",
+        description: "Asset updated successfully",
+      });
+
+      onSuccess();
+      onClose();
+    } catch (error) {
+      console.error("Error updating asset:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update asset. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Handle close
@@ -416,8 +440,15 @@ export function EditAssetDialog({
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button type="submit" className="button-blue-bg">
-              Save Changes
+            <Button type="submit" disabled={isSubmitting} className="button-blue-bg min-w-[100px]">
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
             </Button>
           </div>
         </form>

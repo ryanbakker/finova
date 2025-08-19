@@ -70,10 +70,10 @@ export function TransactionDetailsDialog({
       show: true,
     },
     {
-      key: "payee",
-      label: "Payee",
+      key: "description",
+      label: "Description",
       icon: User,
-      value: transaction.payee,
+      value: transaction.description,
       show: true,
     },
     {
@@ -87,7 +87,7 @@ export function TransactionDetailsDialog({
       key: "account",
       label: "Account",
       icon: CreditCard,
-      value: transaction.account.name,
+      value: transaction.accountName,
       show: true,
     },
     {
@@ -96,25 +96,6 @@ export function TransactionDetailsDialog({
       icon: Tag,
       value: transaction.category.name,
       show: true,
-    },
-    {
-      key: "status",
-      label: "Status",
-      icon: Building2,
-      value: transaction.status,
-      customValue: transaction.status && (
-        <Badge
-          variant={transaction.status === "completed" ? "default" : "secondary"}
-          className={
-            transaction.status === "completed"
-              ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-              : ""
-          }
-        >
-          {transaction.status}
-        </Badge>
-      ),
-      show: !!transaction.status,
     },
   ];
 
