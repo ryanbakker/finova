@@ -6,3 +6,4 @@ export { FinancialGoals } from "./FinancialGoals";
 export { CategoryBreakdownChart } from "./CategoryBreakdownChart";
 export { FinancialAssets } from "./FinancialAssets";
 export { MetricCard } from "./MetricCard";
+export { GetStartedNotice } from "./GetStartedNotice";

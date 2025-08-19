@@ -24,6 +24,7 @@ import {
   CategoryBreakdownChart,
   FinancialAssets,
   MetricCard,
+  GetStartedNotice,
 } from "@/components/dashboard";
 import { useUser } from "@clerk/nextjs";
 import { FileText, Plus } from "lucide-react";
@@ -45,6 +46,7 @@ function DashboardContent({
     null
   );
   const [error, setError] = useState<string | null>(null);
+  const [showGetStartedNotice, setShowGetStartedNotice] = useState(true);
 
   // Fetch dashboard data
   useEffect(() => {
@@ -66,6 +68,19 @@ function DashboardContent({
       fetchDashboardData();
     }
   }, [isLoaded, user]);
+
+  // Check if there's no data to show
+  const hasNoData =
+    dashboardData &&
+    dashboardData.metrics.totalIncome === 0 &&
+    dashboardData.metrics.totalExpenses === 0 &&
+    dashboardData.metrics.totalAssets === 0 &&
+    dashboardData.metrics.totalLiabilities === 0 &&
+    dashboardData.recentTransactions.length === 0 &&
+    dashboardData.upcomingBills.length === 0 &&
+    dashboardData.budgetProgress.length === 0 &&
+    dashboardData.financialGoals.length === 0 &&
+    dashboardData.assets.length === 0;
 
   // Quick actions data
   const quickActions = [
@@ -135,6 +150,11 @@ function DashboardContent({
                 : "Welcome back! Here's an overview of your financial health."}
             </p>
           </div>
+
+          {/* Get Started Notice - shown when no data */}
+          {!isLoading && hasNoData && showGetStartedNotice && (
+            <GetStartedNotice onClose={() => setShowGetStartedNotice(false)} />
+          )}
 
           {/* Top Row - Key Metrics */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mx-auto w-full">
