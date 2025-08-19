@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LineChart } from "@tremor/react";
 import { CircleArrowUp, CircleArrowDown } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface NetWorthData {
   quarter: string;
@@ -10,90 +11,67 @@ interface NetWorthData {
   totalLiabilities: number;
 }
 
-const exampleData: NetWorthData[] = [
-  {
-    quarter: "2023 Q1",
-    netWorth: 25000,
-    totalAssets: 95000,
-    totalLiabilities: 70000,
-  },
-  {
-    quarter: "2023 Q2",
-    netWorth: 28000,
-    totalAssets: 98000,
-    totalLiabilities: 70000,
-  },
-  {
-    quarter: "2023 Q3",
-    netWorth: 32000,
-    totalAssets: 102000,
-    totalLiabilities: 70000,
-  },
-  {
-    quarter: "2023 Q4",
-    netWorth: 35000,
-    totalAssets: 110000,
-    totalLiabilities: 75000,
-  },
-  {
-    quarter: "2024 Q1",
-    netWorth: 40000,
-    totalAssets: 125000,
-    totalLiabilities: 85000,
-  },
-  {
-    quarter: "2024 Q2",
-    netWorth: 52000,
-    totalAssets: 138000,
-    totalLiabilities: 86000,
-  },
-  {
-    quarter: "2024 Q3",
-    netWorth: 48000,
-    totalAssets: 132000,
-    totalLiabilities: 84000,
-  },
-  {
-    quarter: "2024 Q4",
-    netWorth: 65000,
-    totalAssets: 150000,
-    totalLiabilities: 85000,
-  },
-  {
-    quarter: "2025 Q1",
-    netWorth: 58000,
-    totalAssets: 143000,
-    totalLiabilities: 85000,
-  },
-  {
-    quarter: "2025 Q2",
-    netWorth: 85000,
-    totalAssets: 170000,
-    totalLiabilities: 85000,
-  },
-  {
-    quarter: "2025 Q3",
-    netWorth: 125000,
-    totalAssets: 187500,
-    totalLiabilities: 62500,
-  },
-  {
-    quarter: "2025 Q4",
-    netWorth: 142000,
-    totalAssets: 205000,
-    totalLiabilities: 63000,
-  },
-];
-
 interface NetWorthSummaryProps {
   isLoading?: boolean;
+  netWorth?: number;
+  totalAssets?: number;
+  totalLiabilities?: number;
 }
 
-export function NetWorthSummary({ isLoading = false }: NetWorthSummaryProps) {
-  const currentNetWorth = 125000;
-  const previousNetWorth = 85000;
-  const change = currentNetWorth - previousNetWorth;
-  const changePercentage = ((change / previousNetWorth) * 100).toFixed(1);
+export function NetWorthSummary({
+  isLoading = false,
+  netWorth = 0,
+  totalAssets = 0,
+  totalLiabilities = 0,
+}: NetWorthSummaryProps) {
+  const [chartData, setChartData] = useState<NetWorthData[]>([]);
+
+  // Generate chart data based on current values
+  useEffect(() => {
+    if (
+      netWorth !== undefined &&
+      totalAssets !== undefined &&
+      totalLiabilities !== undefined
+    ) {
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      const currentQuarter = Math.floor(currentDate.getMonth() / 3) + 1;
+
+      // Generate data for the last 8 quarters
+      const generatedData: NetWorthData[] = [];
+
+      for (let i = 7; i >= 0; i--) {
+        const quarter = currentQuarter - i;
+        const year = currentYear - Math.floor((i - currentQuarter + 1) / 4);
+        const actualQuarter = ((quarter - 1 + 4) % 4) + 1;
+
+        // Simulate growth over time (you can replace this with actual historical data)
+        const growthFactor = 1 + i * 0.05; // 5% growth per quarter
+        const quarterNetWorth = Math.round(netWorth * growthFactor);
+        const quarterAssets = Math.round(totalAssets * growthFactor);
+        const quarterLiabilities = Math.round(
+          totalLiabilities * (1 + i * 0.02)
+        ); // Liabilities grow slower
+
+        generatedData.push({
+          quarter: `${year} Q${actualQuarter}`,
+          netWorth: quarterNetWorth,
+          totalAssets: quarterAssets,
+          totalLiabilities: quarterLiabilities,
+        });
+      }
+
+      setChartData(generatedData);
+    }
+  }, [netWorth, totalAssets, totalLiabilities]);
+
+  // Calculate change from previous quarter (for now using a simple calculation)
+  const previousNetWorth = netWorth * 0.95; // Simulate 5% growth
+  const change = netWorth - previousNetWorth;
+  const changePercentage =
+    previousNetWorth > 0
+      ? ((change / previousNetWorth) * 100).toFixed(1)
+      : "0.0";
   const isPositive = change >= 0;
 
   if (isLoading) {
@@ -165,7 +143,7 @@ export function NetWorthSummary({ isLoading = false }: NetWorthSummaryProps) {
 
             <div className="space-y-2">
               <div className="text-3xl font-extrabold text-sky-950 dark:text-sky-100">
-                ${currentNetWorth.toLocaleString()}
+                ${netWorth.toLocaleString()}
               </div>
               <div className="flex items-center space-x-2">
                 {isPositive ? (
@@ -189,11 +167,15 @@ export function NetWorthSummary({ isLoading = false }: NetWorthSummaryProps) {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <div className="text-muted-foreground">Total Assets</div>
-                <div className="font-semibold">$187,500</div>
+                <div className="font-semibold">
+                  ${totalAssets.toLocaleString()}
+                </div>
               </div>
               <div>
                 <div className="text-muted-foreground">Total Liabilities</div>
-                <div className="font-semibold">$62,500</div>
+                <div className="font-semibold">
+                  ${totalLiabilities.toLocaleString()}
+                </div>
               </div>
             </div>
 
@@ -215,60 +197,66 @@ export function NetWorthSummary({ isLoading = false }: NetWorthSummaryProps) {
           </div>
 
           <div className="flex-1 flex items-center justify-center bg-neutral-50 p-4 rounded-lg border border-neutral-200 dark:invert dark:bg-neutral-100/40">
-            <LineChart
-              data={exampleData}
-              index="quarter"
-              categories={["totalAssets", "totalLiabilities", "netWorth"]}
-              colors={["sky", "emerald", "red"]}
-              showLegend={false}
-              showGridLines={true}
-              showAnimation={true}
-              curveType="natural"
-              yAxisWidth={65}
-              valueFormatter={(value: number) => `$${value.toLocaleString()}`}
-              className="[&_.recharts-xAxis_.recharts-cartesian-axis-tick]:text-xs [&_.recharts-yAxis_.recharts-cartesian-axis-tick]:text-xs [&_.recharts-yAxis_.recharts-cartesian-axis-tick]:text-[11px] [&_.recharts-yAxis_.recharts-cartesian-axis-tick]:leading-none [&_.recharts-xAxis_.recharts-cartesian-axis-tick]:text-[11px] [&_.recharts-xAxis_.recharts-cartesian-axis-tick]:leading-none"
-              customTooltip={({ payload, active }) => {
-                if (active && payload && payload.length) {
-                  const colorMap = {
-                    netWorth: "#0369a1", // sky-700
-                    totalAssets: "#047857", // emerald-700
-                    totalLiabilities: "#b91c1c", // red-700
-                  };
+            {chartData.length > 0 ? (
+              <LineChart
+                data={chartData}
+                index="quarter"
+                categories={["totalAssets", "totalLiabilities", "netWorth"]}
+                colors={["sky", "emerald", "red"]}
+                showLegend={false}
+                showGridLines={true}
+                showAnimation={true}
+                curveType="natural"
+                yAxisWidth={65}
+                valueFormatter={(value: number) => `$${value.toLocaleString()}`}
+                className="[&_.recharts-xAxis_.recharts-cartesian-axis-tick]:text-xs [&_.recharts-yAxis_.recharts-cartesian-axis-tick]:text-xs [&_.recharts-yAxis_.recharts-cartesian-axis-tick]:text-[11px] [&_.recharts-yAxis_.recharts-cartesian-axis-tick]:leading-none [&_.recharts-xAxis_.recharts-cartesian-axis-tick]:text-[11px] [&_.recharts-xAxis_.recharts-cartesian-axis-tick]:leading-none"
+                customTooltip={({ payload, active }) => {
+                  if (active && payload && payload.length) {
+                    const colorMap = {
+                      netWorth: "#0369a1", // sky-700
+                      totalAssets: "#047857", // emerald-700
+                      totalLiabilities: "#b91c1c", // red-700
+                    };
 
-                  return (
-                    <div className="bg-white dark:bg-neutral-100 p-3 border border-gray-200 dark:border-neutral-300 rounded-lg shadow-xl dark:shadow-neutral-100/40 text-xs backdrop-blur-sm">
-                      <p className="font-semibold text-gray-900 dark:text-neutral-800 mb-2 pb-2 border-b border-gray-200 dark:border-neutral-300">
-                        {payload[0]?.payload?.quarter}
-                      </p>
-                      {payload.map((entry, index) => {
-                        const categoryColor =
-                          colorMap[entry.name as keyof typeof colorMap];
-                        return (
-                          <p
-                            key={index}
-                            className="font-medium py-1 text-gray-700 dark:text-neutral-500"
-                          >
-                            {entry.name === "netWorth"
-                              ? "Net Worth"
-                              : entry.name === "totalAssets"
-                              ? "Total Assets"
-                              : "Total Liabilities"}
-                            :{" "}
-                            <span
-                              className="font-bold"
-                              style={{ color: categoryColor }}
+                    return (
+                      <div className="bg-white dark:bg-neutral-100 p-3 border border-gray-200 dark:border-neutral-300 rounded-lg shadow-xl dark:shadow-neutral-100/40 text-xs backdrop-blur-sm">
+                        <p className="font-semibold text-gray-900 dark:text-neutral-800 mb-2 pb-2 border-b border-gray-200 dark:border-neutral-300">
+                          {payload[0]?.payload?.quarter}
+                        </p>
+                        {payload.map((entry, index) => {
+                          const categoryColor =
+                            colorMap[entry.name as keyof typeof colorMap];
+                          return (
+                            <p
+                              key={index}
+                              className="font-medium py-1 text-gray-700 dark:text-neutral-500"
                             >
-                              ${entry.value?.toLocaleString()}
-                            </span>
-                          </p>
-                        );
-                      })}
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
+                              {entry.name === "netWorth"
+                                ? "Net Worth"
+                                : entry.name === "totalAssets"
+                                ? "Total Assets"
+                                : "Total Liabilities"}
+                              :{" "}
+                              <span
+                                className="font-bold"
+                                style={{ color: categoryColor }}
+                              >
+                                ${entry.value?.toLocaleString()}
+                              </span>
+                            </p>
+                          );
+                        })}
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+            ) : (
+              <div className="text-center text-muted-foreground">
+                <p className="text-sm">Chart data loading...</p>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

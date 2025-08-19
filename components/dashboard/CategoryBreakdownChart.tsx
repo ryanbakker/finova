@@ -15,23 +15,22 @@ import { type AvailableChartColorsKeys } from "@/lib/chartUtils";
 
 interface CategoryBreakdownChartProps {
   isLoading?: boolean;
+  categoryData?: Array<{ category: string; amount: number }>;
 }
 
 export function CategoryBreakdownChart({
   isLoading = false,
+  categoryData,
 }: CategoryBreakdownChartProps) {
-  const categoryData = [
-    { name: "Food & Dining", amount: 450 },
-    { name: "Shopping", amount: 300 },
-    { name: "Transportation", amount: 200 },
-    { name: "Utilities", amount: 180 },
-    { name: "Entertainment", amount: 150 },
-    { name: "Healthcare", amount: 120 },
-  ];
+  // Use provided data only - no fallback to example data
+  const data = categoryData?.map((item) => ({
+    name: item.category,
+    amount: item.amount,
+  })) || [];
 
   // Sort data by amount in descending order (highest to lowest)
   // Note: Highest value gets darkest color, lowest value gets lightest color
-  const sortedData = [...categoryData].sort((a, b) => b.amount - a.amount);
+  const sortedData = [...data].sort((a, b) => b.amount - a.amount);
 
   // Sky colors from lightest to darkest - assign to categories from lowest to highest value
   const skyColors: AvailableChartColorsKeys[] = [
@@ -111,6 +110,34 @@ export function CategoryBreakdownChart({
     );
   }
 
+  // Show message when no category data is available
+  if (!data || data.length === 0) {
+    return (
+      <Card className="h-full flex flex-col container-color">
+        <CardHeader className="flex-shrink-0">
+          <div className="flex items-end justify-between">
+            <div>
+              <CardTitle className="card-title">Category Breakdown</CardTitle>
+              <CardDescription>No spending data available</CardDescription>
+            </div>
+            <Button className="button-blue-bg">
+              Categories
+              <MoveRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 flex items-center justify-center min-h-[400px]">
+            <div className="text-center text-muted-foreground">
+              <p className="mb-2">No spending data available yet.</p>
+              <p className="text-sm">Add transactions to see your category breakdown.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="h-full flex flex-col container-color">
       <CardHeader className="flex-shrink-0">
@@ -155,7 +182,7 @@ export function CategoryBreakdownChart({
 
               {/* Content Section */}
               <ul className="p-3 space-y-1.5 flex-1 overflow-y-auto min-h-0 category-legend-content category-breakdown-scroll list-none overflow-scroll max-h-[50vh]">
-                {categoryData.map((category) => {
+                {data.map((category) => {
                   const colorKey =
                     categoryColors.get(category.name) || "sky500";
 

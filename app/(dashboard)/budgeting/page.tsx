@@ -85,6 +85,8 @@ export default function BudgetingPage() {
     if (existing) {
       existing.budget += budget.amount;
       existing.value += budget.spent;
+      // Recalculate percentage after updating totals
+      existing.percentage = (existing.value / existing.budget) * 100;
     } else {
       acc.push({
         name: budget.category,

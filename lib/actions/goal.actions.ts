@@ -44,7 +44,14 @@ export async function createGoal(goal: CreateGoalParams) {
     const newGoal = await Goal.create(goal);
     revalidatePath("/goals");
 
-    return JSON.parse(JSON.stringify(newGoal));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedGoal = {
+      ...newGoal.toObject(),
+      id: newGoal._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedGoal));
   } catch (error) {
     handleError(error);
     throw error;
@@ -64,7 +71,14 @@ export async function getGoalsByUserId(userId: string) {
       .sort({ priority: -1, createdAt: -1 })
       .lean();
 
-    return JSON.parse(JSON.stringify(goals));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedGoals = goals.map((goal) => ({
+      ...goal,
+      id: goal._id,
+      _id: undefined,
+    }));
+
+    return JSON.parse(JSON.stringify(transformedGoals));
   } catch (error) {
     handleError(error);
     throw error;
@@ -86,7 +100,14 @@ export async function getGoalById(goalId: string, userId: string) {
       throw new Error("Goal not found or access denied");
     }
 
-    return JSON.parse(JSON.stringify(goal));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedGoal = {
+      ...goal.toObject(),
+      id: goal._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedGoal));
   } catch (error) {
     handleError(error);
     throw error;
@@ -123,7 +144,15 @@ export async function updateGoal(
     }
 
     revalidatePath("/goals");
-    return JSON.parse(JSON.stringify(updatedGoal));
+
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedGoal = {
+      ...updatedGoal.toObject(),
+      id: updatedGoal._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedGoal));
   } catch (error) {
     handleError(error);
     throw error;

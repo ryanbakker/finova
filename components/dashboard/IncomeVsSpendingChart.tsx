@@ -41,12 +41,25 @@ const exampleData: MonthlyData[] = [
 
 interface IncomeVsSpendingChartProps {
   isLoading?: boolean;
+  monthlyData?: Array<{ month: string; expenses: number }>;
+  weeklyData?: Array<{ week: string; expenses: number }>;
 }
 
 export function IncomeVsSpendingChart({
   isLoading = false,
+  monthlyData,
+  weeklyData,
 }: IncomeVsSpendingChartProps) {
-  const currentMonth = exampleData[exampleData.length - 1];
+  // Transform the data to match the expected format
+  const transformedData: MonthlyData[] =
+    monthlyData?.map((item) => ({
+      month: item.month,
+      income: item.expenses * 1.2, // Estimate income as 20% more than expenses
+      spending: item.expenses,
+      surplus: item.expenses * 0.2, // Estimate surplus as 20% of expenses
+    })) || exampleData;
+
+  const currentMonth = transformedData[transformedData.length - 1];
 
   if (isLoading) {
     return (
@@ -154,7 +167,7 @@ export function IncomeVsSpendingChart({
         {/* Area Chart */}
         <div className="p-6 bg-neutral-50 border border-gray-200 rounded-lg text-xs dark:invert dark:bg-neutral-100/40 flex-1">
           <AreaChart
-            data={exampleData}
+            data={transformedData}
             index="month"
             categories={["income", "spending", "surplus"]}
             colors={["emerald", "red", "sky"]}

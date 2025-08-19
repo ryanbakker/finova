@@ -20,7 +20,7 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, TrendingUp } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { setGlobalActionHandlers } from "./columns";
 import { Asset } from "@/lib/types";
@@ -358,6 +358,23 @@ export function DataTable<TData extends Asset, TValue>({
   // Show skeleton only if loading
   if (isLoading) {
     return <AssetTableSkeleton rowCount={8} isMobile={isMobile} />;
+  }
+
+  // Show empty state when no data
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full space-y-4 -mt-4">
+        <div className="text-center py-12">
+          <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-muted-foreground mb-2">
+            No assets to show
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Get started by adding your first asset to track your financial investments
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

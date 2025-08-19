@@ -61,7 +61,15 @@ export async function createLiability(liability: CreateLiabilityParams) {
     });
 
     revalidatePath("/liabilities");
-    return JSON.parse(JSON.stringify(newLiability));
+
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedLiability = {
+      ...newLiability.toObject(),
+      id: newLiability._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedLiability));
   } catch (error) {
     handleError(error);
     throw error;
@@ -77,7 +85,14 @@ export async function getLiabilitiesByUserId() {
       .sort({ createdAt: -1 })
       .lean();
 
-    return JSON.parse(JSON.stringify(liabilities));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedLiabilities = liabilities.map((liability) => ({
+      ...liability,
+      id: liability._id,
+      _id: undefined,
+    }));
+
+    return JSON.parse(JSON.stringify(transformedLiabilities));
   } catch (error) {
     handleError(error);
     throw error;
@@ -92,21 +107,31 @@ export async function getLiabilityById(liabilityId: string) {
     // Ensure user can only access their own liability
     const liability = await Liability.findOne({
       _id: liabilityId,
-      userId
+      userId,
     }).lean();
 
     if (!liability) {
       throw new Error("Liability not found or access denied");
     }
 
-    return JSON.parse(JSON.stringify(liability));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedLiability = {
+      ...liability,
+      id: liability._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedLiability));
   } catch (error) {
     handleError(error);
     throw error;
   }
 }
 
-export async function updateLiability(liabilityId: string, updates: UpdateLiabilityParams) {
+export async function updateLiability(
+  liabilityId: string,
+  updates: UpdateLiabilityParams
+) {
   try {
     const userId = await getAuthenticatedUserId();
     await connectToDB();
@@ -114,7 +139,7 @@ export async function updateLiability(liabilityId: string, updates: UpdateLiabil
     // Ensure user can only update their own liability
     const existingLiability = await Liability.findOne({
       _id: liabilityId,
-      userId
+      userId,
     });
 
     if (!existingLiability) {
@@ -138,7 +163,15 @@ export async function updateLiability(liabilityId: string, updates: UpdateLiabil
     }
 
     revalidatePath("/liabilities");
-    return JSON.parse(JSON.stringify(updatedLiability));
+
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedLiability = {
+      ...updatedLiability.toObject(),
+      id: updatedLiability._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedLiability));
   } catch (error) {
     handleError(error);
     throw error;
@@ -153,7 +186,7 @@ export async function deleteLiability(liabilityId: string) {
     // Ensure user can only delete their own liability
     const existingLiability = await Liability.findOne({
       _id: liabilityId,
-      userId
+      userId,
     });
 
     if (!existingLiability) {
@@ -188,9 +221,9 @@ export async function getLiabilityStats() {
           totalAmount: { $sum: "$amount" },
           totalRemainingBalance: { $sum: "$remainingBalance" },
           totalMonthlyPayments: { $sum: { $ifNull: ["$monthlyPayment", 0] } },
-          averageInterestRate: { $avg: "$interestRate" }
-        }
-      }
+          averageInterestRate: { $avg: "$interestRate" },
+        },
+      },
     ]);
 
     const categoryBreakdown = await Liability.aggregate([
@@ -200,10 +233,10 @@ export async function getLiabilityStats() {
           _id: "$category",
           count: { $sum: 1 },
           totalAmount: { $sum: "$amount" },
-          totalRemainingBalance: { $sum: "$remainingBalance" }
-        }
+          totalRemainingBalance: { $sum: "$remainingBalance" },
+        },
       },
-      { $sort: { totalAmount: -1 } }
+      { $sort: { totalAmount: -1 } },
     ]);
 
     return {
@@ -212,9 +245,9 @@ export async function getLiabilityStats() {
         totalAmount: 0,
         totalRemainingBalance: 0,
         totalMonthlyPayments: 0,
-        averageInterestRate: 0
+        averageInterestRate: 0,
       },
-      categoryBreakdown
+      categoryBreakdown,
     };
   } catch (error) {
     handleError(error);
@@ -222,12 +255,15 @@ export async function getLiabilityStats() {
   }
 }
 
-export async function searchLiabilities(query: string, filters?: {
-  category?: string;
-  status?: string;
-  minAmount?: number;
-  maxAmount?: number;
-}) {
+export async function searchLiabilities(
+  query: string,
+  filters?: {
+    category?: string;
+    status?: string;
+    minAmount?: number;
+    maxAmount?: number;
+  }
+) {
   try {
     const userId = await getAuthenticatedUserId();
     await connectToDB();
@@ -237,9 +273,9 @@ export async function searchLiabilities(query: string, filters?: {
     // Text search
     if (query) {
       searchQuery.$or = [
-        { name: { $regex: query, $options: 'i' } },
-        { institution: { $regex: query, $options: 'i' } },
-        { notes: { $regex: query, $options: 'i' } }
+        { name: { $regex: query, $options: "i" } },
+        { institution: { $regex: query, $options: "i" } },
+        { notes: { $regex: query, $options: "i" } },
       ];
     }
 
@@ -248,9 +284,9 @@ export async function searchLiabilities(query: string, filters?: {
       searchQuery.category = filters.category;
     }
 
-    if (filters?.status === 'active') {
+    if (filters?.status === "active") {
       searchQuery.isActive = true;
-    } else if (filters?.status === 'inactive') {
+    } else if (filters?.status === "inactive") {
       searchQuery.isActive = false;
     }
 

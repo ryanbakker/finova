@@ -18,44 +18,21 @@ interface BudgetCategory {
   icon: React.ReactNode;
 }
 
-const exampleCategories: BudgetCategory[] = [
-  {
-    name: "Groceries",
-    budgeted: 600,
-    spent: 720,
-    icon: <AlertCircle className="h-4 w-4" />,
-  },
-  {
-    name: "Rent",
-    budgeted: 1800,
-    spent: 1800,
-    icon: <CheckCircle className="h-4 w-4" />,
-  },
-  {
-    name: "Transportation",
-    budgeted: 400,
-    spent: 320,
-    icon: <CheckCircle className="h-4 w-4" />,
-  },
-  {
-    name: "Shopping",
-    budgeted: 200,
-    spent: 150,
-    icon: <CheckCircle className="h-4 w-4" />,
-  },
-  {
-    name: "Healthcare",
-    budgeted: 150,
-    spent: 180,
-    icon: <Clock className="h-4 w-4" />,
-  },
-];
-
 interface BudgetSnapshotProps {
   isLoading?: boolean;
+  budgetProgress?: Array<{
+    category: string;
+    budgeted: number;
+    spent: number;
+    remaining: number;
+    percentage: number;
+  }>;
 }
 
-export function BudgetSnapshot({ isLoading = false }: BudgetSnapshotProps) {
+export function BudgetSnapshot({
+  isLoading = false,
+  budgetProgress,
+}: BudgetSnapshotProps) {
   const getStatusIcon = (spent: number, budgeted: number) => {
     const percentage = (spent / budgeted) * 100;
     if (percentage > 100)
@@ -63,6 +40,15 @@ export function BudgetSnapshot({ isLoading = false }: BudgetSnapshotProps) {
     if (percentage === 100) return <Clock className="h-4 w-4 text-amber-600" />;
     return <CheckCircle className="h-4 w-4 text-sky-600" />;
   };
+
+  // Transform budget progress data to match the expected format
+  const transformedCategories: BudgetCategory[] =
+    budgetProgress?.map((item) => ({
+      name: item.category,
+      budgeted: item.budgeted,
+      spent: item.spent,
+      icon: getStatusIcon(item.spent, item.budgeted),
+    })) || [];
 
   const getCategoryColors = (spent: number, budgeted: number) => {
     const percentage = (spent / budgeted) * 100;
@@ -84,7 +70,7 @@ export function BudgetSnapshot({ isLoading = false }: BudgetSnapshotProps) {
       return {
         border: "border-amber-200",
         background:
-          "bg-gradient-to-r from-amber-50 to-yellow-50 hover:from-amber-100 hover:to-yellow-100 dark:from-amber-950/40 dark:to-yellow-950/40 dark:border-amber-900/40 dark:hover:from-amber-900/50 dark:hover:to-yellow-900/50",
+          "bg-gradient-to-r from-amber-50 to-yellow-50 hover:from-amber-100 hover:to-yellow-100 dark:from-amber-950/40 dark:to-yellow-950/40 dark:border-amber-900/40 dark:hover:from-amber-900/50 dark:hover:to-amber-900/50",
         iconBg: "bg-amber-100 dark:bg-amber-900/40",
         iconColor: "text-amber-600",
         textColor: "text-amber-800 dark:text-amber-500/90",
@@ -151,6 +137,38 @@ export function BudgetSnapshot({ isLoading = false }: BudgetSnapshotProps) {
     );
   }
 
+  // Show message when no budget data is available
+  if (!budgetProgress || budgetProgress.length === 0) {
+    return (
+      <Card className="h-full container-color">
+        <CardHeader>
+          <div className="flex items-end justify-between">
+            <div className="space-y-2">
+              <CardTitle className="card-title">Budget Snapshot</CardTitle>
+              <CardDescription>No budget data available</CardDescription>
+            </div>
+            <Link href="/budgeting">
+              <Button className="button-blue-bg">
+                Create Budget
+                <MoveRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-8">
+            <div className="text-center text-muted-foreground">
+              <p className="mb-4">You haven't set up any budgets yet.</p>
+              <p className="text-sm">
+                Create your first budget to start tracking your spending.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="h-full container-color">
       <CardHeader>
@@ -173,7 +191,7 @@ export function BudgetSnapshot({ isLoading = false }: BudgetSnapshotProps) {
         <div className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-3 overflow-y-auto category-breakdown-scroll max-h-[410px]">
           <div className="space-y-6">
             <div className="grid grid-cols-1 gap-4">
-              {exampleCategories.map((category) => {
+              {transformedCategories.map((category) => {
                 const percentage = (category.spent / category.budgeted) * 100;
                 const remaining = category.budgeted - category.spent;
                 const colors = getCategoryColors(

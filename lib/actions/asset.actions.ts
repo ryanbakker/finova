@@ -27,35 +27,51 @@ export interface UpdateAssetParams extends Partial<CreateAssetParams> {
 }
 
 // Enhanced validation function
-function validateAssetData(data: CreateAssetParams | UpdateAssetParams | Partial<CreateAssetParams>): void {
+function validateAssetData(
+  data: CreateAssetParams | UpdateAssetParams | Partial<CreateAssetParams>
+): void {
   if (data.name && (!data.name.trim() || data.name.trim().length < 1)) {
     throw new Error("Asset name must be at least 1 character long");
   }
-  
+
   if (data.name && data.name.trim().length > 100) {
     throw new Error("Asset name cannot exceed 100 characters");
   }
-  
-  if (data.value !== undefined && (typeof data.value !== "number" || data.value < 0)) {
+
+  if (
+    data.value !== undefined &&
+    (typeof data.value !== "number" || data.value < 0)
+  ) {
     throw new Error("Asset value must be a non-negative number");
   }
-  
+
   if (data.value !== undefined && data.value > 999999999) {
     throw new Error("Asset value cannot exceed 999,999,999");
   }
-  
-  if (data.currentValue !== undefined && (typeof data.currentValue !== "number" || data.currentValue < 0)) {
+
+  if (
+    data.currentValue !== undefined &&
+    (typeof data.currentValue !== "number" || data.currentValue < 0)
+  ) {
     throw new Error("Current value must be a non-negative number");
   }
-  
-  if (data.changeAmount !== undefined && (typeof data.changeAmount !== "number" || data.changeAmount < -999999999)) {
+
+  if (
+    data.changeAmount !== undefined &&
+    (typeof data.changeAmount !== "number" || data.changeAmount < -999999999)
+  ) {
     throw new Error("Change amount cannot be less than -999,999,999");
   }
-  
-  if (data.changePercentage !== undefined && (typeof data.changePercentage !== "number" || data.changePercentage < -100 || data.changePercentage > 1000)) {
+
+  if (
+    data.changePercentage !== undefined &&
+    (typeof data.changePercentage !== "number" ||
+      data.changePercentage < -100 ||
+      data.changePercentage > 1000)
+  ) {
     throw new Error("Change percentage must be between -100% and 1000%");
   }
-  
+
   if (data.notes && data.notes.length > 1000) {
     throw new Error("Notes cannot exceed 1000 characters");
   }
@@ -95,7 +111,14 @@ export async function createAsset(assetData: CreateAssetParams) {
     revalidatePath("/assets");
     revalidatePath("/dashboard");
 
-    return JSON.parse(JSON.stringify(newAsset));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedAsset = {
+      ...newAsset.toObject(),
+      id: newAsset._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedAsset));
   } catch (error) {
     console.error("Error creating asset:", error);
     handleError(error);
@@ -119,7 +142,14 @@ export async function getUserAssets() {
       .lean()
       .limit(1000); // Prevent excessive data retrieval
 
-    return JSON.parse(JSON.stringify(assets));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedAssets = assets.map((asset) => ({
+      ...asset,
+      id: asset._id,
+      _id: undefined,
+    }));
+
+    return JSON.parse(JSON.stringify(transformedAssets));
   } catch (error) {
     console.error("Error fetching user assets:", error);
     handleError(error);
@@ -136,7 +166,11 @@ export async function getAssetById(assetId: string) {
       throw new Error("Unauthorized: User not authenticated");
     }
 
-    if (!assetId || typeof assetId !== "string" || assetId.trim().length === 0) {
+    if (
+      !assetId ||
+      typeof assetId !== "string" ||
+      assetId.trim().length === 0
+    ) {
       throw new Error("Invalid asset ID provided");
     }
 
@@ -151,7 +185,14 @@ export async function getAssetById(assetId: string) {
       throw new Error("Asset not found");
     }
 
-    return JSON.parse(JSON.stringify(asset));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedAsset = {
+      ...asset,
+      id: asset._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedAsset));
   } catch (error) {
     console.error("Error fetching asset:", error);
     handleError(error);
@@ -168,7 +209,11 @@ export async function updateAsset(assetData: UpdateAssetParams) {
       throw new Error("Unauthorized: User not authenticated");
     }
 
-    if (!assetData.id || typeof assetData.id !== "string" || assetData.id.trim().length === 0) {
+    if (
+      !assetData.id ||
+      typeof assetData.id !== "string" ||
+      assetData.id.trim().length === 0
+    ) {
       throw new Error("Invalid asset ID provided");
     }
 
@@ -181,18 +226,30 @@ export async function updateAsset(assetData: UpdateAssetParams) {
 
     // Sanitize update data
     const sanitizedUpdateData: Record<string, unknown> = {};
-    if (updateData.name !== undefined) sanitizedUpdateData.name = updateData.name.trim();
-    if (updateData.category !== undefined) sanitizedUpdateData.category = updateData.category.trim();
-    if (updateData.institution !== undefined) sanitizedUpdateData.institution = updateData.institution?.trim();
-    if (updateData.accountNumber !== undefined) sanitizedUpdateData.accountNumber = updateData.accountNumber?.trim();
-    if (updateData.notes !== undefined) sanitizedUpdateData.notes = updateData.notes?.trim();
-    if (updateData.value !== undefined) sanitizedUpdateData.value = updateData.value;
-    if (updateData.currency !== undefined) sanitizedUpdateData.currency = updateData.currency;
-    if (updateData.purchaseDate !== undefined) sanitizedUpdateData.purchaseDate = updateData.purchaseDate;
-    if (updateData.currentValue !== undefined) sanitizedUpdateData.currentValue = updateData.currentValue;
-    if (updateData.changeAmount !== undefined) sanitizedUpdateData.changeAmount = updateData.changeAmount;
-    if (updateData.changePercentage !== undefined) sanitizedUpdateData.changePercentage = updateData.changePercentage;
-    if (updateData.isActive !== undefined) sanitizedUpdateData.isActive = updateData.isActive;
+    if (updateData.name !== undefined)
+      sanitizedUpdateData.name = updateData.name.trim();
+    if (updateData.category !== undefined)
+      sanitizedUpdateData.category = updateData.category.trim();
+    if (updateData.institution !== undefined)
+      sanitizedUpdateData.institution = updateData.institution?.trim();
+    if (updateData.accountNumber !== undefined)
+      sanitizedUpdateData.accountNumber = updateData.accountNumber?.trim();
+    if (updateData.notes !== undefined)
+      sanitizedUpdateData.notes = updateData.notes?.trim();
+    if (updateData.value !== undefined)
+      sanitizedUpdateData.value = updateData.value;
+    if (updateData.currency !== undefined)
+      sanitizedUpdateData.currency = updateData.currency;
+    if (updateData.purchaseDate !== undefined)
+      sanitizedUpdateData.purchaseDate = updateData.purchaseDate;
+    if (updateData.currentValue !== undefined)
+      sanitizedUpdateData.currentValue = updateData.currentValue;
+    if (updateData.changeAmount !== undefined)
+      sanitizedUpdateData.changeAmount = updateData.changeAmount;
+    if (updateData.changePercentage !== undefined)
+      sanitizedUpdateData.changePercentage = updateData.changePercentage;
+    if (updateData.isActive !== undefined)
+      sanitizedUpdateData.isActive = updateData.isActive;
 
     // Ensure user can only update their own assets
     const updatedAsset = await Asset.findOneAndUpdate(
@@ -211,7 +268,14 @@ export async function updateAsset(assetData: UpdateAssetParams) {
     revalidatePath("/assets");
     revalidatePath("/dashboard");
 
-    return JSON.parse(JSON.stringify(updatedAsset));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedAsset = {
+      ...updatedAsset.toObject(),
+      id: updatedAsset._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedAsset));
   } catch (error) {
     console.error("Error updating asset:", error);
     handleError(error);
@@ -228,7 +292,11 @@ export async function deleteAsset(assetId: string) {
       throw new Error("Unauthorized: User not authenticated");
     }
 
-    if (!assetId || typeof assetId !== "string" || assetId.trim().length === 0) {
+    if (
+      !assetId ||
+      typeof assetId !== "string" ||
+      assetId.trim().length === 0
+    ) {
       throw new Error("Invalid asset ID provided");
     }
 
@@ -311,7 +379,11 @@ export async function getAssetsByCategory(category: string) {
       throw new Error("Unauthorized: User not authenticated");
     }
 
-    if (!category || typeof category !== "string" || category.trim().length === 0) {
+    if (
+      !category ||
+      typeof category !== "string" ||
+      category.trim().length === 0
+    ) {
       throw new Error("Invalid category provided");
     }
 
@@ -343,7 +415,11 @@ export async function toggleAssetStatus(assetId: string) {
       throw new Error("Unauthorized: User not authenticated");
     }
 
-    if (!assetId || typeof assetId !== "string" || assetId.trim().length === 0) {
+    if (
+      !assetId ||
+      typeof assetId !== "string" ||
+      assetId.trim().length === 0
+    ) {
       throw new Error("Invalid asset ID provided");
     }
 
@@ -376,7 +452,10 @@ export async function toggleAssetStatus(assetId: string) {
 }
 
 // Bulk operations with enhanced security
-export async function bulkUpdateAssets(assetIds: string[], updateData: Partial<CreateAssetParams>) {
+export async function bulkUpdateAssets(
+  assetIds: string[],
+  updateData: Partial<CreateAssetParams>
+) {
   try {
     const { userId } = await auth();
 
@@ -409,18 +488,30 @@ export async function bulkUpdateAssets(assetIds: string[], updateData: Partial<C
 
     // Sanitize update data
     const sanitizedUpdateData: Record<string, unknown> = {};
-    if (updateData.name !== undefined) sanitizedUpdateData.name = updateData.name.trim();
-    if (updateData.category !== undefined) sanitizedUpdateData.category = updateData.category.trim();
-    if (updateData.institution !== undefined) sanitizedUpdateData.institution = updateData.institution?.trim();
-    if (updateData.accountNumber !== undefined) sanitizedUpdateData.accountNumber = updateData.accountNumber?.trim();
-    if (updateData.notes !== undefined) sanitizedUpdateData.notes = updateData.notes?.trim();
-    if (updateData.value !== undefined) sanitizedUpdateData.value = updateData.value;
-    if (updateData.currency !== undefined) sanitizedUpdateData.currency = updateData.currency;
-    if (updateData.purchaseDate !== undefined) sanitizedUpdateData.purchaseDate = updateData.purchaseDate;
-    if (updateData.currentValue !== undefined) sanitizedUpdateData.currentValue = updateData.currentValue;
-    if (updateData.changeAmount !== undefined) sanitizedUpdateData.changeAmount = updateData.changeAmount;
-    if (updateData.changePercentage !== undefined) sanitizedUpdateData.changePercentage = updateData.changePercentage;
-    if (updateData.isActive !== undefined) sanitizedUpdateData.isActive = updateData.isActive;
+    if (updateData.name !== undefined)
+      sanitizedUpdateData.name = updateData.name.trim();
+    if (updateData.category !== undefined)
+      sanitizedUpdateData.category = updateData.category.trim();
+    if (updateData.institution !== undefined)
+      sanitizedUpdateData.institution = updateData.institution?.trim();
+    if (updateData.accountNumber !== undefined)
+      sanitizedUpdateData.accountNumber = updateData.accountNumber?.trim();
+    if (updateData.notes !== undefined)
+      sanitizedUpdateData.notes = updateData.notes?.trim();
+    if (updateData.value !== undefined)
+      sanitizedUpdateData.value = updateData.value;
+    if (updateData.currency !== undefined)
+      sanitizedUpdateData.currency = updateData.currency;
+    if (updateData.purchaseDate !== undefined)
+      sanitizedUpdateData.purchaseDate = updateData.purchaseDate;
+    if (updateData.currentValue !== undefined)
+      sanitizedUpdateData.currentValue = updateData.currentValue;
+    if (updateData.changeAmount !== undefined)
+      sanitizedUpdateData.changeAmount = updateData.changeAmount;
+    if (updateData.changePercentage !== undefined)
+      sanitizedUpdateData.changePercentage = updateData.changePercentage;
+    if (updateData.isActive !== undefined)
+      sanitizedUpdateData.isActive = updateData.isActive;
 
     const result = await Asset.updateMany(
       {

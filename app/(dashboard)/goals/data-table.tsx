@@ -20,6 +20,7 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
+import { Target } from "lucide-react";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { setGlobalActionHandlers } from "./columns";
 import { FinancialGoal } from "@/lib/types";
@@ -236,6 +237,23 @@ export function DataTable<TData extends FinancialGoal, TValue>({
 
   if (isLoading) {
     return <GoalTableSkeleton />;
+  }
+
+  // Show empty state when no data
+  if (!data || data.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div className="text-center py-12">
+          <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-muted-foreground mb-2">
+            No goals to show
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Get started by adding your first financial goal to track your progress
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

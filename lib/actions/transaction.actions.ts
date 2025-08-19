@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { connectToDB } from "@/database/db";
 import { Transaction } from "@/database/models/transaction.model";
-import { Budget } from "@/database/models/budget.model";
 import { auth } from "@clerk/nextjs/server";
 import { handleError } from "../utils";
 
@@ -42,21 +41,25 @@ async function updateBudgetSpentAmount(
   operation: "add" | "subtract"
 ) {
   try {
+    // Dynamic import to prevent model compilation conflicts
+    const { Budget } = await import("@/database/models/budget.model");
+
     // Find active budgets for this category
     const budgets = await Budget.find({
       userId,
       category: category,
       isActive: true,
       startDate: { $lte: new Date() },
-      endDate: { $gte: new Date() }
+      endDate: { $gte: new Date() },
     });
 
     for (const budget of budgets) {
       const currentSpent = budget.spent || 0;
-      const newSpent = operation === "add" 
-        ? currentSpent + amount 
-        : Math.max(0, currentSpent - amount);
-      
+      const newSpent =
+        operation === "add"
+          ? currentSpent + amount
+          : Math.max(0, currentSpent - amount);
+
       await Budget.findByIdAndUpdate(budget._id, { spent: newSpent });
     }
   } catch (error) {
@@ -97,7 +100,14 @@ export async function createTransaction(
     revalidatePath("/dashboard");
     revalidatePath("/budgeting");
 
-    return JSON.parse(JSON.stringify(newTransaction));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedTransaction = {
+      ...newTransaction.toObject(),
+      id: newTransaction._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedTransaction));
   } catch (error) {
     console.error("Error creating transaction:", error);
     handleError(error);
@@ -120,7 +130,14 @@ export async function getUserTransactions() {
       .sort({ date: -1 })
       .lean();
 
-    return JSON.parse(JSON.stringify(transactions));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedTransactions = transactions.map((transaction) => ({
+      ...transaction,
+      id: transaction._id,
+      _id: undefined,
+    }));
+
+    return JSON.parse(JSON.stringify(transformedTransactions));
   } catch (error) {
     console.error("Error fetching user transactions:", error);
     handleError(error);
@@ -148,7 +165,14 @@ export async function getTransactionById(transactionId: string) {
       throw new Error("Transaction not found");
     }
 
-    return JSON.parse(JSON.stringify(transaction));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedTransaction = {
+      ...transaction,
+      id: transaction._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedTransaction));
   } catch (error) {
     console.error("Error fetching transaction:", error);
     handleError(error);
@@ -215,7 +239,14 @@ export async function updateTransaction(
     revalidatePath("/dashboard");
     revalidatePath("/budgeting");
 
-    return JSON.parse(JSON.stringify(updatedTransaction));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedTransaction = {
+      ...updatedTransaction.toObject(),
+      id: updatedTransaction._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedTransaction));
   } catch (error) {
     console.error("Error updating transaction:", error);
     handleError(error);

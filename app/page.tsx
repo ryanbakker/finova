@@ -28,6 +28,10 @@ import {
 import { useUser } from "@clerk/nextjs";
 import { FileText, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
+import {
+  getDashboardData,
+  DashboardData,
+} from "@/lib/services/dashboard.service";
 
 function DashboardContent({
   user,
@@ -37,66 +41,31 @@ function DashboardContent({
   isLoaded: boolean;
 }) {
   const [isLoading, setIsLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null
+  );
+  const [error, setError] = useState<string | null>(null);
 
-  // Simulate loading delay
+  // Fetch dashboard data
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    async function fetchDashboardData() {
+      try {
+        setIsLoading(true);
+        const data = await getDashboardData();
+        setDashboardData(data);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+        setError("Failed to load dashboard data");
+      } finally {
+        setIsLoading(false);
+      }
+    }
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Remove unused state variable
-
-  // Sample data for recent activities
-  const recentActivities = [
-    {
-      id: 1,
-      title: "Salary Deposit",
-      time: "Today, 9:00 AM",
-      amount: 4500.0,
-      type: "income",
-      color: "bg-green-500",
-      textColor: "text-green-600",
-    },
-    {
-      id: 2,
-      title: "Grocery Store",
-      time: "Yesterday, 2:30 PM",
-      amount: 89.45,
-      type: "expense",
-      color: "bg-red-500",
-      textColor: "text-red-600",
-    },
-    {
-      id: 3,
-      title: "Prime Subscription - For Michael",
-      time: "Yesterday, 10:55 AM - Then 2025-08-13, 10:55 AM",
-      amount: 888888888888888888888.88,
-      type: "expense",
-      color: "bg-red-500",
-      textColor: "text-red-600",
-    },
-    {
-      id: 4,
-      title: "Netflix Subscription",
-      time: "Dec 15, 2:00 PM",
-      amount: 15.99,
-      type: "expense",
-      color: "bg-blue-500",
-      textColor: "text-blue-600",
-    },
-    {
-      id: 5,
-      title: "Coffee Shop",
-      time: "Dec 14, 8:30 AM",
-      amount: 4.5,
-      type: "expense",
-      color: "bg-purple-500",
-      textColor: "text-purple-600",
-    },
-  ];
+    if (isLoaded && user) {
+      fetchDashboardData();
+    }
+  }, [isLoaded, user]);
 
   // Quick actions data
   const quickActions = [
@@ -122,6 +91,22 @@ function DashboardContent({
       action: () => console.log("Generate Report clicked"),
     },
   ];
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -155,7 +140,7 @@ function DashboardContent({
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mx-auto w-full">
             <MetricCard
               title="Total Income"
-              value={8450}
+              value={dashboardData?.metrics.totalIncome || 0}
               subtitle="This month"
               dataValueColor="text-emerald-600 dark:text-emerald-400"
               borderColor="border-l-emerald-700"
@@ -164,7 +149,7 @@ function DashboardContent({
             />
             <MetricCard
               title="Total Expenses"
-              value={5230}
+              value={dashboardData?.metrics.totalExpenses || 0}
               subtitle="This month"
               dataValueColor="text-red-600 dark:text-red-400"
               borderColor="border-l-red-700"
@@ -173,7 +158,7 @@ function DashboardContent({
             />
             <MetricCard
               title="Savings"
-              value={3220}
+              value={dashboardData?.metrics.savings || 0}
               subtitle="This month"
               dataValueColor="text-sky-600 dark:text-sky-400"
               borderColor="border-l-sky-700"
@@ -182,7 +167,7 @@ function DashboardContent({
             />
             <MetricCard
               title="Net Income"
-              value={3220}
+              value={dashboardData?.metrics.netIncome || 0}
               subtitle="This month"
               dataValueColor="text-sky-600 dark:text-sky-400"
               borderColor="border-l-sky-700"
@@ -194,7 +179,12 @@ function DashboardContent({
           {/* Second Row - Net Worth Summary & Quick Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mx-auto w-full">
             <div className="w-full lg:col-span-3 flex">
-              <NetWorthSummary isLoading={isLoading} />
+              <NetWorthSummary
+                isLoading={isLoading}
+                netWorth={dashboardData?.metrics.netWorth}
+                totalAssets={dashboardData?.metrics.totalAssets}
+                totalLiabilities={dashboardData?.metrics.totalLiabilities}
+              />
             </div>
             <Card className="w-full lg:col-span-1 container-color">
               <CardHeader>
@@ -244,37 +234,43 @@ function DashboardContent({
                 <CardContent>
                   <div className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-3 max-h-[250px] overflow-y-auto category-breakdown-scroll">
                     <div className="space-y-3">
-                      {recentActivities.map((activity) => (
-                        <div
-                          key={activity.id}
-                          className={`py-2 px-3 border rounded-sm transition-colors ${
-                            activity.type === "income"
-                              ? "border-green-200 bg-gradient-to-r from-green-50 to-cyan-50 hover:from-green-100 hover:to-emerald-100 dark:from-green-950/50 dark:to-cyan-950/50 dark:border-green-900/50 dark:hover:from-green-900/50 dark:hover:to-cyan-900/50"
-                              : "border-red-200 bg-gradient-to-r from-red-50 to-rose-50 hover:from-red-100 hover:to-rose-100 dark:from-red-950/50 dark:to-rose-950/50 dark:border-red-900/50 dark:hover:from-red-900/50 dark:hover:to-rose-900/50"
-                          }`}
-                        >
-                          <div className="flex flex-col items-start space-x-4">
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-neutral-900 dark:text-neutral-50 truncate max-w-[170px]">
-                                {activity.title}
-                              </p>
-                              <p className="text-xs text-muted-foreground truncate max-w-[175px]">
-                                {activity.time}
-                              </p>
-                            </div>
-                            <div
-                              className={`text-sm font-medium pt-0.5 truncate max-w-[175px] ${
-                                activity.type === "income"
-                                  ? "text-green-600"
-                                  : "text-red-600"
-                              }`}
-                            >
-                              {activity.type === "income" ? "+" : "-"}$
-                              {activity.amount.toLocaleString()}
+                      {dashboardData?.recentTransactions?.length ? (
+                        dashboardData.recentTransactions.map((activity) => (
+                          <div
+                            key={activity.id}
+                            className={`py-2 px-3 border rounded-sm transition-colors ${
+                              activity.type === "income"
+                                ? "border-green-200 bg-gradient-to-r from-green-50 to-cyan-50 hover:from-green-100 hover:to-emerald-100 dark:from-green-950/50 dark:to-cyan-950/50 dark:border-green-900/50 dark:hover:from-green-900/50 dark:hover:to-cyan-900/50"
+                                : "border-red-200 bg-gradient-to-r from-red-50 to-rose-50 hover:from-red-100 hover:to-rose-100 dark:from-red-950/50 dark:to-rose-950/50 dark:border-red-900/50 dark:hover:from-red-900/50 dark:hover:to-rose-900/50"
+                            }`}
+                          >
+                            <div className="flex flex-col items-start space-x-4">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-50 truncate max-w-[170px]">
+                                  {activity.title}
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate max-w-[175px]">
+                                  {activity.time}
+                                </p>
+                              </div>
+                              <div
+                                className={`text-sm font-medium pt-0.5 truncate max-w-[175px] ${
+                                  activity.type === "income"
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                }`}
+                              >
+                                {activity.type === "income" ? "+" : "-"}$
+                                {activity.amount.toLocaleString()}
+                              </div>
                             </div>
                           </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <p>No recent transactions</p>
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -291,59 +287,34 @@ function DashboardContent({
                 <CardContent>
                   <div className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-3 max-h-[250px] overflow-y-auto category-breakdown-scroll">
                     <div className="space-y-3">
-                      {[
-                        {
-                          name: "Rent",
-                          dueDate: "Dec 1",
-                          amount: 1200,
-                        },
-                        {
-                          name: "Electric Bill",
-                          dueDate: "Dec 5",
-                          amount: 85,
-                        },
-                        {
-                          name: "Internet",
-                          dueDate: "Dec 10",
-                          amount: 65,
-                        },
-                        {
-                          name: "Phone Bill",
-                          dueDate: "Dec 15",
-                          amount: 45,
-                        },
-                        {
-                          name: "Gym Membership",
-                          dueDate: "Dec 20",
-                          amount: 35,
-                        },
-                        {
-                          name: "Car Insurance",
-                          dueDate: "Dec 25",
-                          amount: 120,
-                        },
-                      ].map((bill, index) => (
-                        <div
-                          key={index}
-                          className="p-3 border border-sky-200 rounded-sm bg-gradient-to-r from-sky-50 to-cyan-50 hover:from-sky-100 hover:to-cyan-100 transition-colors dark:from-sky-950/50 dark:to-cyan-950/50 dark:border-sky-900/50 dark:hover:from-sky-900/50 dark:hover:to-cyan-900/50"
-                        >
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <p className="font-medium text-sm text-sky-800 dark:text-sky-500">
-                                {bill.name}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                Due {bill.dueDate}
-                              </p>
+                      {dashboardData?.upcomingBills?.length ? (
+                        dashboardData.upcomingBills.map((bill, index) => (
+                          <div
+                            key={index}
+                            className="p-3 border border-sky-200 rounded-sm bg-gradient-to-r from-sky-50 to-cyan-50 hover:from-sky-100 hover:to-cyan-100 transition-colors dark:from-sky-950/50 dark:to-cyan-950/50 dark:border-sky-900/50 dark:hover:from-sky-900/50 dark:hover:to-cyan-900/50"
+                          >
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <p className="font-medium text-sm text-sky-800 dark:text-sky-500">
+                                  {bill.name}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  Due {bill.dueDate}
+                                </p>
+                              </div>
+                              <span
+                                className={`text-sm font-medium text-sky-900 dark:text-sky-500`}
+                              >
+                                ${bill.amount.toLocaleString()}
+                              </span>
                             </div>
-                            <span
-                              className={`text-sm font-medium text-sky-900 dark:text-sky-500`}
-                            >
-                              ${bill.amount.toLocaleString()}
-                            </span>
                           </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <p>No upcoming bills</p>
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -352,27 +323,44 @@ function DashboardContent({
 
             {/* Right Side - Income vs Spending Chart */}
             <div className="w-full lg:col-span-3">
-              <IncomeVsSpendingChart isLoading={isLoading} />
+              <IncomeVsSpendingChart
+                isLoading={isLoading}
+                monthlyData={dashboardData?.monthlySpending}
+                weeklyData={dashboardData?.weeklySpending}
+              />
             </div>
           </div>
 
           {/* Fourth Row - Budget Snapshot & Financial Goals */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mx-auto">
             <div className="w-full lg:col-span-2">
-              <BudgetSnapshot isLoading={isLoading} />
+              <BudgetSnapshot
+                isLoading={isLoading}
+                budgetProgress={dashboardData?.budgetProgress}
+              />
             </div>
             <div className="w-full lg:col-span-2">
-              <FinancialGoals isLoading={isLoading} />
+              <FinancialGoals
+                isLoading={isLoading}
+                goals={dashboardData?.financialGoals}
+              />
             </div>
           </div>
 
           {/* Fifth Row - Category Breakdown & Financial Assets */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mx-auto">
             <div className="w-full lg:col-span-2">
-              <CategoryBreakdownChart isLoading={isLoading} />
+              <CategoryBreakdownChart
+                isLoading={isLoading}
+                categoryData={dashboardData?.categoryBreakdown}
+              />
             </div>
             <div className="w-full lg:col-span-2">
-              <FinancialAssets isLoading={isLoading} />
+              <FinancialAssets
+                isLoading={isLoading}
+                assets={dashboardData?.assets}
+                totalAssets={dashboardData?.metrics.totalAssets}
+              />
             </div>
           </div>
 

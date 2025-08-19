@@ -20,7 +20,7 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, FileText } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { setGlobalActionHandlers } from "./columns";
 import { Bill } from "@/lib/types";
@@ -340,9 +340,26 @@ export function DataTable<TData, TValue>({
     }
   };
 
-  // Show skeleton if loading or no data
-  if (isLoading || !data || data.length === 0) {
+  // Show skeleton only when loading
+  if (isLoading) {
     return <BillTableSkeleton rowCount={8} isMobile={isMobile} />;
+  }
+
+  // Show empty state when no data
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full space-y-4">
+        <div className="text-center py-12">
+          <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-muted-foreground mb-2">
+            No bills to show
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Get started by adding your first bill to track your recurring expenses
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

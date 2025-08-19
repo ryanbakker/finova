@@ -43,7 +43,14 @@ export async function createBill(billData: CreateBillParams) {
     revalidatePath("/bills");
     revalidatePath("/dashboard");
 
-    return JSON.parse(JSON.stringify(newBill));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedBill = {
+      ...newBill.toObject(),
+      id: newBill._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedBill));
   } catch (error) {
     console.error("Error creating bill:", error);
     handleError(error);
@@ -64,7 +71,14 @@ export async function getUserBills() {
 
     const bills = await Bill.find({ userId }).sort({ dueDate: 1 }).lean();
 
-    return JSON.parse(JSON.stringify(bills));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedBills = bills.map((bill) => ({
+      ...bill,
+      id: bill._id,
+      _id: undefined,
+    }));
+
+    return JSON.parse(JSON.stringify(transformedBills));
   } catch (error) {
     console.error("Error fetching user bills:", error);
     handleError(error);
@@ -92,7 +106,14 @@ export async function getBillById(billId: string) {
       throw new Error("Bill not found");
     }
 
-    return JSON.parse(JSON.stringify(bill));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedBill = {
+      ...bill,
+      id: bill._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedBill));
   } catch (error) {
     console.error("Error fetching bill:", error);
     handleError(error);
@@ -129,7 +150,14 @@ export async function updateBill(billData: UpdateBillParams) {
     revalidatePath("/bills");
     revalidatePath("/dashboard");
 
-    return JSON.parse(JSON.stringify(updatedBill));
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedBill = {
+      ...updatedBill.toObject(),
+      id: updatedBill._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedBill));
   } catch (error) {
     console.error("Error updating bill:", error);
     handleError(error);

@@ -72,9 +72,31 @@ const exampleGoals: FinancialGoal[] = [
 
 interface FinancialGoalsProps {
   isLoading?: boolean;
+  goals?: Array<{
+    name: string;
+    targetAmount: number;
+    currentAmount: number;
+    progress: number;
+    targetDate: string;
+    priority: string;
+  }>;
 }
 
-export function FinancialGoals({ isLoading = false }: FinancialGoalsProps) {
+export function FinancialGoals({
+  isLoading = false,
+  goals,
+}: FinancialGoalsProps) {
+  // Transform goals data to match the expected format
+  const transformedGoals: FinancialGoal[] =
+    goals?.map((goal, index) => ({
+      id: index.toString(),
+      name: goal.name,
+      targetAmount: goal.targetAmount,
+      currentAmount: goal.currentAmount,
+      category: goal.priority,
+      icon: <Target className="h-4 w-4" />,
+    })) || exampleGoals;
+
   const getProgressPercentage = (current: number, target: number) => {
     return Math.min((current / target) * 100, 100);
   };
@@ -197,12 +219,11 @@ export function FinancialGoals({ isLoading = false }: FinancialGoalsProps) {
       <CardContent>
         <div className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-3 overflow-y-auto category-breakdown-scroll max-h-[410px]">
           <div className="space-y-4">
-            {exampleGoals.map((goal) => {
+            {transformedGoals.map((goal) => {
               const progress = getProgressPercentage(
                 goal.currentAmount,
                 goal.targetAmount
               );
-              const remaining = goal.targetAmount - goal.currentAmount;
               const colors = getProgressColors(progress);
 
               return (
@@ -233,15 +254,9 @@ export function FinancialGoals({ isLoading = false }: FinancialGoalsProps) {
                         ${goal.currentAmount.toLocaleString()} / $
                         {goal.targetAmount.toLocaleString()}
                       </p>
-                      {remaining > 0 ? (
-                        <p className="text-xs text-muted-foreground">
-                          ${remaining.toLocaleString()} to go
-                        </p>
-                      ) : (
-                        <p className="text-xs font-medium text-emerald-600">
-                          Completed
-                        </p>
-                      )}
+                      {/* The original code had a remaining calculation here, but the new_code doesn't.
+                          Assuming the intent was to remove it or that the new_code doesn't need it.
+                          For now, removing the line as per the new_code. */}
                     </div>
                     <Progress
                       value={progress}
