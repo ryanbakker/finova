@@ -44,6 +44,12 @@ function WelcomeHero() {
 
           <div className="lg:flex items-center justify-center hidden text-center">
             <Image src="/" alt="Hero Image" width={500} height={500} />
+
+            {/* Top Left Mobile Image */}
+            {/* Top Right Desktop Image */}
+
+            {/* Bottom Left Desktop Image */}
+            {/* Bottom Right Mobile Image */}
           </div>
         </div>
       </div>
@@ -65,17 +71,6 @@ function WelcomeHero() {
           }}
         />
       </div>
-
-      {/* Financial chart positioned in bottom right corner */}
-      {/* <div className="absolute bottom-6 right-6">
-        <div className="flex items-end space-x-1">
-          <div className="w-6 bg-sky-300/60 h-28 animate-pulse rounded-md"></div>
-          <div className="w-6 bg-sky-400/70 h-32 animate-pulse delay-300 rounded-md"></div>
-          <div className="w-6 bg-sky-300/50 h-26 animate-pulse delay-600 rounded-md"></div>
-          <div className="w-6 bg-sky-500/60 h-34 animate-pulse delay-900 rounded-md"></div>
-          <div className="w-6 bg-sky-200/40 h-45 animate-pulse delay-1200 rounded-md"></div>
-        </div>
-      </div> */}
     </section>
   );
 }

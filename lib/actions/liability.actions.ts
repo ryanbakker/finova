@@ -38,6 +38,13 @@ declare type UpdateLiabilityParams = {
   isActive?: boolean;
 };
 
+export interface UpdateLiabilityAmountParams {
+  liabilityId: string;
+  newAmount: number;
+  changeReason?: string;
+  changeDate?: string;
+}
+
 // Helper function to get authenticated user ID
 async function getAuthenticatedUserId(): Promise<string> {
   const { userId } = await auth();
@@ -306,6 +313,143 @@ export async function searchLiabilities(
 
     return JSON.parse(JSON.stringify(liabilities));
   } catch (error) {
+    handleError(error);
+    throw error;
+  }
+}
+
+// Update liability amount and create history record
+export async function updateLiabilityAmount(
+  params: UpdateLiabilityAmountParams
+) {
+  try {
+    const userId = await getAuthenticatedUserId();
+    await connectToDB();
+
+    const { liabilityId, newAmount, changeReason, changeDate } = params;
+
+    if (
+      !liabilityId ||
+      typeof liabilityId !== "string" ||
+      liabilityId.trim().length === 0
+    ) {
+      throw new Error("Invalid liability ID provided");
+    }
+
+    if (typeof newAmount !== "number" || newAmount < 0) {
+      throw new Error("New amount must be a non-negative number");
+    }
+
+    if (newAmount > 999999999) {
+      throw new Error("New amount cannot exceed 999,999,999");
+    }
+
+    if (changeReason && changeReason.length > 500) {
+      throw new Error("Change reason cannot exceed 500 characters");
+    }
+
+    // Get the current liability
+    const currentLiability = await Liability.findOne({
+      _id: liabilityId.trim(),
+      userId,
+    });
+
+    if (!currentLiability) {
+      throw new Error("Liability not found or unauthorized");
+    }
+
+    const previousAmount =
+      currentLiability.currentAmount || currentLiability.amount;
+    const changeAmount = newAmount - previousAmount;
+    const changePercentage =
+      previousAmount > 0 ? (changeAmount / previousAmount) * 100 : 0;
+
+    // Update the liability's current amount and add to amount history
+    const updatedLiability = await Liability.findOneAndUpdate(
+      {
+        _id: liabilityId.trim(),
+        userId,
+      },
+      {
+        $set: {
+          currentAmount: newAmount,
+          changeAmount,
+          changePercentage,
+        },
+        $push: {
+          amountHistory: {
+            amount: newAmount,
+            createdAt: changeDate ? new Date(changeDate) : new Date(),
+          },
+        },
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedLiability) {
+      throw new Error("Failed to update liability");
+    }
+
+    revalidatePath("/liabilities");
+    revalidatePath("/dashboard");
+
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedLiability = {
+      ...updatedLiability.toObject(),
+      id: updatedLiability._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedLiability));
+  } catch (error) {
+    console.error("Error updating liability amount:", error);
+    handleError(error);
+    throw error;
+  }
+}
+
+// Get liability amount history
+export async function getLiabilityAmountHistory(
+  liabilityId: string,
+  limit: number = 50
+) {
+  try {
+    const userId = await getAuthenticatedUserId();
+    await connectToDB();
+
+    if (
+      !liabilityId ||
+      typeof liabilityId !== "string" ||
+      liabilityId.trim().length === 0
+    ) {
+      throw new Error("Invalid liability ID provided");
+    }
+
+    if (typeof limit !== "number" || limit < 1 || limit > 100) {
+      throw new Error("Limit must be a number between 1 and 100");
+    }
+
+    // Get the liability with amount history
+    const liability = await Liability.findOne({
+      _id: liabilityId.trim(),
+      userId,
+    }).lean();
+
+    if (!liability) {
+      throw new Error("Liability not found or unauthorized");
+    }
+
+    // Get amount history from the liability's amountHistory array
+    const history = (liability.amountHistory || [])
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+      .slice(0, limit);
+
+    return JSON.parse(JSON.stringify(history));
+  } catch (error) {
+    console.error("Error fetching liability amount history:", error);
     handleError(error);
     throw error;
   }

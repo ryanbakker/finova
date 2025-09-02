@@ -11,6 +11,11 @@ import { Asset } from "@/lib/types";
 import { DonutChart } from "@/components/DonutChart";
 import { formatCurrency } from "@/lib/chartUtils";
 import {
+  calculateTotalChange,
+  getCurrentAssetValue,
+  calculateAssetChange,
+} from "@/lib/utils/assetCalculations";
+import {
   TrendingUp,
   TrendingDown,
   DollarSign,
@@ -70,15 +75,10 @@ export function AssetInsights({
 
   // Calculate totals and statistics
   const totalValue = assets.reduce(
-    (sum, asset) => sum + (asset.currentValue || asset.value),
+    (sum, asset) => sum + getCurrentAssetValue(asset),
     0
   );
-  const totalChange = assets.reduce(
-    (sum, asset) => sum + (asset.changeAmount || 0),
-    0
-  );
-  const totalChangePercentage =
-    totalValue > 0 ? (totalChange / (totalValue - totalChange)) * 100 : 0;
+  const { totalChange, totalChangePercentage } = calculateTotalChange(assets);
 
   // Group assets by category
   const categoryBreakdown = assets.reduce((acc, asset) => {
@@ -90,7 +90,7 @@ export function AssetInsights({
         assets: [],
       };
     }
-    acc[category].total += asset.currentValue || asset.value;
+    acc[category].total += getCurrentAssetValue(asset);
     acc[category].count += 1;
     acc[category].assets.push(asset);
     return acc;
@@ -107,14 +107,16 @@ export function AssetInsights({
 
   // Top performing assets
   const topPerformers = assets
-    .filter((asset) => asset.changeAmount && asset.changeAmount > 0)
-    .sort((a, b) => (b.changeAmount || 0) - (a.changeAmount || 0))
+    .map((asset) => ({ asset, ...calculateAssetChange(asset) }))
+    .filter(({ changeAmount }) => changeAmount > 0)
+    .sort((a, b) => b.changeAmount - a.changeAmount)
     .slice(0, 3);
 
   // Assets with losses
   const losingAssets = assets
-    .filter((asset) => asset.changeAmount && asset.changeAmount < 0)
-    .sort((a, b) => (a.changeAmount || 0) - (b.changeAmount || 0))
+    .map((asset) => ({ asset, ...calculateAssetChange(asset) }))
+    .filter(({ changeAmount }) => changeAmount < 0)
+    .sort((a, b) => a.changeAmount - b.changeAmount)
     .slice(0, 3);
 
   // Asset distribution by type
@@ -285,34 +287,36 @@ export function AssetInsights({
             <CardContent>
               {topPerformers.length > 0 ? (
                 <div className="space-y-3">
-                  {topPerformers.map((asset, index) => (
-                    <div
-                      key={asset.id}
-                      className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded-lg"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                          <span className="text-sm font-bold text-green-600">
-                            {index + 1}
-                          </span>
+                  {topPerformers.map(
+                    ({ asset, changeAmount, changePercentage }, index) => (
+                      <div
+                        key={asset.id}
+                        className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded-lg"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                            <span className="text-sm font-bold text-green-600">
+                              {index + 1}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm">{asset.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {asset.category}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-sm">{asset.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {asset.category}
-                          </p>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-green-600">
+                            +{formatCurrency(changeAmount)}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            +{changePercentage.toFixed(2)}%
+                          </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-sm font-semibold text-green-600">
-                          +{formatCurrency(asset.changeAmount || 0)}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          +{asset.changePercentage}%
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
               ) : (
                 <p className="text-muted-foreground text-center py-8">
@@ -336,34 +340,36 @@ export function AssetInsights({
             <CardContent>
               {losingAssets.length > 0 ? (
                 <div className="space-y-3">
-                  {losingAssets.map((asset, index) => (
-                    <div
-                      key={asset.id}
-                      className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950/20 rounded-lg"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
-                          <span className="text-sm font-bold text-red-600">
-                            {index + 1}
-                          </span>
+                  {losingAssets.map(
+                    ({ asset, changeAmount, changePercentage }, index) => (
+                      <div
+                        key={asset.id}
+                        className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950/20 rounded-lg"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+                            <span className="text-sm font-bold text-red-600">
+                              {index + 1}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm">{asset.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {asset.category}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-sm">{asset.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {asset.category}
-                          </p>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-red-600">
+                            {formatCurrency(changeAmount)}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {changePercentage.toFixed(2)}%
+                          </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-sm font-semibold text-red-600">
-                          {formatCurrency(asset.changeAmount || 0)}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {asset.changePercentage}%
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
               ) : (
                 <p className="text-muted-foreground text-center py-8">

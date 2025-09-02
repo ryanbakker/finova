@@ -58,6 +58,11 @@ export type Bill = {
   updatedAt: string;
 };
 
+export type AssetValueHistoryEntry = {
+  value: number;
+  createdAt: string;
+};
+
 export type Asset = {
   id: string;
   name: string;
@@ -70,10 +75,16 @@ export type Asset = {
   currentValue?: number;
   changeAmount?: number;
   changePercentage?: number;
+  valueHistory: AssetValueHistoryEntry[];
   notes?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+};
+
+export type LiabilityAmountHistoryEntry = {
+  amount: number;
+  createdAt: string;
 };
 
 export type Liability = {
@@ -90,6 +101,10 @@ export type Liability = {
   monthlyPayment?: number;
   remainingBalance?: number;
   originalAmount?: number;
+  currentAmount?: number;
+  changeAmount?: number;
+  changePercentage?: number;
+  amountHistory: LiabilityAmountHistoryEntry[];
   notes?: string;
   isActive: boolean;
   createdAt: string;

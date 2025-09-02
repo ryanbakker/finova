@@ -21,14 +21,20 @@ import {
   Calendar,
   TrendingUp,
   TrendingDown,
+  DollarSign,
 } from "lucide-react";
 import { getAssetCategoryIcon } from "@/lib/utils/categoryUtils";
+import {
+  calculateAssetChange,
+  getCurrentAssetValue,
+} from "@/lib/utils/assetCalculations";
 
 // Action handlers interface
 interface ActionHandlers {
   onView: (asset: Asset) => void;
   onEdit: (asset: Asset) => void;
   onDelete: (asset: Asset) => void;
+  onUpdateValue: (asset: Asset) => void;
 }
 
 // Global event system for actions
@@ -98,7 +104,9 @@ const formatDate = (dateString: string): string => {
 
 // Helper function to get change badge
 const getChangeBadge = (asset: Asset) => {
-  if (!asset.changeAmount || !asset.changePercentage) {
+  const { changeAmount, changePercentage } = calculateAssetChange(asset);
+
+  if (changeAmount === 0) {
     return (
       <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400 rounded-full">
         No change
@@ -106,26 +114,23 @@ const getChangeBadge = (asset: Asset) => {
     );
   }
 
-  const isPositive = asset.changeAmount >= 0;
-  const changeText = `${isPositive ? "+" : ""}${formatCurrency(
-    asset.changeAmount,
-    asset.currency
-  )} (${isPositive ? "+" : ""}${asset.changePercentage}%)`;
+  const isPositive = changeAmount >= 0;
+  const changeText = `${isPositive ? "+" : ""}${changePercentage.toFixed(2)}%`;
 
   return (
     <div className="flex items-center space-x-1">
-      {isPositive ? (
-        <TrendingUp className="h-3 w-3 text-green-600" />
-      ) : (
-        <TrendingDown className="h-3 w-3 text-red-600" />
-      )}
       <span
-        className={`px-2 py-1 text-xs font-medium rounded-full ${
+        className={`px-2 py-1 text-xs font-medium rounded-full flex flex-row items-center gap-1 ${
           isPositive
             ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
             : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
         }`}
       >
+        {isPositive ? (
+          <TrendingUp className="h-3 w-3 text-green-600" />
+        ) : (
+          <TrendingDown className="h-3 w-3 text-red-600" />
+        )}
         {changeText}
       </span>
     </div>
@@ -229,16 +234,16 @@ export const createColumns = (
     ),
     cell: ({ row }) => {
       const asset = row.original;
+      const currentValue = getCurrentAssetValue(asset);
+      const { changeAmount } = calculateAssetChange(asset);
+
       return (
         <div className="text-left">
           <div className="flex items-center justify-start space-x-2 min-h-[1.5rem]">
             <div className="font-medium text-sm leading-none">
-              {formatCurrency(
-                asset.currentValue || asset.value,
-                asset.currency
-              )}
+              {formatCurrency(currentValue, asset.currency)}
             </div>
-            {asset.changeAmount !== undefined && (
+            {changeAmount !== 0 && (
               <div className="text-xs leading-none">
                 {getChangeBadge(asset)}
               </div>
@@ -326,7 +331,17 @@ export const createColumns = (
               className="cursor-pointer"
             >
               <Eye className="mr-2 h-4 w-4" />
-              View Details
+              View Details & History
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                globalActionHandlers?.onUpdateValue(asset);
+              }}
+              className="cursor-pointer"
+            >
+              <DollarSign className="mr-2 h-4 w-4" />
+              Update Value
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={(e) => {

@@ -1,4 +1,6 @@
 export { LiabilityDetailsDialog } from "./LiabilityDetailsDialog";
+export { LiabilityDetailsAndHistoryDialog } from "./LiabilityDetailsAndHistoryDialog";
+export { UpdateLiabilityAmountDialog } from "./UpdateLiabilityAmountDialog";
 export { EditLiabilityDialog } from "./EditLiabilityDialog";
 export { DeleteLiabilityDialog } from "./DeleteLiabilityDialog";
 export { CreateLiabilityDialog } from "./CreateLiabilityDialog";

@@ -26,6 +26,13 @@ export interface UpdateAssetParams extends Partial<CreateAssetParams> {
   id: string;
 }
 
+export interface UpdateAssetValueParams {
+  assetId: string;
+  newValue: number;
+  changeReason?: string;
+  changeDate?: string;
+}
+
 // Enhanced validation function
 function validateAssetData(
   data: CreateAssetParams | UpdateAssetParams | Partial<CreateAssetParams>
@@ -530,6 +537,151 @@ export async function bulkUpdateAssets(
     };
   } catch (error) {
     console.error("Error bulk updating assets:", error);
+    handleError(error);
+    throw error;
+  }
+}
+
+// Update asset value and create history record
+export async function updateAssetValue(params: UpdateAssetValueParams) {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      throw new Error("Unauthorized: User not authenticated");
+    }
+
+    const { assetId, newValue, changeReason, changeDate } = params;
+
+    if (
+      !assetId ||
+      typeof assetId !== "string" ||
+      assetId.trim().length === 0
+    ) {
+      throw new Error("Invalid asset ID provided");
+    }
+
+    if (typeof newValue !== "number" || newValue < 0) {
+      throw new Error("New value must be a non-negative number");
+    }
+
+    if (newValue > 999999999) {
+      throw new Error("New value cannot exceed 999,999,999");
+    }
+
+    if (changeReason && changeReason.length > 500) {
+      throw new Error("Change reason cannot exceed 500 characters");
+    }
+
+    await connectToDB();
+
+    // Get the current asset
+    const currentAsset = await Asset.findOne({
+      _id: assetId.trim(),
+      userId,
+    });
+
+    if (!currentAsset) {
+      throw new Error("Asset not found or unauthorized");
+    }
+
+    const previousValue = currentAsset.currentValue || currentAsset.value;
+    const changeAmount = newValue - previousValue;
+    const changePercentage =
+      previousValue > 0 ? (changeAmount / previousValue) * 100 : 0;
+
+    // Start a transaction to ensure both operations succeed or fail together
+    // Update the asset's current value and add to value history
+    const updatedAsset = await Asset.findOneAndUpdate(
+      {
+        _id: assetId.trim(),
+        userId,
+      },
+      {
+        $set: {
+          currentValue: newValue,
+          changeAmount,
+          changePercentage,
+        },
+        $push: {
+          valueHistory: {
+            value: newValue,
+            createdAt: changeDate ? new Date(changeDate) : new Date(),
+          },
+        },
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedAsset) {
+      throw new Error("Failed to update asset");
+    }
+
+    revalidatePath("/assets");
+    revalidatePath("/dashboard");
+
+    // Transform MongoDB _id to id for frontend compatibility
+    const transformedAsset = {
+      ...updatedAsset.toObject(),
+      id: updatedAsset._id,
+      _id: undefined,
+    };
+
+    return JSON.parse(JSON.stringify(transformedAsset));
+  } catch (error) {
+    console.error("Error updating asset value:", error);
+    handleError(error);
+    throw error;
+  }
+}
+
+// Get asset value history
+export async function getAssetValueHistory(
+  assetId: string,
+  limit: number = 50
+) {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      throw new Error("Unauthorized: User not authenticated");
+    }
+
+    if (
+      !assetId ||
+      typeof assetId !== "string" ||
+      assetId.trim().length === 0
+    ) {
+      throw new Error("Invalid asset ID provided");
+    }
+
+    if (typeof limit !== "number" || limit < 1 || limit > 100) {
+      throw new Error("Limit must be a number between 1 and 100");
+    }
+
+    await connectToDB();
+
+    // Get the asset with value history
+    const asset = await Asset.findOne({
+      _id: assetId.trim(),
+      userId,
+    }).lean();
+
+    if (!asset) {
+      throw new Error("Asset not found or unauthorized");
+    }
+
+    // Get value history from the asset's valueHistory array
+    const history = (asset.valueHistory || [])
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+      .slice(0, limit);
+
+    return JSON.parse(JSON.stringify(history));
+  } catch (error) {
+    console.error("Error fetching asset value history:", error);
     handleError(error);
     throw error;
   }

@@ -1,8 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Alert, AlertDescription, AlertTitle, AlertClose } from "@/components/ui/alert";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  AlertClose,
+} from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { Plus, TrendingUp, Target, CreditCard } from "lucide-react";
 
 interface GetStartedNoticeProps {
@@ -31,41 +37,49 @@ export function GetStartedNotice({ onClose }: GetStartedNoticeProps) {
           </AlertTitle>
           <AlertDescription className="text-sky-800 dark:text-sky-200 mt-2">
             <p className="mb-3">
-              Your dashboard is ready, but you&apos;ll need to add some data to see your financial insights. 
-              Start by adding your first transaction, asset, or budget to get a complete view of your finances.
+              Your dashboard is ready, but you&apos;ll need to add some data to
+              see your financial insights. Start by adding your first
+              transaction, asset, or budget to get a complete view of your
+              finances.
             </p>
             <div className="flex flex-wrap gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-sky-300 bg-white hover:bg-sky-50 text-sky-700 hover:text-sky-800 dark:border-sky-700 dark:bg-sky-950/50 dark:text-sky-200 dark:hover:bg-sky-900/50"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Transaction
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-sky-300 bg-white hover:bg-sky-50 text-sky-700 hover:text-sky-800 dark:border-sky-700 dark:bg-sky-950/50 dark:text-sky-200 dark:hover:bg-sky-900/50"
-              >
-                <CreditCard className="h-4 w-4 mr-2" />
-                Add Asset
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-sky-300 bg-white hover:bg-sky-50 text-sky-700 hover:text-sky-800 dark:border-sky-700 dark:bg-sky-950/50 dark:text-sky-200 dark:hover:bg-sky-900/50"
-              >
-                <Target className="h-4 w-4 mr-2" />
-                Set Budget
-              </Button>
+              <Link href="/transactions">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-sky-300 bg-white hover:bg-sky-50 text-sky-700 dark:border-sky-700 dark:bg-sky-950/50 dark:text-sky-200 dark:hover:bg-sky-900/50 hover:text-white"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Transaction
+                </Button>
+              </Link>
+              <Link href="/assets">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-sky-300 bg-white hover:bg-sky-50 text-sky-700 dark:border-sky-700 dark:bg-sky-950/50 dark:text-sky-200 dark:hover:bg-sky-900/50 hover:text-white"
+                >
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Add Asset
+                </Button>
+              </Link>
+              <Link href="/budgeting">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-sky-300 bg-white hover:bg-sky-50 text-sky-700 dark:border-sky-700 dark:bg-sky-950/50 dark:text-sky-200 dark:hover:bg-sky-900/50 hover:text-white"
+                >
+                  <Target className="h-4 w-4 mr-2" />
+                  Set Budget
+                </Button>
+              </Link>
             </div>
           </AlertDescription>
         </div>
       </div>
       <AlertClose
         onClick={handleClose}
-        className="text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-200"
+        className="text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-200 cursor-pointer"
       />
     </Alert>
   );

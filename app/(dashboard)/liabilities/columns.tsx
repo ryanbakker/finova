@@ -220,16 +220,27 @@ export const createColumns = (
     ),
     cell: ({ row }) => {
       const liability = row.original;
+      const currentAmount = liability.currentAmount || liability.amount;
       return (
         <div className="text-left">
           <div className="font-medium text-sm text-red-600 dark:text-red-400">
-            {formatCurrency(liability.amount, liability.currency)}
+            {formatCurrency(currentAmount, liability.currency)}
           </div>
-          {liability.remainingBalance &&
-            liability.remainingBalance !== liability.amount && (
-              <div className="text-xs text-muted-foreground">
-                Remaining:{" "}
-                {formatCurrency(liability.remainingBalance, liability.currency)}
+          {liability.changeAmount !== undefined &&
+            liability.changeAmount !== 0 && (
+              <div
+                className={`text-xs ${
+                  liability.changeAmount >= 0
+                    ? "text-red-500"
+                    : "text-green-500"
+                }`}
+              >
+                {liability.changeAmount >= 0 ? "+" : ""}
+                {formatCurrency(liability.changeAmount, liability.currency)} (
+                {liability.changePercentage && liability.changePercentage >= 0
+                  ? "+"
+                  : ""}
+                {liability.changePercentage?.toFixed(1)}%)
               </div>
             )}
         </div>
@@ -373,6 +384,7 @@ export const createColumns = (
               <Edit className="mr-2 h-4 w-4" />
               Edit Liability
             </DropdownMenuItem>
+
             <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation();

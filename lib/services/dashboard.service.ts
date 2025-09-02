@@ -22,6 +22,7 @@ export interface DashboardData {
   categoryBreakdown: any[];
   monthlySpending: any[];
   weeklySpending: any[];
+  monthlyIncomeSpending: any[];
   assets: any[];
 }
 
@@ -111,21 +112,38 @@ export async function getDashboardData(): Promise<DashboardData> {
 
     const currentMonthIncome = currentMonthTransactions
       .filter((t: any) => t.type === "income")
-      .reduce((sum: number, t: any) => sum + t.amount, 0);
+      .reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
 
     const currentMonthExpenses = currentMonthTransactions
       .filter((t: any) => t.type === "expense")
-      .reduce((sum: number, t: any) => sum + t.amount, 0);
+      .reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
 
-    const currentMonthSavings = currentMonthIncome - currentMonthExpenses;
+    // Calculate savings contributions from transfer transactions
+    // These represent money moved to savings accounts, investments, etc.
+    const currentMonthSavingsContributions = currentMonthTransactions
+      .filter((t: any) => t.type === "transfer")
+      .reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
+
+    // Net income (remaining) is income minus expenses minus savings contributions
+    const currentMonthRemaining =
+      currentMonthIncome -
+      currentMonthExpenses -
+      currentMonthSavingsContributions;
 
     // Calculate net worth
     const totalAssets = serializedAssets.reduce(
-      (sum: number, asset: any) => sum + (asset.currentValue || asset.value),
+      (sum: number, asset: any) =>
+        sum + (asset.currentValue || asset.value || 0),
       0
     );
     const totalLiabilities = serializedLiabilities.reduce(
-      (sum: number, liability: any) => sum + liability.amount,
+      (sum: number, liability: any) =>
+        sum +
+        // Prefer the most up-to-date balance fields first
+        (liability.currentAmount ??
+          liability.remainingBalance ??
+          liability.amount ??
+          0),
       0
     );
     const netWorth = totalAssets - totalLiabilities;
@@ -134,16 +152,16 @@ export async function getDashboardData(): Promise<DashboardData> {
     const recentTransactions = serializedTransactions
       .slice(0, 5)
       .map((t: any) => ({
-        id: t.id, // Now using the serialized id
-        title: t.description,
-        time: new Date(t.date).toLocaleDateString("en-US", {
+        id: t.id || t._id, // Handle both serialized id and original _id
+        title: t.description || "Unknown Transaction",
+        time: new Date(t.date || new Date()).toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
           hour: "2-digit",
           minute: "2-digit",
         }),
-        amount: t.amount,
-        type: t.type,
+        amount: t.amount || 0,
+        type: t.type || "expense",
         color: t.type === "income" ? "bg-green-500" : "bg-red-500",
         textColor: t.type === "income" ? "text-green-600" : "text-red-600",
       }));
@@ -154,21 +172,25 @@ export async function getDashboardData(): Promise<DashboardData> {
 
     const upcomingBills = serializedBills
       .filter((bill: any) => {
-        const dueDate = new Date(bill.dueDate);
+        const dueDate = new Date(bill.dueDate || new Date());
         return dueDate >= currentDate && dueDate <= thirtyDaysFromNow;
       })
       .sort(
         (a: any, b: any) =>
-          new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+          new Date(a.dueDate || new Date()).getTime() -
+          new Date(b.dueDate || new Date()).getTime()
       )
       .slice(0, 6)
       .map((bill: any) => ({
-        name: bill.name,
-        dueDate: new Date(bill.dueDate).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        }),
-        amount: bill.amount,
+        name: bill.name || "Unknown Bill",
+        dueDate: new Date(bill.dueDate || new Date()).toLocaleDateString(
+          "en-US",
+          {
+            month: "short",
+            day: "numeric",
+          }
+        ),
+        amount: bill.amount || 0,
       }));
 
     // Calculate budget progress
@@ -176,12 +198,13 @@ export async function getDashboardData(): Promise<DashboardData> {
       .filter((budget: any) => budget.isActive)
       .map((budget: any) => {
         const spent = budget.spent || 0;
-        const remaining = budget.amount - spent;
-        const percentage = (spent / budget.amount) * 100;
+        const budgetAmount = budget.amount || 0;
+        const remaining = budgetAmount - spent;
+        const percentage = budgetAmount > 0 ? (spent / budgetAmount) * 100 : 0;
 
         return {
-          category: budget.category,
-          budgeted: budget.amount,
+          category: budget.category || "Unknown",
+          budgeted: budgetAmount,
           spent,
           remaining,
           percentage: Math.min(percentage, 100),
@@ -191,14 +214,21 @@ export async function getDashboardData(): Promise<DashboardData> {
     // Get financial goals
     const financialGoals = serializedGoals
       .filter((goal: any) => goal.status === "active")
-      .map((goal: any) => ({
-        name: goal.name,
-        targetAmount: goal.targetAmount,
-        currentAmount: goal.currentAmount,
-        progress: (goal.currentAmount / goal.targetAmount) * 100,
-        targetDate: goal.targetDate,
-        priority: goal.priority,
-      }));
+      .map((goal: any) => {
+        const currentAmount = goal.currentAmount || 0;
+        const targetAmount = goal.targetAmount || 1; // Avoid division by zero
+        const progress =
+          targetAmount > 0 ? (currentAmount / targetAmount) * 100 : 0;
+
+        return {
+          name: goal.name || "Unknown Goal",
+          targetAmount: targetAmount,
+          currentAmount: currentAmount,
+          progress: Math.min(progress, 100),
+          targetDate: goal.targetDate || new Date(),
+          priority: goal.priority || "medium",
+        };
+      });
 
     // Calculate category breakdown for current month
     const categoryBreakdown = currentMonthTransactions
@@ -208,7 +238,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         if (!acc[category]) {
           acc[category] = 0;
         }
-        acc[category] += transaction.amount;
+        acc[category] += transaction.amount || 0;
         return acc;
       }, {} as Record<string, number>);
 
@@ -222,6 +252,7 @@ export async function getDashboardData(): Promise<DashboardData> {
 
     // Calculate monthly spending for the last 6 months
     const monthlySpending = [];
+    const monthlyIncomeSpending = [];
     for (let i = 5; i >= 0; i--) {
       const month = new Date(currentYear, currentMonth - i, 1);
       const monthTransactions = serializedTransactions.filter((t: any) => {
@@ -234,11 +265,22 @@ export async function getDashboardData(): Promise<DashboardData> {
 
       const monthExpenses = monthTransactions
         .filter((t: any) => t.type === "expense")
-        .reduce((sum: number, t: any) => sum + t.amount, 0);
+        .reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
+
+      const monthIncome = monthTransactions
+        .filter((t: any) => t.type === "income")
+        .reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
 
       monthlySpending.push({
         month: month.toLocaleDateString("en-US", { month: "short" }),
         expenses: monthExpenses,
+      });
+
+      monthlyIncomeSpending.push({
+        month: month.toLocaleDateString("en-US", { month: "short" }),
+        income: monthIncome,
+        spending: monthExpenses,
+        surplus: monthIncome - monthExpenses,
       });
     }
 
@@ -263,7 +305,7 @@ export async function getDashboardData(): Promise<DashboardData> {
 
       const weekExpenses = weekTransactions
         .filter((t: any) => t.type === "expense")
-        .reduce((sum: number, t: any) => sum + t.amount, 0);
+        .reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
 
       weeklySpending.push({
         week: `Week ${week}`,
@@ -274,8 +316,8 @@ export async function getDashboardData(): Promise<DashboardData> {
     const metrics: DashboardMetrics = {
       totalIncome: currentMonthIncome,
       totalExpenses: currentMonthExpenses,
-      savings: currentMonthSavings,
-      netIncome: currentMonthSavings,
+      savings: currentMonthSavingsContributions,
+      netIncome: currentMonthRemaining,
       netWorth,
       totalAssets,
       totalLiabilities,
@@ -290,6 +332,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       categoryBreakdown: categoryBreakdownArray,
       monthlySpending,
       weeklySpending,
+      monthlyIncomeSpending,
       assets: serializedAssets,
     };
   } catch (error) {

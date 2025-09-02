@@ -1,193 +1,312 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
-export interface ILiability extends Document {
-    userId: string;
-    name: string;
-    category: string;
-    amount: number;
-    currency: string;
-    institution?: string;
-    accountNumber?: string;
-    dueDate?: Date;
-    interestRate?: number;
-    monthlyPayment?: number;
-    remainingBalance?: number;
-    originalAmount?: number;
-    notes?: string;
-    isActive: boolean;
-    createdAt: Date;
-    updatedAt: Date;
+export interface ILiabilityAmountHistoryEntry {
+  amount: number;
+  createdAt: Date;
 }
 
-const liabilitySchema = new Schema<ILiability>({
+export interface ILiability extends Document {
+  userId: string;
+  name: string;
+  category: string;
+  amount: number;
+  currency: string;
+  institution?: string;
+  accountNumber?: string;
+  dueDate?: Date;
+  interestRate?: number;
+  monthlyPayment?: number;
+  remainingBalance?: number;
+  originalAmount?: number;
+  currentAmount?: number;
+  changeAmount?: number;
+  changePercentage?: number;
+  amountHistory: ILiabilityAmountHistoryEntry[];
+  notes?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const liabilitySchema = new Schema<ILiability>(
+  {
     userId: {
-        type: String,
-        required: [true, 'User ID is required'],
-        index: true,
-        trim: true
+      type: String,
+      required: [true, "User ID is required"],
+      index: true,
+      trim: true,
     },
     name: {
-        type: String,
-        required: [true, 'Liability name is required'],
-        trim: true,
-        minlength: [1, 'Liability name must be at least 1 character long'],
-        maxlength: [100, 'Liability name cannot exceed 100 characters']
+      type: String,
+      required: [true, "Liability name is required"],
+      trim: true,
+      minlength: [1, "Liability name must be at least 1 character long"],
+      maxlength: [100, "Liability name cannot exceed 100 characters"],
     },
     category: {
-        type: String,
-        required: [true, 'Category is required'],
-        trim: true,
-        minlength: [1, 'Category must be at least 1 character long'],
-        maxlength: [50, 'Category cannot exceed 50 characters']
+      type: String,
+      required: [true, "Category is required"],
+      trim: true,
+      minlength: [1, "Category must be at least 1 character long"],
+      maxlength: [50, "Category cannot exceed 50 characters"],
     },
     amount: {
-        type: Number,
-        required: [true, 'Amount is required'],
-        min: [0, 'Amount must be non-negative'],
-        max: [999999999, 'Amount cannot exceed 999,999,999']
+      type: Number,
+      required: [true, "Amount is required"],
+      min: [0, "Amount must be non-negative"],
+      max: [999999999, "Amount cannot exceed 999,999,999"],
     },
     currency: {
-        type: String,
-        required: [true, 'Currency is required'],
-        default: 'USD',
-        trim: true,
-        uppercase: true,
-        minlength: [3, 'Currency must be at least 3 characters'],
-        maxlength: [3, 'Currency must be exactly 3 characters']
+      type: String,
+      required: [true, "Currency is required"],
+      default: "USD",
+      trim: true,
+      uppercase: true,
+      minlength: [3, "Currency must be at least 3 characters"],
+      maxlength: [3, "Currency must be exactly 3 characters"],
     },
     institution: {
-        type: String,
-        required: false,
-        trim: true,
-        maxlength: [100, 'Institution name cannot exceed 100 characters']
+      type: String,
+      required: false,
+      trim: true,
+      maxlength: [100, "Institution name cannot exceed 100 characters"],
     },
     accountNumber: {
-        type: String,
-        required: false,
-        trim: true,
-        maxlength: [50, 'Account number cannot exceed 50 characters']
+      type: String,
+      required: false,
+      trim: true,
+      maxlength: [50, "Account number cannot exceed 50 characters"],
     },
     dueDate: {
-        type: Date,
-        required: false,
-        validate: {
-            validator: function(value: Date) {
-                if (!value) return true; // Optional field
-                const now = new Date();
-                const maxDate = new Date(now.getFullYear() + 30, now.getMonth(), now.getDate()); // 30 years in future
-                return value >= now;
-            },
-            message: 'Due date cannot be in the past'
-        }
+      type: Date,
+      required: false,
+      validate: {
+        validator: function (value: Date) {
+          if (!value) return true; // Optional field
+          const now = new Date();
+          const maxDate = new Date(
+            now.getFullYear() + 30,
+            now.getMonth(),
+            now.getDate()
+          ); // 30 years in future
+          return value >= now;
+        },
+        message: "Due date cannot be in the past",
+      },
     },
     interestRate: {
-        type: Number,
-        required: false,
-        min: [0, 'Interest rate must be non-negative'],
-        max: [100, 'Interest rate cannot exceed 100%'],
-        validate: {
-            validator: function(value: number) {
-                if (value === undefined || value === null) return true; // Optional field
-                return value >= 0 && value <= 100;
-            },
-            message: 'Interest rate must be between 0% and 100%'
-        }
+      type: Number,
+      required: false,
+      min: [0, "Interest rate must be non-negative"],
+      max: [100, "Interest rate cannot exceed 100%"],
+      validate: {
+        validator: function (value: number) {
+          if (value === undefined || value === null) return true; // Optional field
+          return value >= 0 && value <= 100;
+        },
+        message: "Interest rate must be between 0% and 100%",
+      },
     },
     monthlyPayment: {
-        type: Number,
-        required: false,
-        min: [0, 'Monthly payment must be non-negative'],
-        max: [999999999, 'Monthly payment cannot exceed 999,999,999'],
-        validate: {
-            validator: function(value: number) {
-                if (value === undefined || value === null) return true; // Optional field
-                return value >= 0;
-            },
-            message: 'Monthly payment must be non-negative'
-        }
+      type: Number,
+      required: false,
+      min: [0, "Monthly payment must be non-negative"],
+      max: [999999999, "Monthly payment cannot exceed 999,999,999"],
+      validate: {
+        validator: function (value: number) {
+          if (value === undefined || value === null) return true; // Optional field
+          return value >= 0;
+        },
+        message: "Monthly payment must be non-negative",
+      },
     },
     remainingBalance: {
-        type: Number,
-        required: false,
-        min: [0, 'Remaining balance must be non-negative'],
-        max: [999999999, 'Remaining balance cannot exceed 999,999,999'],
-        validate: {
-            validator: function(value: number) {
-                if (value === undefined || value === null) return true; // Optional field
-                return value >= 0;
-            },
-            message: 'Remaining balance must be non-negative'
-        }
+      type: Number,
+      required: false,
+      min: [0, "Remaining balance must be non-negative"],
+      max: [999999999, "Remaining balance cannot exceed 999,999,999"],
+      validate: {
+        validator: function (value: number) {
+          if (value === undefined || value === null) return true; // Optional field
+          return value >= 0;
+        },
+        message: "Remaining balance must be non-negative",
+      },
     },
     originalAmount: {
-        type: Number,
-        required: false,
-        min: [0, 'Original amount must be non-negative'],
-        max: [999999999, 'Original amount cannot exceed 999,999,999'],
-        validate: {
-            validator: function(value: number) {
-                if (value === undefined || value === null) return true; // Optional field
-                return value >= 0;
-            },
-            message: 'Original amount must be non-negative'
-        }
+      type: Number,
+      required: false,
+      min: [0, "Original amount must be non-negative"],
+      max: [999999999, "Original amount cannot exceed 999,999,999"],
+      validate: {
+        validator: function (value: number) {
+          if (value === undefined || value === null) return true; // Optional field
+          return value >= 0;
+        },
+        message: "Original amount must be non-negative",
+      },
+    },
+    currentAmount: {
+      type: Number,
+      required: false,
+      min: [0, "Current amount must be non-negative"],
+      max: [999999999, "Current amount cannot exceed 999,999,999"],
+      validate: {
+        validator: function (value: number) {
+          if (value === undefined || value === null) return true; // Optional field
+          return value >= 0;
+        },
+        message: "Current amount must be non-negative",
+      },
+    },
+    changeAmount: {
+      type: Number,
+      required: false,
+      default: 0,
+      min: [-999999999, "Change amount cannot be less than -999,999,999"],
+      max: [999999999, "Change amount cannot exceed 999,999,999"],
+    },
+    changePercentage: {
+      type: Number,
+      required: false,
+      default: 0,
+      min: [-100, "Change percentage cannot be less than -100%"],
+      max: [1000, "Change percentage cannot exceed 1000%"],
+    },
+    amountHistory: {
+      type: [
+        {
+          amount: {
+            type: Number,
+            required: true,
+            min: [0, "Amount must be non-negative"],
+            max: [999999999, "Amount cannot exceed 999,999,999"],
+          },
+          createdAt: {
+            type: Date,
+            required: true,
+            default: Date.now,
+          },
+        },
+      ],
+      default: [],
     },
     notes: {
-        type: String,
-        required: false,
-        trim: true,
-        maxlength: [500, 'Notes cannot exceed 500 characters']
+      type: String,
+      required: false,
+      trim: true,
+      maxlength: [500, "Notes cannot exceed 500 characters"],
     },
     isActive: {
-        type: Boolean,
-        required: [true, 'Active status is required'],
-        default: true
-    }
-}, {
-    timestamps: true
-});
+      type: Boolean,
+      required: [true, "Active status is required"],
+      default: true,
+    },
+  },
+  {
+    timestamps: true,
+    collection: "liabilities",
+    toJSON: {
+      transform: function (doc, ret) {
+        // Ensure _id is converted to string for JSON serialization
+        if (ret._id) {
+          ret.id = ret._id.toString();
+          delete ret._id;
+        }
+        // Ensure userId is included in response
+        if (ret.userId) {
+          ret.userId = ret.userId.toString();
+        }
+        return ret;
+      },
+    },
+  }
+);
 
-// Compound index for efficient queries
+// Indexes for better query performance and security
 liabilitySchema.index({ userId: 1, category: 1 });
 liabilitySchema.index({ userId: 1, isActive: 1 });
-liabilitySchema.index({ userId: 1, dueDate: 1 });
+liabilitySchema.index({ userId: 1, createdAt: -1 });
+liabilitySchema.index({ userId: 1, amount: -1 });
+liabilitySchema.index({ userId: 1, currentAmount: -1 });
+liabilitySchema.index({ userId: 1, institution: 1 });
 
-// Pre-save middleware to set default values
-liabilitySchema.pre('save', function(next) {
-    // Set remaining balance to amount if not provided
-    if (this.remainingBalance === undefined || this.remainingBalance === null) {
-        this.remainingBalance = this.amount;
-    }
-    
-    // Set original amount to amount if not provided
-    if (this.originalAmount === undefined || this.originalAmount === null) {
-        this.originalAmount = this.amount;
-    }
-    
-    next();
+// Compound index for efficient filtering and sorting
+liabilitySchema.index({ userId: 1, isActive: 1, category: 1, createdAt: -1 });
+
+// Pre-save middleware for data sanitization
+liabilitySchema.pre("save", function (next) {
+  // Sanitize string fields
+  if (this.name) this.name = this.name.trim();
+  if (this.category) this.category = this.category.trim();
+  if (this.institution) this.institution = this.institution.trim();
+  if (this.accountNumber) this.accountNumber = this.accountNumber.trim();
+  if (this.notes) this.notes = this.notes.trim();
+
+  // Ensure currency is uppercase
+  if (this.currency) this.currency = this.currency.toUpperCase();
+
+  // Set remaining balance to amount if not provided
+  if (this.remainingBalance === undefined || this.remainingBalance === null) {
+    this.remainingBalance = this.amount;
+  }
+
+  // Set original amount to amount if not provided
+  if (this.originalAmount === undefined || this.originalAmount === null) {
+    this.originalAmount = this.amount;
+  }
+
+  // Set currentAmount to amount if not provided
+  if (this.currentAmount === undefined || this.currentAmount === null) {
+    this.currentAmount = this.amount;
+  }
+
+  // Initialize amountHistory with initial amount if empty
+  if (!this.amountHistory || this.amountHistory.length === 0) {
+    this.amountHistory = [
+      {
+        amount: this.amount,
+        createdAt: new Date(),
+      },
+    ];
+  }
+
+  // Calculate changeAmount and changePercentage if not provided
+  if (this.changeAmount === undefined || this.changeAmount === null) {
+    this.changeAmount = (this.currentAmount || this.amount) - this.amount;
+  }
+
+  if (this.changePercentage === undefined || this.changePercentage === null) {
+    this.changePercentage =
+      this.amount > 0 ? (this.changeAmount / this.amount) * 100 : 0;
+  }
+
+  next();
 });
 
 // Virtual for calculating total interest paid
-liabilitySchema.virtual('totalInterestPaid').get(function() {
-    if (this.originalAmount && this.remainingBalance) {
-        return Math.max(0, this.originalAmount - this.remainingBalance);
-    }
-    return 0;
+liabilitySchema.virtual("totalInterestPaid").get(function () {
+  if (this.originalAmount && this.remainingBalance) {
+    return Math.max(0, this.originalAmount - this.remainingBalance);
+  }
+  return 0;
 });
 
 // Virtual for calculating progress percentage
-liabilitySchema.virtual('progressPercentage').get(function() {
-    if (this.originalAmount && this.remainingBalance) {
-        const paid = this.originalAmount - this.remainingBalance;
-        return Math.min(100, Math.max(0, (paid / this.originalAmount) * 100));
-    }
-    return 0;
+liabilitySchema.virtual("progressPercentage").get(function () {
+  if (this.originalAmount && this.remainingBalance) {
+    const paid = this.originalAmount - this.remainingBalance;
+    return Math.min(100, Math.max(0, (paid / this.originalAmount) * 100));
+  }
+  return 0;
 });
 
 // Ensure virtual fields are serialized
-liabilitySchema.set('toJSON', { virtuals: true });
-liabilitySchema.set('toObject', { virtuals: true });
+liabilitySchema.set("toJSON", { virtuals: true });
+liabilitySchema.set("toObject", { virtuals: true });
 
-const Liability = mongoose.models.Liability || mongoose.model<ILiability>('Liability', liabilitySchema);
+const Liability =
+  mongoose.models.Liability ||
+  mongoose.model<ILiability>("Liability", liabilitySchema);
 
 export default Liability;

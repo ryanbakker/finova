@@ -27,12 +27,15 @@ import { Liability } from "@/lib/types";
 import { useSearchParams } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
-  LiabilityDetailsDialog,
+  LiabilityDetailsAndHistoryDialog,
   EditLiabilityDialog,
   DeleteLiabilityDialog,
   LiabilityTableSkeleton,
 } from "../../../components/liabilities";
-import { updateLiability, deleteLiability } from "@/lib/actions/liability.actions";
+import {
+  updateLiability,
+  deleteLiability,
+} from "@/lib/actions/liability.actions";
 import { useToast } from "@/components/ui/use-toast";
 
 interface DataTableProps<TData extends Liability, TValue> {
@@ -204,7 +207,7 @@ export function DataTable<TData extends Liability, TValue>({
         title: "Error",
         description: "Failed to delete liability. Please try again.",
         variant: "destructive",
-        });
+      });
     }
   };
 
@@ -433,7 +436,8 @@ export function DataTable<TData extends Liability, TValue>({
             No liabilities to show
           </h3>
           <p className="text-sm text-muted-foreground">
-            Get started by adding your first liability to track your financial obligations
+            Get started by adding your first liability to track your financial
+            obligations
           </p>
         </div>
       </div>
@@ -606,7 +610,7 @@ export function DataTable<TData extends Liability, TValue>({
       )}
 
       {/* Liability Details Dialog */}
-      <LiabilityDetailsDialog
+      <LiabilityDetailsAndHistoryDialog
         liability={selectedLiability}
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}

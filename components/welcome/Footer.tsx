@@ -8,7 +8,7 @@ function WelcomeFooter() {
   const [showBanner, setShowBanner] = useState(true);
 
   return (
-    <footer className="bg-gray-50 border-t border-gray-200">
+    <footer className="bg-gray-50 border-t border-gray-200 relative overflow-hidden">
       {/* GitHub Banner */}
       {showBanner && (
         <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white mx-4 mt-4 mb-0 rounded-md">
@@ -136,6 +136,24 @@ function WelcomeFooter() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Grid Pattern with Fade Effect */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)
+            `,
+            backgroundSize: "41px 41px",
+            maskImage:
+              "linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.2) 25%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.2) 75%, transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.2) 25%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.2) 75%, transparent 100%)",
+          }}
+        />
       </div>
     </footer>
   );

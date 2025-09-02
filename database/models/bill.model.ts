@@ -80,4 +80,5 @@ billSchema.index({ userId: 1, category: 1 });
 billSchema.index({ userId: 1, status: 1 });
 billSchema.index({ userId: 1, isRecurring: 1 });
 
-export const Bill = mongoose.model<IBill>("Bill", billSchema);
+export const Bill =
+  mongoose.models.Bill || mongoose.model<IBill>("Bill", billSchema);

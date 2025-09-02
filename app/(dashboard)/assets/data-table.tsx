@@ -22,12 +22,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Trash2, Plus, TrendingUp } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
-import { setGlobalActionHandlers } from "./columns";
+
 import { Asset } from "@/lib/types";
 import { useSearchParams } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
-  AssetDetailsDialog,
+  AssetDetailsAndHistoryDialog,
   EditAssetDialog,
   DeleteAssetDialog,
   AssetTableSkeleton,
@@ -118,15 +118,6 @@ export function DataTable<TData extends Asset, TValue>({
     setSelectedAsset(asset);
     setIsDeleteDialogOpen(true);
   };
-
-  // Set global action handlers
-  useEffect(() => {
-    setGlobalActionHandlers({
-      onView: handleViewAsset,
-      onEdit: handleEditAsset,
-      onDelete: handleDeleteAsset,
-    });
-  }, []);
 
   const handleSaveAsset = () => {
     // Asset update is handled by the EditAssetDialog component
@@ -370,7 +361,8 @@ export function DataTable<TData extends Asset, TValue>({
             No assets to show
           </h3>
           <p className="text-sm text-muted-foreground">
-            Get started by adding your first asset to track your financial investments
+            Get started by adding your first asset to track your financial
+            investments
           </p>
         </div>
       </div>
@@ -407,7 +399,7 @@ export function DataTable<TData extends Asset, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
                 key={headerGroup.id}
-                className="hover:!bg-white dark:hover:!bg-white"
+                // className="hover:!bg-white dark:hover:!bg-white"
               >
                 {headerGroup.headers.map((header) => {
                   return (
@@ -573,8 +565,8 @@ export function DataTable<TData extends Asset, TValue>({
         </div>
       )}
 
-      {/* Asset Details Dialog */}
-      <AssetDetailsDialog
+      {/* Asset Details and History Dialog */}
+      <AssetDetailsAndHistoryDialog
         asset={selectedAsset}
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}

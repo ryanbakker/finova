@@ -7,8 +7,9 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Target, Plane, Car, Plus, Laptop } from "lucide-react";
+import { Target, Plane, Car, Plus, Laptop, MoveRight } from "lucide-react";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 interface FinancialGoal {
   id: string;
@@ -209,10 +210,12 @@ export function FinancialGoals({
             </CardDescription>
           </div>
           <div className="text-right space-y-1">
-            <Button className="button-blue-bg">
-              <Plus className="h-4 w-4" />
-              Add Goal
-            </Button>
+            <Link href="/goals">
+              <Button className="button-blue-bg">
+                Goals
+                <MoveRight />
+              </Button>
+            </Link>
           </div>
         </div>
       </CardHeader>

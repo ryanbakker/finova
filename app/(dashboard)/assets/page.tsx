@@ -19,10 +19,13 @@ import {
   AssetInsights,
   AssetFilters,
   CreateAssetDialog,
+  UpdateAssetValueDialog,
+  AssetDetailsAndHistoryDialog,
 } from "@/components/assets";
 import { useSorting } from "@/hooks/use-sorting";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getUserAssets } from "@/lib/actions/asset.actions";
+
 import { useToast } from "@/components/ui/use-toast";
 
 import { useSearchParams } from "next/navigation";
@@ -34,6 +37,9 @@ function AssetsPageContent() {
   const [showFilters, setShowFilters] = useState(false);
   const [tableReady, setTableReady] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showUpdateValueDialog, setShowUpdateValueDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const { sortStates, toggleSorting } = useSorting();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -42,6 +48,47 @@ function AssetsPageContent() {
 
   // Create columns
   const columns = createColumns(sortStates, toggleSorting);
+
+  // Action handlers
+  const handleViewAsset = (asset: Asset) => {
+    setSelectedAsset(asset);
+    setShowDetailsDialog(true);
+  };
+
+  const handleEditAsset = (asset: Asset) => {
+    setSelectedAsset(asset);
+    // You can implement edit functionality here
+  };
+
+  const handleDeleteAsset = (asset: Asset) => {
+    setSelectedAsset(asset);
+    // You can implement delete functionality here
+  };
+
+  const handleUpdateValue = (asset: Asset) => {
+    setSelectedAsset(asset);
+    setShowUpdateValueDialog(true);
+  };
+
+  // Set global action handlers
+  useEffect(() => {
+    import("./columns").then(({ setGlobalActionHandlers }) => {
+      setGlobalActionHandlers({
+        onView: handleViewAsset,
+        onEdit: handleEditAsset,
+        onDelete: handleDeleteAsset,
+        onUpdateValue: handleUpdateValue,
+      });
+    });
+  }, []);
+
+  // Debug dialog state
+  useEffect(() => {
+    console.log("Dialog state:", {
+      showDetailsDialog,
+      selectedAsset: selectedAsset?.name,
+    });
+  }, [showDetailsDialog, selectedAsset]);
 
   // Load assets from database
   useEffect(() => {
@@ -287,11 +334,31 @@ function AssetsPageContent() {
 
       <DashboardFooter />
 
-      {/* Create Asset Dialog */}
       <CreateAssetDialog
         isOpen={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
+        onSuccess={() => refreshAssets()}
+      />
+
+      {/* Update Asset Value Dialog */}
+      <UpdateAssetValueDialog
+        asset={selectedAsset}
+        isOpen={showUpdateValueDialog}
+        onClose={() => {
+          setShowUpdateValueDialog(false);
+          setSelectedAsset(null);
+        }}
         onSuccess={refreshAssets}
+      />
+
+      {/* Asset Details and History Dialog */}
+      <AssetDetailsAndHistoryDialog
+        asset={selectedAsset}
+        isOpen={showDetailsDialog}
+        onClose={() => {
+          setShowDetailsDialog(false);
+          setSelectedAsset(null);
+        }}
       />
     </div>
   );

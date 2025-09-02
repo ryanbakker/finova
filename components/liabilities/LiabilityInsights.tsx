@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -9,8 +9,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Liability } from "@/lib/types";
+import { Liability, LiabilityAmountHistoryEntry } from "@/lib/types";
 import { DonutChart } from "@/components/DonutChart";
+import { getLiabilityAmountHistory } from "@/lib/actions/liability.actions";
+import { formatDateForChart, getQuarterYearInfo } from "@/lib/utils/dateUtils";
+import { AreaChart } from "@tremor/react";
 import {
   Building2,
   CreditCard,
@@ -20,6 +23,9 @@ import {
   AlertTriangle,
   Calendar,
   Percent,
+  CircleArrowUp,
+  CircleArrowDown,
+  Loader2,
 } from "lucide-react";
 
 interface LiabilityInsightsProps {
@@ -27,10 +33,120 @@ interface LiabilityInsightsProps {
   isLoading?: boolean;
 }
 
+interface LiabilityAmountChartData {
+  date: string;
+  amount: number;
+  quarter: number;
+  year: number;
+  quarterName: string;
+  fullQuarter: string;
+}
+
 export function LiabilityInsights({
   liabilities,
   isLoading,
 }: LiabilityInsightsProps) {
+  const [aggregatedHistory, setAggregatedHistory] = useState<
+    LiabilityAmountChartData[]
+  >([]);
+  const [recentChanges, setRecentChanges] = useState<
+    LiabilityAmountHistoryEntry[]
+  >([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+  // Load aggregated liability history data
+  const loadAggregatedHistory = useCallback(async () => {
+    if (!liabilities || liabilities.length === 0) {
+      setAggregatedHistory([]);
+      setRecentChanges([]);
+      return;
+    }
+
+    setIsLoadingHistory(true);
+    try {
+      // Get history for all liabilities and aggregate by date
+      const allHistoryData: LiabilityAmountHistoryEntry[] = [];
+
+      for (const liability of liabilities) {
+        try {
+          const history = await getLiabilityAmountHistory(liability.id, 20);
+          allHistoryData.push(
+            ...history.map((entry) => ({
+              ...entry,
+              liabilityId: liability.id,
+              liabilityName: liability.name,
+            }))
+          );
+        } catch (error) {
+          console.error(
+            `Error loading history for liability ${liability.id}:`,
+            error
+          );
+        }
+      }
+
+      // Sort all history by date
+      const sortedHistory = allHistoryData.sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+
+      // Get recent changes (last 10 entries)
+      setRecentChanges(sortedHistory.slice(-10).reverse());
+
+      // Aggregate by date for chart
+      const dateMap = new Map<string, number>();
+
+      // Add initial amounts for each liability
+      liabilities.forEach((liability) => {
+        const initialDate = new Date(liability.createdAt)
+          .toISOString()
+          .split("T")[0];
+        const currentAmount = dateMap.get(initialDate) || 0;
+        dateMap.set(initialDate, currentAmount + liability.amount);
+      });
+
+      // Add history entries
+      sortedHistory.forEach((entry) => {
+        const date = new Date(entry.createdAt).toISOString().split("T")[0];
+        const currentAmount = dateMap.get(date) || 0;
+        dateMap.set(date, currentAmount + entry.amount);
+      });
+
+      // Convert to chart data
+      const chartData: LiabilityAmountChartData[] = Array.from(
+        dateMap.entries()
+      )
+        .map(([date, amount]) => {
+          const recordDate = new Date(date);
+          const quarterYearInfo = getQuarterYearInfo(recordDate);
+
+          return {
+            date: formatDateForChart(recordDate),
+            amount,
+            quarter: quarterYearInfo.quarter,
+            year: quarterYearInfo.year,
+            quarterName: quarterYearInfo.quarterName,
+            fullQuarter: quarterYearInfo.fullQuarter,
+          };
+        })
+        .sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
+
+      setAggregatedHistory(chartData);
+    } catch (error) {
+      console.error("Error loading aggregated liability history:", error);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  }, [liabilities]);
+
+  // Load history when liabilities change
+  useEffect(() => {
+    loadAggregatedHistory();
+  }, [loadAggregatedHistory]);
+
   const getCategoryColor = (category: string): string => {
     const colors: Record<string, string> = {
       Mortgage: "#3B82F6", // blue
@@ -282,11 +398,7 @@ export function LiabilityInsights({
           </CardHeader>
           <CardContent>
             <div className="h-64">
-              <DonutChart
-                data={chartData}
-                category="name"
-                value="value"
-              />
+              <DonutChart data={chartData} category="name" value="value" />
             </div>
             <div className="mt-4 space-y-2">
               {Object.entries(insights.categoryBreakdown).map(
@@ -354,6 +466,132 @@ export function LiabilityInsights({
           </CardContent>
         </Card>
       </div>
+
+      {/* Liability Amount History Chart */}
+      {aggregatedHistory.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <TrendingDown className="h-5 w-5 text-red-600" />
+              <span>Liability Amount History</span>
+            </CardTitle>
+            <CardDescription>
+              Track changes in your total liability amounts over time
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-80">
+              {isLoadingHistory ? (
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <AreaChart
+                  data={aggregatedHistory}
+                  index="date"
+                  categories={["amount"]}
+                  colors={["red"]}
+                  showLegend={false}
+                  showGridLines={true}
+                  showAnimation={true}
+                  curveType="natural"
+                  valueFormatter={(value: number) => formatCurrency(value)}
+                  className="[&_.recharts-xAxis_.recharts-cartesian-axis-tick]:text-xs [&_.recharts-yAxis_.recharts-cartesian-axis-tick]:text-xs [&_.recharts-yAxis_.recharts-cartesian-axis-tick]:text-[11px] [&_.recharts-yAxis_.recharts-cartesian-axis-tick]:leading-none [&_.recharts-xAxis_.recharts-cartesian-axis-tick]:text-[11px] [&_.recharts-xAxis_.recharts-cartesian-axis-tick]:leading-none"
+                />
+              )}
+            </div>
+            <div className="flex flex-col items-start space-y-2 text-xs bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 w-fit mt-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-red-600 rounded-full"></div>
+                <span className="text-muted-foreground">
+                  Total Liability Amount
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recent Liability Changes */}
+      {recentChanges.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Calendar className="h-5 w-5 text-blue-600" />
+              <span>Recent Liability Changes</span>
+            </CardTitle>
+            <CardDescription>
+              Latest updates to your liability amounts
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {recentChanges.slice(0, 8).map((change) => {
+                const liability = liabilities.find(
+                  (l) => l.id === change.liabilityId
+                );
+                if (!liability) return null;
+
+                // Calculate change from previous amount
+                const previousAmount = liability.amount;
+                const changeAmount = change.amount - previousAmount;
+                const changePercentage =
+                  previousAmount > 0
+                    ? (changeAmount / previousAmount) * 100
+                    : 0;
+                const isIncrease = changeAmount > 0;
+
+                return (
+                  <div
+                    key={`${change.liabilityId}-${change.createdAt}`}
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          isIncrease
+                            ? "bg-red-100 dark:bg-red-900/20"
+                            : "bg-green-100 dark:bg-green-900/20"
+                        }`}
+                      >
+                        {isIncrease ? (
+                          <CircleArrowUp className="h-4 w-4 text-red-600" />
+                        ) : (
+                          <CircleArrowDown className="h-4 w-4 text-green-600" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">{liability.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {liability.category} •{" "}
+                          {new Date(change.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div
+                        className={`text-sm font-semibold ${
+                          isIncrease ? "text-red-600" : "text-green-600"
+                        }`}
+                      >
+                        {isIncrease ? "+" : ""}
+                        {formatCurrency(changeAmount)}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {isIncrease ? "+" : ""}
+                        {changePercentage.toFixed(1)}%
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {formatCurrency(change.amount)}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Alerts and Warnings */}
       {(insights.highInterestLiabilities.length > 0 ||

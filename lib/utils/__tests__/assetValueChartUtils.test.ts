@@ -1,0 +1,160 @@
+import {
+  processAssetValueHistoryForChart,
+  getQuarterYearSummary,
+  filterChartDataByQuarterYear,
+} from "../assetValueChartUtils";
+import { AssetValueHistoryEntry } from "@/lib/types";
+
+// Sample test data
+const sampleHistory: AssetValueHistoryEntry[] = [
+  {
+    value: 10000,
+    createdAt: "2024-01-15T10:00:00Z", // Q1 2024
+  },
+  {
+    value: 10500,
+    createdAt: "2024-03-20T10:00:00Z", // Q1 2024
+  },
+  {
+    value: 11200,
+    createdAt: "2024-06-10T10:00:00Z", // Q2 2024
+  },
+  {
+    value: 10800,
+    createdAt: "2024-09-05T10:00:00Z", // Q3 2024
+  },
+  {
+    value: 12000,
+    createdAt: "2024-12-15T10:00:00Z", // Q4 2024
+  },
+  {
+    value: 12500,
+    createdAt: "2025-02-10T10:00:00Z", // Q1 2025
+  },
+];
+
+describe("Asset Value Chart Utils", () => {
+  describe("processAssetValueHistoryForChart", () => {
+    it("should process history data with quarter and year information", () => {
+      const result = processAssetValueHistoryForChart(sampleHistory);
+
+      expect(result).toHaveLength(6);
+
+      // Check first entry (Q1 2024)
+      expect(result[0]).toMatchObject({
+        value: 10000,
+        quarter: 1,
+        year: 2024,
+        quarterName: "Q1",
+        fullQuarter: "Q1 2024",
+      });
+
+      // Check Q2 2024 entry
+      expect(result[2]).toMatchObject({
+        value: 11200,
+        quarter: 2,
+        year: 2024,
+        quarterName: "Q2",
+        fullQuarter: "Q2 2024",
+      });
+
+      // Check Q1 2025 entry
+      expect(result[5]).toMatchObject({
+        value: 12500,
+        quarter: 1,
+        year: 2025,
+        quarterName: "Q1",
+        fullQuarter: "Q1 2025",
+      });
+    });
+
+    it("should handle empty history", () => {
+      const result = processAssetValueHistoryForChart([]);
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("getQuarterYearSummary", () => {
+    it("should return correct quarter and year summary", () => {
+      const chartData = processAssetValueHistoryForChart(sampleHistory);
+      const summary = getQuarterYearSummary(chartData);
+
+      expect(summary.quarters).toEqual([
+        "Q1 2024",
+        "Q2 2024",
+        "Q3 2024",
+        "Q4 2024",
+        "Q1 2025",
+      ]);
+      expect(summary.years).toEqual([2024, 2025]);
+      expect(summary.totalQuarters).toBe(5);
+      expect(summary.totalYears).toBe(2);
+    });
+
+    it("should handle empty data", () => {
+      const summary = getQuarterYearSummary([]);
+      expect(summary).toEqual({
+        quarters: [],
+        years: [],
+        totalQuarters: 0,
+        totalYears: 0,
+      });
+    });
+  });
+
+  describe("filterChartDataByQuarterYear", () => {
+    it("should filter by quarter", () => {
+      const chartData = processAssetValueHistoryForChart(sampleHistory);
+      const q1Data = filterChartDataByQuarterYear(chartData, 1);
+
+      expect(q1Data).toHaveLength(2); // Q1 2024 and Q1 2025
+      expect(q1Data.every((data) => data.quarter === 1)).toBe(true);
+    });
+
+    it("should filter by year", () => {
+      const chartData = processAssetValueHistoryForChart(sampleHistory);
+      const year2024Data = filterChartDataByQuarterYear(
+        chartData,
+        undefined,
+        2024
+      );
+
+      expect(year2024Data).toHaveLength(5); // All 2024 entries
+      expect(year2024Data.every((data) => data.year === 2024)).toBe(true);
+    });
+
+    it("should filter by both quarter and year", () => {
+      const chartData = processAssetValueHistoryForChart(sampleHistory);
+      const q1_2024Data = filterChartDataByQuarterYear(chartData, 1, 2024);
+
+      expect(q1_2024Data).toHaveLength(2); // Q1 2024 entries
+      expect(
+        q1_2024Data.every((data) => data.quarter === 1 && data.year === 2024)
+      ).toBe(true);
+    });
+  });
+});
+
+// Example usage function for demonstration
+export function demonstrateAssetValueChartFunctionality() {
+  console.log("=== Asset Value Chart Functionality Demo ===");
+
+  const chartData = processAssetValueHistoryForChart(sampleHistory);
+  console.log("Processed Chart Data:", chartData);
+
+  const summary = getQuarterYearSummary(chartData);
+  console.log("Quarter/Year Summary:", summary);
+
+  const q1Data = filterChartDataByQuarterYear(chartData, 1);
+  console.log("Q1 Data:", q1Data);
+
+  const year2024Data = filterChartDataByQuarterYear(chartData, undefined, 2024);
+  console.log("2024 Data:", year2024Data);
+
+  return {
+    chartData,
+    summary,
+    q1Data,
+    year2024Data,
+  };
+}

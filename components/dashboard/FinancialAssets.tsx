@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
 import {
   MoveRight,
   Building2,
@@ -20,6 +21,11 @@ import {
   Coins,
   Wallet,
 } from "lucide-react";
+import {
+  calculateTotalChange,
+  getCurrentAssetValue,
+  calculateAssetChange,
+} from "@/lib/utils/assetCalculations";
 
 // Asset data structure
 interface Asset {
@@ -27,9 +33,11 @@ interface Asset {
   name: string;
   category: string;
   value: number;
-  currentValue: number;
-  changeAmount: number;
-  changePercentage: number;
+  currentValue?: number;
+  valueHistory: Array<{
+    value: number;
+    createdAt: string;
+  }>;
   institution?: string;
   currency: string;
 }
@@ -72,12 +80,8 @@ export function FinancialAssets({
   totalAssets = 0,
 }: FinancialAssetsProps) {
   // Calculate total change amount and percentage
-  const totalChangeAmount = assets.reduce(
-    (sum, asset) => sum + (asset.changeAmount || 0),
-    0
-  );
-  const totalChangePercentage =
-    totalAssets > 0 ? (totalChangeAmount / totalAssets) * 100 : 0;
+  const { totalChange: totalChangeAmount, totalChangePercentage } =
+    calculateTotalChange(assets);
 
   if (isLoading) {
     return (
@@ -143,10 +147,12 @@ export function FinancialAssets({
               Track your individual financial assets and investments
             </CardDescription>
           </div>
-          <Button className="button-blue-bg">
-            Assets
-            <MoveRight className="h-4 w-4" />
-          </Button>
+          <Link href="/assets">
+            <Button className="button-blue-bg">
+              Assets
+              <MoveRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col min-h-0">
@@ -188,7 +194,10 @@ export function FinancialAssets({
             <ul className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-3 max-h-[280px] overflow-y-auto category-breakdown-scroll space-y-3">
               {assets.map((asset) => {
                 const IconComponent = getAssetIcon(asset.category);
-                const isPositive = (asset.changeAmount || 0) >= 0;
+                const { changeAmount, changePercentage } =
+                  calculateAssetChange(asset);
+                const isPositive = changeAmount >= 0;
+                const currentValue = getCurrentAssetValue(asset);
 
                 return (
                   <li
@@ -212,7 +221,7 @@ export function FinancialAssets({
                     </div>
                     <div className="text-right">
                       <div className={`text-sm font-semibold text-sky-800`}>
-                        ${(asset.currentValue || asset.value).toLocaleString()}
+                        ${currentValue.toLocaleString()}
                       </div>
                       <div
                         className={`text-xs ${
@@ -222,7 +231,7 @@ export function FinancialAssets({
                         }`}
                       >
                         {isPositive ? "+" : ""}
-                        {asset.changePercentage?.toFixed(1) || "0.0"}%
+                        {changePercentage.toFixed(1)}%
                       </div>
                     </div>
                   </li>

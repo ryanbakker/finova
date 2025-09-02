@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LineChart } from "@tremor/react";
+import { AreaChart, LineChart } from "@tremor/react";
 import { CircleArrowUp, CircleArrowDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -26,12 +26,16 @@ export function NetWorthSummary({
 }: NetWorthSummaryProps) {
   const [chartData, setChartData] = useState<NetWorthData[]>([]);
 
+  // Check if there's meaningful data to display
+  const hasData = netWorth > 0 || totalAssets > 0 || totalLiabilities > 0;
+
   // Generate chart data based on current values
   useEffect(() => {
     if (
       netWorth !== undefined &&
       totalAssets !== undefined &&
-      totalLiabilities !== undefined
+      totalLiabilities !== undefined &&
+      hasData
     ) {
       const currentDate = new Date();
       const currentYear = currentDate.getFullYear();
@@ -62,8 +66,30 @@ export function NetWorthSummary({
       }
 
       setChartData(generatedData);
+    } else {
+      setChartData([]);
     }
-  }, [netWorth, totalAssets, totalLiabilities]);
+  }, [netWorth, totalAssets, totalLiabilities, hasData]);
+
+  // Calculate dynamic y-axis width based on data values
+  const calculateYAxisWidth = () => {
+    if (!hasData || chartData.length === 0) return 65;
+
+    const maxValue = Math.max(
+      ...chartData.flatMap((d) => [
+        d.netWorth,
+        d.totalAssets,
+        d.totalLiabilities,
+      ])
+    );
+
+    // Calculate width based on number of digits and formatting
+    const formattedValue = `$${maxValue.toLocaleString()}`;
+    const baseWidth = 65;
+    const additionalWidth = Math.max(0, (formattedValue.length - 8) * 8); // 8px per extra character
+
+    return Math.min(baseWidth + additionalWidth, 120); // Cap at 120px
+  };
 
   // Calculate change from previous quarter (for now using a simple calculation)
   const previousNetWorth = netWorth * 0.95; // Simulate 5% growth
@@ -182,10 +208,6 @@ export function NetWorthSummary({
             {/* Custom Graph Key */}
             <div className="flex flex-col items-start space-y-2 text-xs bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 w-fit">
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-sky-700 dark:invert rounded-full"></div>
-                <span className="text-muted-foreground">Net Worth</span>
-              </div>
-              <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-emerald-700 dark:invert rounded-full"></div>
                 <span className="text-muted-foreground">Total Assets</span>
               </div>
@@ -193,21 +215,25 @@ export function NetWorthSummary({
                 <div className="w-3 h-3 bg-red-700 dark:invert rounded-full"></div>
                 <span className="text-muted-foreground">Total Liabilities</span>
               </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-sky-700 dark:invert rounded-full"></div>
+                <span className="text-muted-foreground">Net Worth</span>
+              </div>
             </div>
           </div>
 
           <div className="flex-1 flex items-center justify-center bg-neutral-50 p-4 rounded-lg border border-neutral-200 dark:invert dark:bg-neutral-100/40">
-            {chartData.length > 0 ? (
-              <LineChart
+            {hasData && chartData.length > 0 ? (
+              <AreaChart
                 data={chartData}
                 index="quarter"
                 categories={["totalAssets", "totalLiabilities", "netWorth"]}
-                colors={["sky", "emerald", "red"]}
+                colors={["emerald", "red", "sky"]}
                 showLegend={false}
                 showGridLines={true}
                 showAnimation={true}
                 curveType="natural"
-                yAxisWidth={65}
+                yAxisWidth={calculateYAxisWidth()}
                 valueFormatter={(value: number) => `$${value.toLocaleString()}`}
                 className="[&_.recharts-xAxis_.recharts-cartesian-axis-tick]:text-xs [&_.recharts-yAxis_.recharts-cartesian-axis-tick]:text-xs [&_.recharts-yAxis_.recharts-cartesian-axis-tick]:text-[11px] [&_.recharts-yAxis_.recharts-cartesian-axis-tick]:leading-none [&_.recharts-xAxis_.recharts-cartesian-axis-tick]:text-[11px] [&_.recharts-xAxis_.recharts-cartesian-axis-tick]:leading-none"
                 customTooltip={({ payload, active }) => {
@@ -253,8 +279,29 @@ export function NetWorthSummary({
                 }}
               />
             ) : (
-              <div className="text-center text-muted-foreground">
-                <p className="text-sm">Chart data loading...</p>
+              <div className="flex flex-col items-center justify-center text-center p-8 bg-white dark:bg-neutral-100 rounded-xl border-2 border-dashed border-neutral-300 dark:border-neutral-400 shadow-sm">
+                <div className="w-16 h-16 bg-neutral-100 dark:bg-neutral-200 rounded-full flex items-center justify-center mb-4">
+                  <svg
+                    className="w-8 h-8 text-neutral-400 dark:text-neutral-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-neutral-700 dark:text-neutral-600 mb-2">
+                  No Financial Data
+                </h3>
+                <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-xs">
+                  Add some assets, liabilities, or transactions to see your net
+                  worth trend over time.
+                </p>
               </div>
             )}
           </div>

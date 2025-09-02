@@ -158,7 +158,7 @@ export function BudgetSnapshot({
         <CardContent>
           <div className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-8">
             <div className="text-center text-muted-foreground">
-              <p className="mb-4">You haven't set up any budgets yet.</p>
+              <p className="mb-4">You haven&apos;t set up any budgets yet.</p>
               <p className="text-sm">
                 Create your first budget to start tracking your spending.
               </p>

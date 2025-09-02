@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
 import { MoveRight } from "lucide-react";
 import { DonutChart } from "@/components/DonutChart";
 import { type AvailableChartColorsKeys } from "@/lib/chartUtils";
@@ -120,10 +121,12 @@ export function CategoryBreakdownChart({
               <CardTitle className="card-title">Category Breakdown</CardTitle>
               <CardDescription>No spending data available</CardDescription>
             </div>
-            <Button className="button-blue-bg">
-              Categories
-              <MoveRight className="h-4 w-4" />
-            </Button>
+            <Link href="/transactions">
+              <Button className="button-blue-bg">
+                Categories
+                <MoveRight className="h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col min-h-0">
@@ -146,10 +149,12 @@ export function CategoryBreakdownChart({
             <CardTitle className="card-title">Category Breakdown</CardTitle>
             <CardDescription>Spending breakdown by category</CardDescription>
           </div>
-          <Button className="button-blue-bg">
-            Categories
-            <MoveRight className="h-4 w-4" />
-          </Button>
+          <Link href="/transactions">
+            <Button className="button-blue-bg">
+              Categories
+              <MoveRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col min-h-0">

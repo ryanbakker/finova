@@ -13,6 +13,8 @@ import {
   LiabilityInsights,
   LiabilityFilters,
   CreateLiabilityDialog,
+  LiabilityDetailsAndHistoryDialog,
+  UpdateLiabilityAmountDialog,
 } from "@/components/liabilities";
 import { useSorting } from "@/hooks/use-sorting";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -26,6 +28,11 @@ function LiabilitiesPage() {
   const [activeTab, setActiveTab] = useState("table");
   const [showFilters, setShowFilters] = useState(false);
   const [tableReady, setTableReady] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [showUpdateAmountDialog, setShowUpdateAmountDialog] = useState(false);
+  const [selectedLiability, setSelectedLiability] = useState<Liability | null>(
+    null
+  );
   const { sortStates, toggleSorting } = useSorting();
   const searchParams = useSearchParams();
   const tableRef = useRef<ReturnType<typeof useReactTable<Liability>> | null>(
@@ -35,6 +42,33 @@ function LiabilitiesPage() {
 
   // Create columns
   const columns = createColumns(sortStates, toggleSorting);
+
+  // Action handlers
+  const handleViewLiability = (liability: Liability) => {
+    setSelectedLiability(liability);
+    setShowDetailsDialog(true);
+  };
+
+  const handleEditLiability = (liability: Liability) => {
+    setSelectedLiability(liability);
+    // You can implement edit functionality here
+  };
+
+  const handleDeleteLiability = (liability: Liability) => {
+    setSelectedLiability(liability);
+    // You can implement delete functionality here
+  };
+
+  // Set global action handlers
+  useEffect(() => {
+    import("./columns").then(({ setGlobalActionHandlers }) => {
+      setGlobalActionHandlers({
+        onView: handleViewLiability,
+        onEdit: handleEditLiability,
+        onDelete: handleDeleteLiability,
+      });
+    });
+  }, []);
 
   // Load liabilities from database
   const loadLiabilities = useCallback(async () => {
@@ -238,6 +272,20 @@ function LiabilitiesPage() {
       </Tabs>
 
       <DashboardFooter />
+
+      {/* Dialogs */}
+      <LiabilityDetailsAndHistoryDialog
+        liability={selectedLiability}
+        isOpen={showDetailsDialog}
+        onClose={() => setShowDetailsDialog(false)}
+      />
+
+      <UpdateLiabilityAmountDialog
+        liability={selectedLiability}
+        isOpen={showUpdateAmountDialog}
+        onClose={() => setShowUpdateAmountDialog(false)}
+        onSuccess={loadLiabilities}
+      />
     </div>
   );
 }

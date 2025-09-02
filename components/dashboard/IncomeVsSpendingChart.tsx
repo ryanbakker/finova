@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AreaChart } from "@tremor/react";
+import Link from "next/link";
 import {
   TrendingUp,
   TrendingDown,
@@ -24,42 +25,78 @@ interface MonthlyData {
   surplus: number;
 }
 
-const exampleData: MonthlyData[] = [
-  { month: "Jan", income: 5200, spending: 4800, surplus: 400 },
-  { month: "Feb", income: 5400, spending: 5100, surplus: 300 },
-  { month: "Mar", income: 5100, spending: 4900, surplus: 200 },
-  { month: "Apr", income: 5800, spending: 5200, surplus: 600 },
-  { month: "May", income: 5600, spending: 5400, surplus: 200 },
-  { month: "Jun", income: 5900, spending: 5100, surplus: 800 },
-  { month: "Jul", income: 6100, spending: 5300, surplus: 800 },
-  { month: "Aug", income: 5800, spending: 5600, surplus: 200 },
-  { month: "Sep", income: 6200, spending: 5400, surplus: 800 },
-  { month: "Oct", income: 6000, spending: 5200, surplus: 800 },
-  { month: "Nov", income: 6400, spending: 5800, surplus: 600 },
-  { month: "Dec", income: 6800, spending: 6200, surplus: 600 },
-];
-
 interface IncomeVsSpendingChartProps {
   isLoading?: boolean;
-  monthlyData?: Array<{ month: string; expenses: number }>;
-  weeklyData?: Array<{ week: string; expenses: number }>;
+  monthlyData?: Array<{
+    month: string;
+    income: number;
+    spending: number;
+    surplus: number;
+  }>;
 }
 
 export function IncomeVsSpendingChart({
   isLoading = false,
   monthlyData,
-  weeklyData,
 }: IncomeVsSpendingChartProps) {
-  // Transform the data to match the expected format
-  const transformedData: MonthlyData[] =
-    monthlyData?.map((item) => ({
-      month: item.month,
-      income: item.expenses * 1.2, // Estimate income as 20% more than expenses
-      spending: item.expenses,
-      surplus: item.expenses * 0.2, // Estimate surplus as 20% of expenses
-    })) || exampleData;
+  // Use real data if available, otherwise show empty state
+  const transformedData: MonthlyData[] = monthlyData || [];
 
-  const currentMonth = transformedData[transformedData.length - 1];
+  // Calculate current month data for summary metrics
+  const currentMonth =
+    transformedData.length > 0
+      ? transformedData[transformedData.length - 1]
+      : null;
+
+  // Calculate dynamic y-axis width based on data values
+  const calculateYAxisWidth = () => {
+    if (!transformedData || transformedData.length === 0) return 65;
+
+    const maxValue = Math.max(
+      ...transformedData.flatMap((d) => [d.income, d.spending, d.surplus])
+    );
+
+    // Calculate width based on number of digits and formatting
+    const formattedValue = `$${maxValue.toLocaleString()}`;
+    const baseWidth = 65;
+    const additionalWidth = Math.max(0, (formattedValue.length - 8) * 8); // 8px per extra character
+
+    return Math.min(baseWidth + additionalWidth, 120); // Cap at 120px
+  };
+
+  // If no data, show empty state
+  if (!isLoading && (!monthlyData || monthlyData.length === 0)) {
+    return (
+      <Card className="flex flex-col h-full container-color !w-full">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="card-title pb-1">
+              Income vs Spending Over Time
+            </CardTitle>
+            <CardDescription>
+              Monthly trends in your income and spending patterns
+            </CardDescription>
+          </div>
+          <Link href="/transactions">
+            <Button className="button-blue-bg">
+              Add Transaction
+              <MoveRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </CardHeader>
+        <CardContent className="flex flex-col">
+          <div className="text-center py-12 text-muted-foreground">
+            <CircleDollarSign className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+            <p className="text-lg font-medium mb-2">No transaction data yet</p>
+            <p className="text-sm">
+              Start by adding some transactions to see your income vs spending
+              trends.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -119,10 +156,12 @@ export function IncomeVsSpendingChart({
             Monthly trends in your income and spending patterns
           </CardDescription>
         </div>
-        <Button className="button-blue-bg">
-          Transactions
-          <MoveRight className="h-4 w-4" />
-        </Button>
+        <Link href="/transactions">
+          <Button className="button-blue-bg">
+            Transactions
+            <MoveRight className="h-4 w-4" />
+          </Button>
+        </Link>
       </CardHeader>
       <CardContent className="flex flex-col">
         {/* Summary Metrics */}
@@ -132,7 +171,7 @@ export function IncomeVsSpendingChart({
               <TrendingUp className="h-4 w-4 text-green-600 dark:text-pink-500" />
             </div>
             <div className="text-lg font-bold text-green-600 dark:text-pink-500">
-              ${currentMonth.income.toLocaleString()}
+              ${currentMonth?.income.toLocaleString()}
             </div>
             <div className="text-xs text-muted-foreground dark:text-pink-700">
               Income this month
@@ -144,7 +183,7 @@ export function IncomeVsSpendingChart({
               <TrendingDown className="h-4 w-4 text-red-600 dark:text-cyan-700" />
             </div>
             <div className="text-lg font-bold text-red-600 dark:text-cyan-500">
-              ${currentMonth.spending.toLocaleString()}
+              ${currentMonth?.spending.toLocaleString()}
             </div>
             <div className="text-xs text-muted-foreground dark:text-cyan-700">
               Spending this month
@@ -156,7 +195,8 @@ export function IncomeVsSpendingChart({
               <CircleDollarSign className="h-4 w-4 text-sky-600 dark:text-amber-600" />
             </div>
             <div className="text-lg font-bold text-sky-600 dark:text-amber-500">
-              ${(currentMonth.income - currentMonth.spending).toLocaleString()}
+              $
+              {(currentMonth?.income - currentMonth?.spending).toLocaleString()}
             </div>
             <div className="text-xs text-muted-foreground dark:text-amber-700">
               Surplus this month
@@ -170,19 +210,20 @@ export function IncomeVsSpendingChart({
             data={transformedData}
             index="month"
             categories={["income", "spending", "surplus"]}
-            colors={["emerald", "red", "sky"]}
+            colors={["emerald", "rose", "sky"]}
             showLegend={false}
             showGridLines={true}
             showAnimation={true}
             valueFormatter={(value) => `$${value.toLocaleString()}`}
             curveType="monotone"
+            yAxisWidth={calculateYAxisWidth()}
             className="w-full max-h-[400px] flex-1"
             customTooltip={({ payload, active }) => {
               if (active && payload && payload.length) {
                 const colorMap = {
                   income: "#047857", // emerald-700
-                  spending: "#b91c1c", // red-700
-                  surplus: "#3b82f6", // blue-700
+                  spending: "#be185d", // rose-700
+                  surplus: "#3b82f6", // sky-700
                 };
 
                 return (

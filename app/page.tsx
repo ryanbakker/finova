@@ -29,10 +29,14 @@ import {
 import { useUser } from "@clerk/nextjs";
 import { FileText, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   getDashboardData,
   DashboardData,
 } from "@/lib/services/dashboard.service";
+import { CreateTransactionDialog } from "@/components/transactions/CreateTransactionDialog";
+import { ContributionDialog } from "@/components/dashboard/ContributionDialog";
+import { sampleAccounts, sampleCategories } from "@/lib/data/sample-data";
 
 function DashboardContent({
   user,
@@ -41,12 +45,28 @@ function DashboardContent({
   user: ReturnType<typeof useUser>["user"];
   isLoaded: boolean;
 }) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
   );
   const [error, setError] = useState<string | null>(null);
   const [showGetStartedNotice, setShowGetStartedNotice] = useState(true);
+  const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
+  const [isContributionDialogOpen, setIsContributionDialogOpen] =
+    useState(false);
+
+  // Function to refresh dashboard data
+  const refreshDashboardData = async () => {
+    try {
+      const data = await getDashboardData();
+      setDashboardData(data);
+      setError(null);
+    } catch (err) {
+      console.error("Error refreshing dashboard data:", err);
+      setError("Failed to refresh dashboard data");
+    }
+  };
 
   // Fetch dashboard data
   useEffect(() => {
@@ -56,6 +76,74 @@ function DashboardContent({
         const data = await getDashboardData();
         setDashboardData(data);
         setError(null);
+
+        // Console log all financial data in an easy-to-understand format
+        console.log("🏦 FINOVA FINANCIAL DATA OVERVIEW", {
+          "💰 Financial Metrics": {
+            "Total Income (This Month)": `$${data.metrics.totalIncome.toLocaleString()}`,
+            "Total Expenses (This Month)": `$${data.metrics.totalExpenses.toLocaleString()}`,
+            "Savings Contributions (This Month)": `$${data.metrics.savings.toLocaleString()}`,
+            "Remaining (This Month)": `$${data.metrics.netIncome.toLocaleString()}`,
+            "Net Worth": `$${data.metrics.netWorth.toLocaleString()}`,
+            "Total Assets": `$${data.metrics.totalAssets.toLocaleString()}`,
+            "Total Liabilities": `$${data.metrics.totalLiabilities.toLocaleString()}`,
+          },
+          "💳 Recent Transactions": data.recentTransactions.map((t) => ({
+            Description: t.title,
+            Amount: `${
+              t.type === "income" ? "+" : "-"
+            }$${t.amount.toLocaleString()}`,
+            Type: t.type,
+            Date: t.time,
+          })),
+          "📅 Upcoming Bills": data.upcomingBills.map((bill) => ({
+            "Bill Name": bill.name,
+            Amount: `$${bill.amount.toLocaleString()}`,
+            "Due Date": bill.dueDate,
+          })),
+          "📊 Budget Progress": data.budgetProgress.map((budget) => ({
+            Category: budget.category,
+            Budgeted: `$${budget.budgeted.toLocaleString()}`,
+            Spent: `$${budget.spent.toLocaleString()}`,
+            Remaining: `$${budget.remaining.toLocaleString()}`,
+            Progress: `${budget.percentage.toFixed(1)}%`,
+          })),
+          "🎯 Financial Goals": data.financialGoals.map((goal) => ({
+            "Goal Name": goal.name,
+            "Target Amount": `$${goal.targetAmount.toLocaleString()}`,
+            "Current Amount": `$${goal.currentAmount.toLocaleString()}`,
+            Progress: `${goal.progress.toFixed(1)}%`,
+            "Target Date": new Date(goal.targetDate).toLocaleDateString(),
+            Priority: goal.priority,
+          })),
+          "🏠 Assets": data.assets.map((asset) => ({
+            "Asset Name": asset.name,
+            Type: asset.type,
+            "Current Value": `$${(
+              asset.currentValue ||
+              asset.value ||
+              0
+            ).toLocaleString()}`,
+            "Original Value": `$${(
+              asset.originalValue ||
+              asset.value ||
+              0
+            ).toLocaleString()}`,
+          })),
+          "📈 Category Breakdown (This Month)": data.categoryBreakdown.map(
+            (cat) => ({
+              Category: cat.category,
+              "Amount Spent": `$${cat.amount.toLocaleString()}`,
+            })
+          ),
+          "📊 Monthly Income vs Spending (Last 6 Months)":
+            data.monthlyIncomeSpending.map((month) => ({
+              Month: month.month,
+              Income: `$${month.income.toLocaleString()}`,
+              Spending: `$${month.spending.toLocaleString()}`,
+              Surplus: `$${month.surplus.toLocaleString()}`,
+            })),
+        });
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
         setError("Failed to load dashboard data");
@@ -89,21 +177,24 @@ function DashboardContent({
       title: "Add Transaction",
       description: "Record a new expense or income",
       icon: Plus,
-      action: () => console.log("Add Transaction clicked"),
+      action: () => setIsTransactionDialogOpen(true),
+      disabled: false,
     },
     {
       id: 2,
       title: "Add Contribution",
       description: "Record a new savings or balance contribution",
       icon: Plus,
-      action: () => console.log("Add Contribution clicked"),
+      action: () => setIsContributionDialogOpen(true),
+      disabled: false,
     },
     {
       id: 3,
       title: "Generate Report",
       description: "Use AI to create a report to get financial insights",
       icon: FileText,
-      action: () => console.log("Generate Report clicked"),
+      action: () => router.push("/report"),
+      disabled: true,
     },
   ];
 
@@ -186,7 +277,7 @@ function DashboardContent({
               isLoading={isLoading}
             />
             <MetricCard
-              title="Net Income"
+              title="Remaining"
               value={dashboardData?.metrics.netIncome || 0}
               subtitle="This month"
               dataValueColor="text-sky-600 dark:text-sky-400"
@@ -220,17 +311,40 @@ function DashboardContent({
                     return (
                       <button
                         key={action.id}
-                        onClick={action.action}
-                        className="w-full rounded-lg border transition-colors flex justify-between group cursor-pointer bg-neutral-50 dark:bg-neutral-900"
+                        onClick={action.disabled ? undefined : action.action}
+                        disabled={action.disabled}
+                        className={`w-full rounded-lg border transition-colors flex justify-between group ${
+                          action.disabled
+                            ? "cursor-not-allowed opacity-50 bg-neutral-100 dark:bg-neutral-800"
+                            : "cursor-pointer bg-neutral-50 dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                        }`}
                       >
                         <div className="p-3 text-left">
-                          <div className="font-medium">{action.title}</div>
+                          <div
+                            className={`font-medium ${
+                              action.disabled ? "text-muted-foreground" : ""
+                            }`}
+                          >
+                            {action.title}
+                          </div>
                           <div className="text-xs text-muted-foreground">
                             {action.description}
                           </div>
                         </div>
-                        <div className="flex items-center justify-center border-l px-3 bg-neutral-50 group-hover:bg-sky-50 rounded-r-lg dark:bg-neutral-900 dark:group-hover:bg-sky-950 transition-colors">
-                          <IconComponent className="w-5 h-5 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors" />
+                        <div
+                          className={`flex items-center justify-center border-l px-3 rounded-r-lg transition-colors ${
+                            action.disabled
+                              ? "bg-neutral-100 dark:bg-neutral-800"
+                              : "bg-neutral-50 group-hover:bg-sky-50 dark:bg-neutral-900 dark:group-hover:bg-sky-950"
+                          }`}
+                        >
+                          <IconComponent
+                            className={`w-5 h-5 transition-colors ${
+                              action.disabled
+                                ? "text-muted-foreground"
+                                : "group-hover:text-sky-600 dark:group-hover:text-sky-400"
+                            }`}
+                          />
                         </div>
                       </button>
                     );
@@ -345,8 +459,7 @@ function DashboardContent({
             <div className="w-full lg:col-span-3">
               <IncomeVsSpendingChart
                 isLoading={isLoading}
-                monthlyData={dashboardData?.monthlySpending}
-                weeklyData={dashboardData?.weeklySpending}
+                monthlyData={dashboardData?.monthlyIncomeSpending}
               />
             </div>
           </div>
@@ -388,6 +501,21 @@ function DashboardContent({
           <DashboardFooter />
         </div>
       </main>
+
+      {/* Modal Dialogs */}
+      <CreateTransactionDialog
+        isOpen={isTransactionDialogOpen}
+        onClose={() => setIsTransactionDialogOpen(false)}
+        onSuccess={refreshDashboardData}
+        accounts={sampleAccounts}
+        categories={sampleCategories}
+      />
+
+      <ContributionDialog
+        isOpen={isContributionDialogOpen}
+        onClose={() => setIsContributionDialogOpen(false)}
+        onSuccess={refreshDashboardData}
+      />
     </>
   );
 }
