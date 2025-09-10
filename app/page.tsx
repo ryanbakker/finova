@@ -237,7 +237,7 @@ function DashboardContent({
           </div>
         </div>
       </header>
-      <main className="flex-1 overflow-auto w-full rounded-xl mt-1 pt-5 dark:bg-[#0a0a0a] lg:bg-white shadow-sm">
+      <main className="flex-1 overflow-auto w-full rounded-xl mt-2 dark:bg-[#0a0a0a] lg:bg-white shadow-sm">
         <div className="space-y-6 page-content">
           <div className="mx-auto">
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
