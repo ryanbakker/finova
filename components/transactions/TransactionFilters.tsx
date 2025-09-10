@@ -3,7 +3,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DateRangePicker } from "@/components/ui/date-picker";
+import {
+  DateRangePicker,
+  type DateRange,
+  type DateRangePreset,
+} from "@/components/ui/date-range-picker";
 import {
   Search,
   Filter,
@@ -26,6 +30,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  subDays,
+  subMonths,
+  startOfMonth,
+  endOfMonth,
+  startOfYear,
+  endOfYear,
+} from "date-fns";
 
 interface TransactionFiltersProps {
   accounts: Account[];
@@ -52,6 +64,59 @@ export function TransactionFilters({
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Date range presets
+  const dateRangePresets: DateRangePreset[] = [
+    {
+      label: "Today",
+      dateRange: {
+        from: new Date(),
+        to: new Date(),
+      },
+    },
+    {
+      label: "Yesterday",
+      dateRange: {
+        from: subDays(new Date(), 1),
+        to: subDays(new Date(), 1),
+      },
+    },
+    {
+      label: "Last 7 days",
+      dateRange: {
+        from: subDays(new Date(), 7),
+        to: new Date(),
+      },
+    },
+    {
+      label: "Last 30 days",
+      dateRange: {
+        from: subDays(new Date(), 30),
+        to: new Date(),
+      },
+    },
+    {
+      label: "This month",
+      dateRange: {
+        from: startOfMonth(new Date()),
+        to: endOfMonth(new Date()),
+      },
+    },
+    {
+      label: "Last month",
+      dateRange: {
+        from: startOfMonth(subMonths(new Date(), 1)),
+        to: endOfMonth(subMonths(new Date(), 1)),
+      },
+    },
+    {
+      label: "This year",
+      dateRange: {
+        from: startOfYear(new Date()),
+        to: endOfYear(new Date()),
+      },
+    },
+  ];
+
   // Get current values from URL search params
   const descriptionFilter = searchParams.get("description") || "";
   const dateFrom = searchParams.get("dateFrom");
@@ -61,10 +126,11 @@ export function TransactionFilters({
   const selectedType = searchParams.get("type") || "all";
 
   // Local state for debounced search
-  const [localDescriptionFilter, setLocalDescriptionFilter] = useState(descriptionFilter);
+  const [localDescriptionFilter, setLocalDescriptionFilter] =
+    useState(descriptionFilter);
 
   // Parse date range from URL params
-  const dateRange =
+  const dateRange: DateRange | undefined =
     dateFrom && dateTo
       ? { from: new Date(dateFrom), to: new Date(dateTo) }
       : undefined;
@@ -159,14 +225,14 @@ export function TransactionFilters({
   return (
     <div className="space-y-4">
       {/* Basic Search Bar */}
-      <div className="flex items-center space-x-2">
+      <div className="flex gap-3 md:gap-0 md:items-center md:space-x-2 flex-col md:flex-row">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-2.5 md:top-3 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search transactions by description..."
             value={localDescriptionFilter}
             onChange={(e) => handleDescriptionChange(e.target.value)}
-            className="pl-10"
+            className="pl-10 placeholder:text-sm md:placeholder:text-base"
           />
         </div>
         <Button
@@ -238,10 +304,11 @@ export function TransactionFilters({
               Date Range
             </label>
             <DateRangePicker
+              presets={dateRangePresets}
               value={dateRange}
               onChange={(range) => {
                 // Update the URL with the new date range
-                if (range) {
+                if (range && range.from && range.to) {
                   updateURL({
                     dateFrom: range.from.toISOString().split("T")[0],
                     dateTo: range.to.toISOString().split("T")[0],
@@ -254,7 +321,6 @@ export function TransactionFilters({
                 }
               }}
               placeholder="Select date range"
-              name="date"
               className="shadow-sm cursor-pointer"
             />
           </div>
@@ -430,7 +496,7 @@ export function TransactionFilters({
               Description: {descriptionFilter}
             </span>
           )}
-          {dateRange && (
+          {dateRange && dateRange.from && dateRange.to && (
             <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded-full">
               Date: {dateRange.from.toLocaleDateString()} -{" "}
               {dateRange.to.toLocaleDateString()}

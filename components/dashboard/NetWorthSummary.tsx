@@ -1,108 +1,156 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AreaChart, LineChart } from "@tremor/react";
+import { AreaChart } from "@tremor/react";
 import { CircleArrowUp, CircleArrowDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import {
+  getDashboardData,
+  type DashboardData,
+} from "@/lib/services/dashboard.service";
+
+interface NetWorthSummaryProps {
+  className?: string;
+}
 
 interface NetWorthData {
-  quarter: string;
+  month: string;
   netWorth: number;
   totalAssets: number;
   totalLiabilities: number;
 }
 
-interface NetWorthSummaryProps {
-  isLoading?: boolean;
-  netWorth?: number;
-  totalAssets?: number;
-  totalLiabilities?: number;
-}
+export function NetWorthSummary({ className }: NetWorthSummaryProps) {
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null
+  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export function NetWorthSummary({
-  isLoading = false,
-  netWorth = 0,
-  totalAssets = 0,
-  totalLiabilities = 0,
-}: NetWorthSummaryProps) {
-  const [chartData, setChartData] = useState<NetWorthData[]>([]);
-
-  // Check if there's meaningful data to display
-  const hasData = netWorth > 0 || totalAssets > 0 || totalLiabilities > 0;
-
-  // Generate chart data based on current values
   useEffect(() => {
-    if (
-      netWorth !== undefined &&
-      totalAssets !== undefined &&
-      totalLiabilities !== undefined &&
-      hasData
-    ) {
-      const currentDate = new Date();
-      const currentYear = currentDate.getFullYear();
-      const currentQuarter = Math.floor(currentDate.getMonth() / 3) + 1;
-
-      // Generate data for the last 8 quarters
-      const generatedData: NetWorthData[] = [];
-
-      for (let i = 7; i >= 0; i--) {
-        const quarter = currentQuarter - i;
-        const year = currentYear - Math.floor((i - currentQuarter + 1) / 4);
-        const actualQuarter = ((quarter - 1 + 4) % 4) + 1;
-
-        // Simulate growth over time (you can replace this with actual historical data)
-        const growthFactor = 1 + i * 0.05; // 5% growth per quarter
-        const quarterNetWorth = Math.round(netWorth * growthFactor);
-        const quarterAssets = Math.round(totalAssets * growthFactor);
-        const quarterLiabilities = Math.round(
-          totalLiabilities * (1 + i * 0.02)
-        ); // Liabilities grow slower
-
-        generatedData.push({
-          quarter: `${year} Q${actualQuarter}`,
-          netWorth: quarterNetWorth,
-          totalAssets: quarterAssets,
-          totalLiabilities: quarterLiabilities,
-        });
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await getDashboardData();
+        setDashboardData(data);
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+        setError("Failed to load net worth data");
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      setChartData(generatedData);
-    } else {
-      setChartData([]);
+    fetchData();
+  }, []);
+
+  const {
+    netWorth,
+    totalAssets,
+    totalLiabilities,
+    chartData,
+    hasData,
+    isPositive,
+    changePercentage,
+  } = useMemo(() => {
+    if (!dashboardData) {
+      return {
+        netWorth: 0,
+        totalAssets: 0,
+        totalLiabilities: 0,
+        chartData: [],
+        hasData: false,
+        isPositive: true,
+        changePercentage: 0,
+      };
     }
-  }, [netWorth, totalAssets, totalLiabilities, hasData]);
 
-  // Calculate dynamic y-axis width based on data values
+    const { metrics, netWorthHistory } = dashboardData;
+    const netWorth = metrics.netWorth;
+    const totalAssets = metrics.totalAssets;
+    const totalLiabilities = metrics.totalLiabilities;
+
+    // Calculate change percentage from last month
+    let changePercentage = 0;
+    let isPositive = true;
+
+    if (netWorthHistory.length >= 2) {
+      const current = netWorthHistory[netWorthHistory.length - 1];
+      const previous = netWorthHistory[netWorthHistory.length - 2];
+
+      if (previous.netWorth !== 0) {
+        changePercentage =
+          ((current.netWorth - previous.netWorth) /
+            Math.abs(previous.netWorth)) *
+          100;
+        isPositive = changePercentage >= 0;
+      }
+    }
+
+    // Format chart data for AreaChart
+    const chartData = netWorthHistory.map((entry: NetWorthData) => ({
+      month: entry.month,
+      netWorth: entry.netWorth,
+      totalAssets: entry.totalAssets,
+      totalLiabilities: entry.totalLiabilities,
+    }));
+
+    // Debug: Log the chart data to see what's being passed
+    console.log("Chart data:", chartData);
+
+    const hasData = netWorthHistory.length > 0;
+
+    return {
+      netWorth,
+      totalAssets,
+      totalLiabilities,
+      chartData,
+      hasData,
+      isPositive,
+      changePercentage: Math.abs(changePercentage),
+    };
+  }, [dashboardData]);
+
   const calculateYAxisWidth = () => {
-    if (!hasData || chartData.length === 0) return 65;
+    if (!hasData || chartData.length === 0) return 60;
 
     const maxValue = Math.max(
-      ...chartData.flatMap((d) => [
-        d.netWorth,
-        d.totalAssets,
-        d.totalLiabilities,
-      ])
+      ...chartData.map((d) =>
+        Math.max(d.netWorth, d.totalAssets, d.totalLiabilities)
+      )
     );
 
-    // Calculate width based on number of digits and formatting
     const formattedValue = `$${maxValue.toLocaleString()}`;
-    const baseWidth = 65;
-    const additionalWidth = Math.max(0, (formattedValue.length - 8) * 8); // 8px per extra character
-
-    return Math.min(baseWidth + additionalWidth, 120); // Cap at 120px
+    return Math.max(60, formattedValue.length * 8);
   };
 
-  // Calculate change from previous quarter (for now using a simple calculation)
-  const previousNetWorth = netWorth * 0.95; // Simulate 5% growth
-  const change = netWorth - previousNetWorth;
-  const changePercentage =
-    previousNetWorth > 0
-      ? ((change / previousNetWorth) * 100).toFixed(1)
-      : "0.0";
-  const isPositive = change >= 0;
-
+  if (error) {
+    return (
+      <Card
+        className={`col-span-4 h-full container-color !w-full flex-1 ${
+          className || ""
+        }`}
+      >
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-center h-48">
+            <div className="text-center">
+              <p className="text-red-600 dark:text-red-400 mb-2">
+                Error loading data
+              </p>
+              <p className="text-sm text-muted-foreground">{error}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
   if (isLoading) {
     return (
-      <Card className="col-span-4 h-full container-color !w-full flex-1">
+      <Card
+        className={`col-span-4 h-full container-color !w-full flex-1 ${
+          className || ""
+        }`}
+      >
         <CardContent className="pt-6">
           <div className="flex flex-row gap-8">
             <div className="space-y-6">
@@ -147,7 +195,7 @@ export function NetWorthSummary({
             </div>
 
             <div className="flex-1 flex items-center justify-center bg-neutral-50 p-4 rounded-lg border border-neutral-200 dark:invert dark:bg-neutral-100/40">
-              <Skeleton className="w-full h-48" />
+              <Skeleton className="w-full h-48 dark:bg-neutral-100" />
             </div>
           </div>
         </CardContent>
@@ -156,7 +204,11 @@ export function NetWorthSummary({
   }
 
   return (
-    <Card className="col-span-4 h-full container-color !w-full flex-1">
+    <Card
+      className={`col-span-4 h-full container-color !w-full flex-1 ${
+        className || ""
+      }`}
+    >
       <CardContent className="pt-6">
         <div className="flex flex-row gap-8">
           <div className="space-y-6">
@@ -185,7 +237,7 @@ export function NetWorthSummary({
                   }`}
                 >
                   {isPositive ? "+" : "-"}
-                  {changePercentage}% from last quarter
+                  {changePercentage.toFixed(1)}% from last month
                 </span>
               </div>
             </div>
@@ -226,7 +278,7 @@ export function NetWorthSummary({
             {hasData && chartData.length > 0 ? (
               <AreaChart
                 data={chartData}
-                index="quarter"
+                index="month"
                 categories={["totalAssets", "totalLiabilities", "netWorth"]}
                 colors={["emerald", "red", "sky"]}
                 showLegend={false}
@@ -247,7 +299,7 @@ export function NetWorthSummary({
                     return (
                       <div className="bg-white dark:bg-neutral-100 p-3 border border-gray-200 dark:border-neutral-300 rounded-lg shadow-xl dark:shadow-neutral-100/40 text-xs backdrop-blur-sm">
                         <p className="font-semibold text-gray-900 dark:text-neutral-800 mb-2 pb-2 border-b border-gray-200 dark:border-neutral-300">
-                          {payload[0]?.payload?.quarter}
+                          {payload[0]?.payload?.month}
                         </p>
                         {payload.map((entry, index) => {
                           const categoryColor =

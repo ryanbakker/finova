@@ -4,45 +4,28 @@ import { revalidatePath } from "next/cache";
 import { handleError } from "../utils";
 import { connectToDB } from "@/database/db";
 import Liability from "@/database/models/liability.model";
+import { ValueHistory } from "@/database/models/valueHistory.model";
+import { updateItemValue } from "@/lib/services/networth.service";
 import { auth } from "@clerk/nextjs/server";
 
 declare type CreateLiabilityParams = {
   name: string;
   category: string;
-  amount: number;
-  currency: string;
-  institution?: string;
-  accountNumber?: string;
-  dueDate?: string;
-  interestRate?: number;
-  monthlyPayment?: number;
-  remainingBalance?: number;
-  originalAmount?: number;
-  notes?: string;
-  isActive?: boolean;
+  currentValue: number;
+  description?: string;
 };
 
 declare type UpdateLiabilityParams = {
   name?: string;
   category?: string;
-  amount?: number;
-  currency?: string;
-  institution?: string;
-  accountNumber?: string;
-  dueDate?: string;
-  interestRate?: number;
-  monthlyPayment?: number;
-  remainingBalance?: number;
-  originalAmount?: number;
-  notes?: string;
-  isActive?: boolean;
+  currentValue?: number;
+  description?: string;
 };
 
 export interface UpdateLiabilityAmountParams {
   liabilityId: string;
   newAmount: number;
-  changeReason?: string;
-  changeDate?: string;
+  timestamp?: string;
 }
 
 // Helper function to get authenticated user ID
@@ -59,15 +42,31 @@ export async function createLiability(liability: CreateLiabilityParams) {
     const userId = await getAuthenticatedUserId();
     await connectToDB();
 
-    // Create new liability with user ID
-    const newLiability = await Liability.create({
+    // Sanitize and prepare data
+    const sanitizedData = {
       ...liability,
       userId,
-      // Convert string dates to Date objects if provided
-      dueDate: liability.dueDate ? new Date(liability.dueDate) : undefined,
+      name: liability.name.trim(),
+      category: liability.category.trim(),
+      description: liability.description?.trim(),
+      changeAmount: 0,
+      changePercentage: 0,
+    };
+
+    // Create new liability with user ID
+    const newLiability = await Liability.create(sanitizedData);
+
+    // Create initial value history entry
+    await ValueHistory.create({
+      userId,
+      itemId: newLiability._id.toString(),
+      itemType: "LIABILITY",
+      value: liability.currentValue,
+      timestamp: new Date(),
     });
 
     revalidatePath("/liabilities");
+    revalidatePath("/dashboard");
 
     // Transform MongoDB _id to id for frontend compatibility
     const transformedLiability = {
@@ -326,7 +325,7 @@ export async function updateLiabilityAmount(
     const userId = await getAuthenticatedUserId();
     await connectToDB();
 
-    const { liabilityId, newAmount, changeReason, changeDate } = params;
+    const { liabilityId, newAmount, timestamp } = params;
 
     if (
       !liabilityId ||
@@ -344,63 +343,22 @@ export async function updateLiabilityAmount(
       throw new Error("New amount cannot exceed 999,999,999");
     }
 
-    if (changeReason && changeReason.length > 500) {
-      throw new Error("Change reason cannot exceed 500 characters");
-    }
-
-    // Get the current liability
-    const currentLiability = await Liability.findOne({
-      _id: liabilityId.trim(),
-      userId,
+    // Use the new net worth service to update the value
+    const result = await updateItemValue(userId, {
+      itemId: liabilityId.trim(),
+      itemType: "LIABILITY",
+      newValue: newAmount,
+      timestamp: timestamp ? new Date(timestamp) : undefined,
     });
 
-    if (!currentLiability) {
-      throw new Error("Liability not found or unauthorized");
-    }
-
-    const previousAmount =
-      currentLiability.currentAmount || currentLiability.amount;
-    const changeAmount = newAmount - previousAmount;
-    const changePercentage =
-      previousAmount > 0 ? (changeAmount / previousAmount) * 100 : 0;
-
-    // Update the liability's current amount and add to amount history
-    const updatedLiability = await Liability.findOneAndUpdate(
-      {
-        _id: liabilityId.trim(),
-        userId,
-      },
-      {
-        $set: {
-          currentAmount: newAmount,
-          changeAmount,
-          changePercentage,
-        },
-        $push: {
-          amountHistory: {
-            amount: newAmount,
-            createdAt: changeDate ? new Date(changeDate) : new Date(),
-          },
-        },
-      },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedLiability) {
-      throw new Error("Failed to update liability");
+    if (!result.success) {
+      throw new Error(result.message);
     }
 
     revalidatePath("/liabilities");
     revalidatePath("/dashboard");
 
-    // Transform MongoDB _id to id for frontend compatibility
-    const transformedLiability = {
-      ...updatedLiability.toObject(),
-      id: updatedLiability._id,
-      _id: undefined,
-    };
-
-    return JSON.parse(JSON.stringify(transformedLiability));
+    return { success: true, message: "Liability amount updated successfully" };
   } catch (error) {
     console.error("Error updating liability amount:", error);
     handleError(error);
@@ -429,25 +387,30 @@ export async function getLiabilityAmountHistory(
       throw new Error("Limit must be a number between 1 and 100");
     }
 
-    // Get the liability with amount history
+    // Get the liability to ensure user owns it
     const liability = await Liability.findOne({
       _id: liabilityId.trim(),
       userId,
-    }).lean();
+    });
 
     if (!liability) {
       throw new Error("Liability not found or unauthorized");
     }
 
-    // Get amount history from the liability's amountHistory array
-    const history = (liability.amountHistory || [])
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      )
-      .slice(0, limit);
+    // Get amount history from the ValueHistory collection
+    const valueHistory = await ValueHistory.find({
+      userId,
+      itemId: liabilityId.trim(),
+      itemType: "LIABILITY",
+    })
+      .sort({ timestamp: -1 })
+      .limit(limit)
+      .lean();
 
-    return JSON.parse(JSON.stringify(history));
+    return valueHistory.map((entry) => ({
+      amount: entry.value,
+      createdAt: entry.timestamp.toISOString(),
+    }));
   } catch (error) {
     console.error("Error fetching liability amount history:", error);
     handleError(error);

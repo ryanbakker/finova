@@ -21,25 +21,17 @@ import {
   Coins,
   Wallet,
 } from "lucide-react";
-import {
-  calculateTotalChange,
-  getCurrentAssetValue,
-  calculateAssetChange,
-} from "@/lib/utils/assetCalculations";
+// Remove old utility imports since we now have the data directly
 
 // Asset data structure
 interface Asset {
   id: string;
   name: string;
   category: string;
-  value: number;
-  currentValue?: number;
-  valueHistory: Array<{
-    value: number;
-    createdAt: string;
-  }>;
-  institution?: string;
-  currency: string;
+  currentValue: number;
+  changeAmount: number;
+  changePercentage: number;
+  description?: string;
 }
 
 // Icon mapping for different asset categories
@@ -79,9 +71,13 @@ export function FinancialAssets({
   assets = [],
   totalAssets = 0,
 }: FinancialAssetsProps) {
-  // Calculate total change amount and percentage
-  const { totalChange: totalChangeAmount, totalChangePercentage } =
-    calculateTotalChange(assets);
+  // Calculate total change amount and percentage from the assets' changeAmount fields
+  const totalChangeAmount = assets.reduce(
+    (sum, asset) => sum + asset.changeAmount,
+    0
+  );
+  const totalChangePercentage =
+    totalAssets > 0 ? (totalChangeAmount / totalAssets) * 100 : 0;
 
   if (isLoading) {
     return (
@@ -194,10 +190,9 @@ export function FinancialAssets({
             <ul className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-3 max-h-[280px] overflow-y-auto category-breakdown-scroll space-y-3">
               {assets.map((asset) => {
                 const IconComponent = getAssetIcon(asset.category);
-                const { changeAmount, changePercentage } =
-                  calculateAssetChange(asset);
+                const { changeAmount, changePercentage } = asset;
                 const isPositive = changeAmount >= 0;
-                const currentValue = getCurrentAssetValue(asset);
+                const currentValue = asset.currentValue;
 
                 return (
                   <li
@@ -215,7 +210,7 @@ export function FinancialAssets({
                           {asset.name}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {asset.institution || asset.category}
+                          {asset.description || asset.category}
                         </p>
                       </div>
                     </div>

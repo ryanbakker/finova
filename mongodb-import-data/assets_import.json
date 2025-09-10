@@ -1,0 +1,112 @@
+[
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "name": "Primary Residence",
+    "category": "Real Estate",
+    "currentValue": 485000,
+    "changeAmount": 12500,
+    "changePercentage": 2.65,
+    "description": "3-bedroom, 2-bathroom home in suburban neighborhood",
+    "createdAt": "2024-01-15T00:00:00.000Z",
+    "updatedAt": "2024-12-15T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "name": "401(k) Retirement Account",
+    "category": "Retirement",
+    "currentValue": 127500,
+    "changeAmount": 8500,
+    "changePercentage": 7.14,
+    "description": "Company 401(k) with employer matching",
+    "createdAt": "2024-01-15T00:00:00.000Z",
+    "updatedAt": "2024-12-15T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "name": "Roth IRA",
+    "category": "Retirement",
+    "currentValue": 42000,
+    "changeAmount": 3200,
+    "changePercentage": 8.25,
+    "description": "Personal Roth IRA with diversified investments",
+    "createdAt": "2024-01-15T00:00:00.000Z",
+    "updatedAt": "2024-12-15T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "name": "High-Yield Savings Account",
+    "category": "Cash & Savings",
+    "currentValue": 18500,
+    "changeAmount": 1200,
+    "changePercentage": 6.94,
+    "description": "Emergency fund and short-term savings",
+    "createdAt": "2024-01-15T00:00:00.000Z",
+    "updatedAt": "2024-12-15T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "name": "Checking Account",
+    "category": "Cash & Savings",
+    "currentValue": 4200,
+    "changeAmount": -300,
+    "changePercentage": -6.67,
+    "description": "Primary checking account for monthly expenses",
+    "createdAt": "2024-01-15T00:00:00.000Z",
+    "updatedAt": "2024-12-15T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "name": "Investment Portfolio",
+    "category": "Investments",
+    "currentValue": 68000,
+    "changeAmount": 4200,
+    "changePercentage": 6.59,
+    "description": "Diversified stock and bond portfolio",
+    "createdAt": "2024-01-15T00:00:00.000Z",
+    "updatedAt": "2024-12-15T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "name": "Company Stock Options",
+    "category": "Investments",
+    "currentValue": 15000,
+    "changeAmount": 2500,
+    "changePercentage": 20.00,
+    "description": "Vested stock options from employer",
+    "createdAt": "2024-01-15T00:00:00.000Z",
+    "updatedAt": "2024-12-15T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "name": "2021 Honda Accord",
+    "category": "Vehicles",
+    "currentValue": 18500,
+    "changeAmount": -2500,
+    "changePercentage": -11.90,
+    "description": "Reliable daily driver with low mileage",
+    "createdAt": "2024-01-15T00:00:00.000Z",
+    "updatedAt": "2024-12-15T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "name": "Jewelry & Collectibles",
+    "category": "Personal Property",
+    "currentValue": 8500,
+    "changeAmount": 500,
+    "changePercentage": 6.25,
+    "description": "Wedding ring, watches, and art collection",
+    "createdAt": "2024-01-15T00:00:00.000Z",
+    "updatedAt": "2024-12-15T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "name": "Furniture & Electronics",
+    "category": "Personal Property",
+    "currentValue": 12000,
+    "changeAmount": -800,
+    "changePercentage": -6.25,
+    "description": "Home furniture, electronics, and appliances",
+    "createdAt": "2024-01-15T00:00:00.000Z",
+    "updatedAt": "2024-12-15T00:00:00.000Z"
+  }
+]

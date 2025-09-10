@@ -1,0 +1,122 @@
+[
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "year": 2024,
+    "month": 1,
+    "averageNetWorth": 185800,
+    "averageAssets": 485300,
+    "averageLiabilities": 299500,
+    "createdAt": "2024-01-31T00:00:00.000Z",
+    "updatedAt": "2024-01-31T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "year": 2024,
+    "month": 2,
+    "averageNetWorth": 189500,
+    "averageAssets": 489000,
+    "averageLiabilities": 299500,
+    "createdAt": "2024-02-29T00:00:00.000Z",
+    "updatedAt": "2024-02-29T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "year": 2024,
+    "month": 3,
+    "averageNetWorth": 192200,
+    "averageAssets": 492700,
+    "averageLiabilities": 300500,
+    "createdAt": "2024-03-31T00:00:00.000Z",
+    "updatedAt": "2024-03-31T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "year": 2024,
+    "month": 4,
+    "averageNetWorth": 195500,
+    "averageAssets": 496000,
+    "averageLiabilities": 300500,
+    "createdAt": "2024-04-30T00:00:00.000Z",
+    "updatedAt": "2024-04-30T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "year": 2024,
+    "month": 5,
+    "averageNetWorth": 198800,
+    "averageAssets": 499300,
+    "averageLiabilities": 300500,
+    "createdAt": "2024-05-31T00:00:00.000Z",
+    "updatedAt": "2024-05-31T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "year": 2024,
+    "month": 6,
+    "averageNetWorth": 202000,
+    "averageAssets": 502500,
+    "averageLiabilities": 300500,
+    "createdAt": "2024-06-30T00:00:00.000Z",
+    "updatedAt": "2024-06-30T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "year": 2024,
+    "month": 7,
+    "averageNetWorth": 205300,
+    "averageAssets": 505800,
+    "averageLiabilities": 300500,
+    "createdAt": "2024-07-31T00:00:00.000Z",
+    "updatedAt": "2024-07-31T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "year": 2024,
+    "month": 8,
+    "averageNetWorth": 208600,
+    "averageAssets": 509100,
+    "averageLiabilities": 300500,
+    "createdAt": "2024-08-31T00:00:00.000Z",
+    "updatedAt": "2024-08-31T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "year": 2024,
+    "month": 9,
+    "averageNetWorth": 211900,
+    "averageAssets": 512400,
+    "averageLiabilities": 300500,
+    "createdAt": "2024-09-30T00:00:00.000Z",
+    "updatedAt": "2024-09-30T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "year": 2024,
+    "month": 10,
+    "averageNetWorth": 215200,
+    "averageAssets": 515700,
+    "averageLiabilities": 300500,
+    "createdAt": "2024-10-31T00:00:00.000Z",
+    "updatedAt": "2024-10-31T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "year": 2024,
+    "month": 11,
+    "averageNetWorth": 218500,
+    "averageAssets": 519000,
+    "averageLiabilities": 300500,
+    "createdAt": "2024-11-30T00:00:00.000Z",
+    "updatedAt": "2024-11-30T00:00:00.000Z"
+  },
+  {
+    "userId": "user_317JhAMz9mFHHN9PGLuY6CMHC4V",
+    "year": 2024,
+    "month": 12,
+    "averageNetWorth": 200000,
+    "averageAssets": 485000,
+    "averageLiabilities": 285000,
+    "createdAt": "2024-12-31T00:00:00.000Z",
+    "updatedAt": "2024-12-31T00:00:00.000Z"
+  }
+]

@@ -228,7 +228,7 @@ export default function BudgetingPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 page-content">
         <BudgetPageSkeleton />
         <DashboardFooter />
       </div>
@@ -236,9 +236,9 @@ export default function BudgetingPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 page-content">
       {/* Header */}
-      <div className="flex items-end justify-between">
+      <div className="flex gap-5 md:gap-0 justify-between flex-col md:flex-row md:items-end">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Budgeting</h1>
           <p className="text-muted-foreground">

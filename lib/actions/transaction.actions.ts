@@ -127,7 +127,7 @@ export async function getUserTransactions() {
     await connectToDB();
 
     const transactions = await Transaction.find({ userId })
-      .sort({ date: -1 })
+      .sort({ date: -1, createdAt: -1 })
       .lean();
 
     // Transform MongoDB _id to id for frontend compatibility

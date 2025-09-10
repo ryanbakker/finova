@@ -25,13 +25,20 @@ interface TransactionDetailsDialogProps {
   onClose: () => void;
 }
 
-// Helper function to format date to desired format
-const formatDate = (dateString: string): string => {
+// Helper function to format date and time together
+const formatDateTime = (dateString: string): string => {
   const date = new Date(dateString);
   const day = date.getDate().toString().padStart(2, "0");
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const year = date.getFullYear().toString().slice(-2);
-  return `${day}/${month}/${year}`;
+
+  // Format time in 12-hour format with AM/PM
+  const hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  const displayHours = hours % 12 || 12; // Convert to 12-hour format
+
+  return `${day}/${month}/${year} at ${displayHours}:${minutes} ${ampm}`;
 };
 
 // Helper function to format amount
@@ -61,7 +68,11 @@ export function TransactionDetailsDialog({
       customValue: (
         <span
           className={`text-lg font-bold ${
-            transaction.amount >= 0 ? "text-green-600" : "text-red-600"
+            transaction.type === "transfer"
+              ? "text-blue-600 dark:text-blue-400"
+              : transaction.amount >= 0
+              ? "text-green-600 dark:text-green-400"
+              : "text-red-600 dark:text-red-400"
           }`}
         >
           {formatAmount(transaction.amount)}
@@ -77,10 +88,10 @@ export function TransactionDetailsDialog({
       show: true,
     },
     {
-      key: "date",
-      label: "Date",
+      key: "dateTime",
+      label: "Date & Time",
       icon: Calendar,
-      value: formatDate(transaction.date),
+      value: formatDateTime(transaction.date),
       show: true,
     },
     {

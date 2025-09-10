@@ -2,6 +2,7 @@
 
 import { DashboardFooter } from "@/components/DashboardFooter";
 import { Button } from "@/components/ui/button";
+
 import { Transaction } from "@/lib/types";
 import { Plus } from "lucide-react";
 import { DataTable } from "./data-table";
@@ -15,10 +16,12 @@ import { EditTransactionDialog } from "@/components/transactions/EditTransaction
 import { DeleteTransactionDialog } from "@/components/transactions/DeleteTransactionDialog";
 import { TransactionDetailsDialog } from "@/components/transactions/TransactionDetailsDialog";
 import { toast } from "@/components/ui/use-toast";
-import { sampleAccounts, sampleCategories } from "@/lib/data/sample-data";
+import { Account, Category } from "@/lib/types";
 
 function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -31,6 +34,42 @@ function TransactionsPage() {
   // Create columns
   const columns = createColumns(sortStates, toggleSorting);
 
+  // Extract unique accounts and categories from transactions
+  const extractAccountsAndCategories = (transactions: Transaction[]) => {
+    const accountMap = new Map<string, Account>();
+    const categoryMap = new Map<string, Category>();
+
+    transactions.forEach((transaction) => {
+      // Extract account information
+      if (transaction.accountId && transaction.accountName) {
+        accountMap.set(transaction.accountId, {
+          id: transaction.accountId,
+          name: transaction.accountName,
+          type: "checking", // Default type since we don't store this in transactions
+          balance: 0, // We don't track balance in transactions
+          currency: "AUD", // Default currency
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      }
+
+      // Extract category information
+      if (transaction.category) {
+        categoryMap.set(transaction.category.id, {
+          id: transaction.category.id,
+          name: transaction.category.name,
+          icon: transaction.category.icon,
+        });
+      }
+    });
+
+    return {
+      accounts: Array.from(accountMap.values()),
+      categories: Array.from(categoryMap.values()),
+    };
+  };
+
   // Load transactions from database
   useEffect(() => {
     const loadTransactions = async () => {
@@ -39,6 +78,12 @@ function TransactionsPage() {
         const data = await getUserTransactions();
         // Always set transactions, even if it's an empty array
         setTransactions(data || []);
+
+        // Extract accounts and categories from transactions
+        const { accounts: extractedAccounts, categories: extractedCategories } =
+          extractAccountsAndCategories(data || []);
+        setAccounts(extractedAccounts);
+        setCategories(extractedCategories);
       } catch (error) {
         console.error("Error loading transactions:", error);
         toast({
@@ -48,6 +93,8 @@ function TransactionsPage() {
         });
         // Set empty array on error to prevent infinite loading
         setTransactions([]);
+        setAccounts([]);
+        setCategories([]);
       } finally {
         setIsLoading(false);
       }
@@ -63,9 +110,17 @@ function TransactionsPage() {
       try {
         const data = await getUserTransactions();
         setTransactions(data || []);
+
+        // Extract accounts and categories from transactions
+        const { accounts: extractedAccounts, categories: extractedCategories } =
+          extractAccountsAndCategories(data || []);
+        setAccounts(extractedAccounts);
+        setCategories(extractedCategories);
       } catch (error) {
         console.error("Error reloading transactions:", error);
         setTransactions([]);
+        setAccounts([]);
+        setCategories([]);
       }
     };
     loadTransactions();
@@ -77,9 +132,17 @@ function TransactionsPage() {
       try {
         const data = await getUserTransactions();
         setTransactions(data || []);
+
+        // Extract accounts and categories from transactions
+        const { accounts: extractedAccounts, categories: extractedCategories } =
+          extractAccountsAndCategories(data || []);
+        setAccounts(extractedAccounts);
+        setCategories(extractedCategories);
       } catch (error) {
         console.error("Error reloading transactions:", error);
         setTransactions([]);
+        setAccounts([]);
+        setCategories([]);
       }
     };
     loadTransactions();
@@ -91,9 +154,17 @@ function TransactionsPage() {
       try {
         const data = await getUserTransactions();
         setTransactions(data || []);
+
+        // Extract accounts and categories from transactions
+        const { accounts: extractedAccounts, categories: extractedCategories } =
+          extractAccountsAndCategories(data || []);
+        setAccounts(extractedAccounts);
+        setCategories(extractedCategories);
       } catch (error) {
         console.error("Error reloading transactions:", error);
         setTransactions([]);
+        setAccounts([]);
+        setCategories([]);
       }
     };
     loadTransactions();
@@ -131,8 +202,8 @@ function TransactionsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-end justify-between">
+    <div className="space-y-6 page-content">
+      <div className="flex gap-5 md:gap-0 justify-between flex-col md:flex-row md:items-end">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
           <p className="text-muted-foreground">
@@ -206,8 +277,8 @@ function TransactionsPage() {
         isOpen={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
         onSuccess={handleCreateSuccess}
-        accounts={sampleAccounts}
-        categories={sampleCategories}
+        accounts={accounts}
+        categories={categories}
       />
 
       <EditTransactionDialog
@@ -215,8 +286,8 @@ function TransactionsPage() {
         isOpen={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}
         onSuccess={handleEditSuccess}
-        accounts={sampleAccounts}
-        categories={sampleCategories}
+        accounts={accounts}
+        categories={categories}
       />
 
       <DeleteTransactionDialog

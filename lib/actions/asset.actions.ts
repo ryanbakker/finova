@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { connectToDB } from "@/database/db";
 import { Asset } from "@/database/models/asset.model";
+import { ValueHistory } from "@/database/models/valueHistory.model";
+import { updateItemValue } from "@/lib/services/networth.service";
 import { auth } from "@clerk/nextjs/server";
 import { handleError } from "../utils";
 
@@ -10,16 +12,8 @@ import { handleError } from "../utils";
 export interface CreateAssetParams {
   name: string;
   category: string;
-  value: number;
-  currency: string;
-  institution?: string;
-  accountNumber?: string;
-  purchaseDate?: string;
-  currentValue?: number;
-  changeAmount?: number;
-  changePercentage?: number;
-  notes?: string;
-  isActive?: boolean;
+  currentValue: number;
+  description?: string;
 }
 
 export interface UpdateAssetParams extends Partial<CreateAssetParams> {
@@ -29,8 +23,7 @@ export interface UpdateAssetParams extends Partial<CreateAssetParams> {
 export interface UpdateAssetValueParams {
   assetId: string;
   newValue: number;
-  changeReason?: string;
-  changeDate?: string;
+  timestamp?: string;
 }
 
 // Enhanced validation function
@@ -46,41 +39,18 @@ function validateAssetData(
   }
 
   if (
-    data.value !== undefined &&
-    (typeof data.value !== "number" || data.value < 0)
-  ) {
-    throw new Error("Asset value must be a non-negative number");
-  }
-
-  if (data.value !== undefined && data.value > 999999999) {
-    throw new Error("Asset value cannot exceed 999,999,999");
-  }
-
-  if (
     data.currentValue !== undefined &&
     (typeof data.currentValue !== "number" || data.currentValue < 0)
   ) {
     throw new Error("Current value must be a non-negative number");
   }
 
-  if (
-    data.changeAmount !== undefined &&
-    (typeof data.changeAmount !== "number" || data.changeAmount < -999999999)
-  ) {
-    throw new Error("Change amount cannot be less than -999,999,999");
+  if (data.currentValue !== undefined && data.currentValue > 999999999) {
+    throw new Error("Current value cannot exceed 999,999,999");
   }
 
-  if (
-    data.changePercentage !== undefined &&
-    (typeof data.changePercentage !== "number" ||
-      data.changePercentage < -100 ||
-      data.changePercentage > 1000)
-  ) {
-    throw new Error("Change percentage must be between -100% and 1000%");
-  }
-
-  if (data.notes && data.notes.length > 1000) {
-    throw new Error("Notes cannot exceed 1000 characters");
+  if (data.description && data.description.length > 1000) {
+    throw new Error("Description cannot exceed 1000 characters");
   }
 }
 
@@ -104,16 +74,21 @@ export async function createAsset(assetData: CreateAssetParams) {
       userId,
       name: assetData.name.trim(),
       category: assetData.category.trim(),
-      institution: assetData.institution?.trim(),
-      accountNumber: assetData.accountNumber?.trim(),
-      notes: assetData.notes?.trim(),
-      currentValue: assetData.currentValue || assetData.value,
-      changeAmount: assetData.changeAmount || 0,
-      changePercentage: assetData.changePercentage || 0,
-      isActive: assetData.isActive !== undefined ? assetData.isActive : true,
+      description: assetData.description?.trim(),
+      changeAmount: 0,
+      changePercentage: 0,
     };
 
     const newAsset = await Asset.create(sanitizedData);
+
+    // Create initial value history entry
+    await ValueHistory.create({
+      userId,
+      itemId: newAsset._id.toString(),
+      itemType: "ASSET",
+      value: assetData.currentValue,
+      timestamp: new Date(),
+    });
 
     revalidatePath("/assets");
     revalidatePath("/dashboard");
@@ -551,7 +526,7 @@ export async function updateAssetValue(params: UpdateAssetValueParams) {
       throw new Error("Unauthorized: User not authenticated");
     }
 
-    const { assetId, newValue, changeReason, changeDate } = params;
+    const { assetId, newValue, timestamp } = params;
 
     if (
       !assetId ||
@@ -569,65 +544,22 @@ export async function updateAssetValue(params: UpdateAssetValueParams) {
       throw new Error("New value cannot exceed 999,999,999");
     }
 
-    if (changeReason && changeReason.length > 500) {
-      throw new Error("Change reason cannot exceed 500 characters");
-    }
-
-    await connectToDB();
-
-    // Get the current asset
-    const currentAsset = await Asset.findOne({
-      _id: assetId.trim(),
-      userId,
+    // Use the new net worth service to update the value
+    const result = await updateItemValue(userId, {
+      itemId: assetId.trim(),
+      itemType: "ASSET",
+      newValue,
+      timestamp: timestamp ? new Date(timestamp) : undefined,
     });
 
-    if (!currentAsset) {
-      throw new Error("Asset not found or unauthorized");
-    }
-
-    const previousValue = currentAsset.currentValue || currentAsset.value;
-    const changeAmount = newValue - previousValue;
-    const changePercentage =
-      previousValue > 0 ? (changeAmount / previousValue) * 100 : 0;
-
-    // Start a transaction to ensure both operations succeed or fail together
-    // Update the asset's current value and add to value history
-    const updatedAsset = await Asset.findOneAndUpdate(
-      {
-        _id: assetId.trim(),
-        userId,
-      },
-      {
-        $set: {
-          currentValue: newValue,
-          changeAmount,
-          changePercentage,
-        },
-        $push: {
-          valueHistory: {
-            value: newValue,
-            createdAt: changeDate ? new Date(changeDate) : new Date(),
-          },
-        },
-      },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedAsset) {
-      throw new Error("Failed to update asset");
+    if (!result.success) {
+      throw new Error(result.message);
     }
 
     revalidatePath("/assets");
     revalidatePath("/dashboard");
 
-    // Transform MongoDB _id to id for frontend compatibility
-    const transformedAsset = {
-      ...updatedAsset.toObject(),
-      id: updatedAsset._id,
-      _id: undefined,
-    };
-
-    return JSON.parse(JSON.stringify(transformedAsset));
+    return { success: true, message: "Asset value updated successfully" };
   } catch (error) {
     console.error("Error updating asset value:", error);
     handleError(error);
@@ -661,25 +593,30 @@ export async function getAssetValueHistory(
 
     await connectToDB();
 
-    // Get the asset with value history
+    // Get the asset to ensure user owns it
     const asset = await Asset.findOne({
       _id: assetId.trim(),
       userId,
-    }).lean();
+    });
 
     if (!asset) {
       throw new Error("Asset not found or unauthorized");
     }
 
-    // Get value history from the asset's valueHistory array
-    const history = (asset.valueHistory || [])
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      )
-      .slice(0, limit);
+    // Get value history from the ValueHistory collection
+    const valueHistory = await ValueHistory.find({
+      userId,
+      itemId: assetId.trim(),
+      itemType: "ASSET",
+    })
+      .sort({ timestamp: -1 })
+      .limit(limit)
+      .lean();
 
-    return JSON.parse(JSON.stringify(history));
+    return valueHistory.map((entry) => ({
+      value: entry.value,
+      createdAt: entry.timestamp.toISOString(),
+    }));
   } catch (error) {
     console.error("Error fetching asset value history:", error);
     handleError(error);

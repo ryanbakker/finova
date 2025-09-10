@@ -36,7 +36,8 @@ import {
 } from "@/lib/services/dashboard.service";
 import { CreateTransactionDialog } from "@/components/transactions/CreateTransactionDialog";
 import { ContributionDialog } from "@/components/dashboard/ContributionDialog";
-import { sampleAccounts, sampleCategories } from "@/lib/data/sample-data";
+import { Account, Category } from "@/lib/types";
+import Image from "next/image";
 
 function DashboardContent({
   user,
@@ -50,17 +51,63 @@ function DashboardContent({
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
   );
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showGetStartedNotice, setShowGetStartedNotice] = useState(true);
   const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
   const [isContributionDialogOpen, setIsContributionDialogOpen] =
     useState(false);
 
+  // Extract unique accounts and categories from dashboard data
+  const extractAccountsAndCategories = (data: DashboardData) => {
+    const accountMap = new Map<string, Account>();
+    const categoryMap = new Map<string, Category>();
+
+    // Extract from transactions
+    data.recentTransactions.forEach((transaction: any) => {
+      // Extract account information
+      if (transaction.accountId && transaction.accountName) {
+        accountMap.set(transaction.accountId, {
+          id: transaction.accountId,
+          name: transaction.accountName,
+          type: "checking", // Default type since we don't store this in transactions
+          balance: 0, // We don't track balance in transactions
+          currency: "AUD", // Default currency
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      }
+
+      // Extract category information
+      if (transaction.category) {
+        categoryMap.set(transaction.category.id, {
+          id: transaction.category.id,
+          name: transaction.category.name,
+          icon: transaction.category.icon,
+        });
+      }
+    });
+
+    return {
+      accounts: Array.from(accountMap.values()),
+      categories: Array.from(categoryMap.values()),
+    };
+  };
+
   // Function to refresh dashboard data
   const refreshDashboardData = async () => {
     try {
       const data = await getDashboardData();
       setDashboardData(data);
+
+      // Extract accounts and categories from dashboard data
+      const { accounts: extractedAccounts, categories: extractedCategories } =
+        extractAccountsAndCategories(data);
+      setAccounts(extractedAccounts);
+      setCategories(extractedCategories);
+
       setError(null);
     } catch (err) {
       console.error("Error refreshing dashboard data:", err);
@@ -75,6 +122,13 @@ function DashboardContent({
         setIsLoading(true);
         const data = await getDashboardData();
         setDashboardData(data);
+
+        // Extract accounts and categories from dashboard data
+        const { accounts: extractedAccounts, categories: extractedCategories } =
+          extractAccountsAndCategories(data);
+        setAccounts(extractedAccounts);
+        setCategories(extractedCategories);
+
         setError(null);
 
         // Console log all financial data in an easy-to-understand format
@@ -216,21 +270,21 @@ function DashboardContent({
 
   return (
     <>
-      <header className="flex h-16 shrink-0 items-center gap-2 px-4">
-        <div className="mx-auto w-full flex items-center gap-2">
+      <header className="rounded-b-xl">
+        <div className="flex h-16 shrink-0 items-center gap-2 px-4 rounded-xl mb-1 dark:bg-[#0a0a0a] bg-white shadow-sm mt-1">
           <SidebarTrigger className="-ml-1 text-sky-600 cursor-pointer hover:text-sky-800" />
           <Separator
             orientation="vertical"
             className="mr-2 data-[orientation=vertical]:h-4"
           />
           <DynamicBreadcrumb />
+          <div className="ml-auto">
+            <Image src="/finova-logo.svg" alt="Finova" width={80} height={30} />
+          </div>
         </div>
       </header>
-      <div className="mr-4 overflow-hidden">
-        <Separator className="mx-4" />
-      </div>
-      <main className="flex-1 w-full p-6 overflow-y-auto category-breakdown-scroll">
-        <div className="space-y-6 w-full">
+      <main className="flex-1 overflow-auto w-full rounded-xl mt-1 pt-5 dark:bg-[#0a0a0a] lg:bg-white shadow-sm">
+        <div className="space-y-6 page-content">
           <div className="mx-auto">
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-muted-foreground">
@@ -290,12 +344,7 @@ function DashboardContent({
           {/* Second Row - Net Worth Summary & Quick Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mx-auto w-full">
             <div className="w-full lg:col-span-3 flex">
-              <NetWorthSummary
-                isLoading={isLoading}
-                netWorth={dashboardData?.metrics.netWorth}
-                totalAssets={dashboardData?.metrics.totalAssets}
-                totalLiabilities={dashboardData?.metrics.totalLiabilities}
-              />
+              <NetWorthSummary />
             </div>
             <Card className="w-full lg:col-span-1 container-color">
               <CardHeader>
@@ -507,8 +556,8 @@ function DashboardContent({
         isOpen={isTransactionDialogOpen}
         onClose={() => setIsTransactionDialogOpen(false)}
         onSuccess={refreshDashboardData}
-        accounts={sampleAccounts}
-        categories={sampleCategories}
+        accounts={accounts}
+        categories={categories}
       />
 
       <ContributionDialog
@@ -527,7 +576,7 @@ export default function Home() {
     <SidebarProvider>
       <div className="flex h-screen w-full">
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="flex-1 shadow-none! w-full min-w-0 dark:bg-[#171717] bg-[#fafafa]">
           <DashboardContent user={user} isLoaded={isLoaded} />
         </SidebarInset>
       </div>

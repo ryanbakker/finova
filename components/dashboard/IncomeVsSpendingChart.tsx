@@ -39,8 +39,13 @@ export function IncomeVsSpendingChart({
   isLoading = false,
   monthlyData,
 }: IncomeVsSpendingChartProps) {
-  // Use real data if available, otherwise show empty state
-  const transformedData: MonthlyData[] = monthlyData || [];
+  // Transform data to show spending as positive values for visual display
+  const transformedData: MonthlyData[] =
+    monthlyData?.map((item) => ({
+      ...item,
+      spending: Math.abs(item.spending), // Convert spending to positive for chart display
+      surplus: item.income - Math.abs(item.spending), // Recalculate surplus as income minus spending
+    })) || [];
 
   // Calculate current month data for summary metrics
   const currentMonth =
@@ -183,7 +188,7 @@ export function IncomeVsSpendingChart({
               <TrendingDown className="h-4 w-4 text-red-600 dark:text-cyan-700" />
             </div>
             <div className="text-lg font-bold text-red-600 dark:text-cyan-500">
-              ${currentMonth?.spending.toLocaleString()}
+              ${Math.abs(currentMonth?.spending || 0).toLocaleString()}
             </div>
             <div className="text-xs text-muted-foreground dark:text-cyan-700">
               Spending this month
@@ -195,8 +200,7 @@ export function IncomeVsSpendingChart({
               <CircleDollarSign className="h-4 w-4 text-sky-600 dark:text-amber-600" />
             </div>
             <div className="text-lg font-bold text-sky-600 dark:text-amber-500">
-              $
-              {(currentMonth?.income - currentMonth?.spending).toLocaleString()}
+              ${(currentMonth?.surplus || 0).toLocaleString()}
             </div>
             <div className="text-xs text-muted-foreground dark:text-amber-700">
               Surplus this month
@@ -249,7 +253,12 @@ export function IncomeVsSpendingChart({
                             className="font-bold"
                             style={{ color: categoryColor }}
                           >
-                            ${entry.value?.toLocaleString()}
+                            $
+                            {entry.name === "spending"
+                              ? Math.abs(
+                                  Number(entry.value) || 0
+                                ).toLocaleString()
+                              : Number(entry.value)?.toLocaleString()}
                           </span>
                         </p>
                       );

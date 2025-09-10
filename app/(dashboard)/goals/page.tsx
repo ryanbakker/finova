@@ -49,7 +49,7 @@ function GoalsPage() {
 
   if (!isLoaded || isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 page-content">
         <GoalPageSkeleton />
         <DashboardFooter />
       </div>
@@ -58,7 +58,7 @@ function GoalsPage() {
 
   if (!user) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 page-content">
         <div className="text-center py-12">
           <h1 className="text-2xl font-bold text-muted-foreground">
             Please sign in to view your goals
@@ -131,8 +131,8 @@ function GoalsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-end justify-between">
+    <div className="space-y-6 page-content">
+      <div className="flex gap-5 md:gap-0 justify-between flex-col md:flex-row md:items-end">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Financial Goals</h1>
           <p className="text-muted-foreground">

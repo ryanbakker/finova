@@ -143,9 +143,12 @@ export const createColumns = (
     enableHiding: true,
     cell: ({ row }) => {
       const amount = row.getValue("amount") as number;
+      const transaction = row.original as Transaction;
 
-      const getAmountStyle = (amount: number) => {
-        if (amount > 0) {
+      const getAmountStyle = (amount: number, type: string) => {
+        if (type === "transfer") {
+          return "text-blue-600 dark:text-blue-400 font-semibold";
+        } else if (amount > 0) {
           return "text-emerald-600 dark:text-emerald-400 font-semibold";
         } else if (amount < 0) {
           return "text-rose-600 dark:text-rose-400 font-semibold";
@@ -155,7 +158,7 @@ export const createColumns = (
       };
 
       return (
-        <span className={getAmountStyle(amount)}>
+        <span className={getAmountStyle(amount, transaction.type)}>
           {new Intl.NumberFormat("en-AU", {
             style: "currency",
             currency: "AUD",

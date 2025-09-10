@@ -58,33 +58,41 @@ export type Bill = {
   updatedAt: string;
 };
 
-export type AssetValueHistoryEntry = {
+export type ValueHistoryEntry = {
+  id: string;
+  userId: string;
+  itemId: string;
+  itemType: "ASSET" | "LIABILITY";
   value: number;
+  timestamp: string;
   createdAt: string;
+  updatedAt: string;
+};
+
+export type MonthlyNetWorthSummary = {
+  id: string;
+  userId: string;
+  year: number;
+  month: number;
+  averageNetWorth: number;
+  averageAssets: number;
+  averageLiabilities: number;
+  monthName: string;
+  displayName: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type Asset = {
   id: string;
   name: string;
   category: string;
-  value: number;
-  currency: string;
-  institution?: string;
-  accountNumber?: string;
-  purchaseDate?: string;
-  currentValue?: number;
-  changeAmount?: number;
-  changePercentage?: number;
-  valueHistory: AssetValueHistoryEntry[];
-  notes?: string;
-  isActive: boolean;
+  currentValue: number;
+  changeAmount: number;
+  changePercentage: number;
+  description?: string;
   createdAt: string;
   updatedAt: string;
-};
-
-export type LiabilityAmountHistoryEntry = {
-  amount: number;
-  createdAt: string;
 };
 
 export type Liability = {
@@ -92,21 +100,10 @@ export type Liability = {
   userId: string;
   name: string;
   category: string;
-  amount: number;
-  currency: string;
-  institution?: string;
-  accountNumber?: string;
-  dueDate?: string;
-  interestRate?: number;
-  monthlyPayment?: number;
-  remainingBalance?: number;
-  originalAmount?: number;
-  currentAmount?: number;
-  changeAmount?: number;
-  changePercentage?: number;
-  amountHistory: LiabilityAmountHistoryEntry[];
-  notes?: string;
-  isActive: boolean;
+  currentValue: number;
+  changeAmount: number;
+  changePercentage: number;
+  description?: string;
   createdAt: string;
   updatedAt: string;
 };

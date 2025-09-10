@@ -2,6 +2,10 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { connectToDB } from "@/database/db";
+import {
+  getCurrentNetWorth,
+  getMonthlyNetWorthHistory,
+} from "./networth.service";
 
 export interface DashboardMetrics {
   totalIncome: number;
@@ -24,6 +28,7 @@ export interface DashboardData {
   weeklySpending: any[];
   monthlyIncomeSpending: any[];
   assets: any[];
+  netWorthHistory: any[];
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
@@ -81,7 +86,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     // Fetch all data in parallel using direct database queries
     const [transactions, assets, budgets, bills, goals, liabilities] =
       await Promise.all([
-        Transaction.find({ userId }).sort({ date: -1 }).lean(),
+        Transaction.find({ userId }).sort({ date: -1, createdAt: -1 }).lean(),
         Asset.find({ userId }).lean(),
         Budget.find({ userId }).lean(),
         Bill.find({ userId }).sort({ dueDate: 1 }).lean(),
@@ -130,23 +135,12 @@ export async function getDashboardData(): Promise<DashboardData> {
       currentMonthExpenses -
       currentMonthSavingsContributions;
 
-    // Calculate net worth
-    const totalAssets = serializedAssets.reduce(
-      (sum: number, asset: any) =>
-        sum + (asset.currentValue || asset.value || 0),
-      0
-    );
-    const totalLiabilities = serializedLiabilities.reduce(
-      (sum: number, liability: any) =>
-        sum +
-        // Prefer the most up-to-date balance fields first
-        (liability.currentAmount ??
-          liability.remainingBalance ??
-          liability.amount ??
-          0),
-      0
-    );
-    const netWorth = totalAssets - totalLiabilities;
+    // Calculate net worth using the new service
+    const {
+      netWorth,
+      assets: totalAssets,
+      liabilities: totalLiabilities,
+    } = await getCurrentNetWorth(userId);
 
     // Get recent transactions (last 5)
     const recentTransactions = serializedTransactions
@@ -313,6 +307,15 @@ export async function getDashboardData(): Promise<DashboardData> {
       });
     }
 
+    // Get monthly net worth history using the new service
+    const netWorthData = await getMonthlyNetWorthHistory(userId, 12);
+    const netWorthHistory = netWorthData.monthlyHistory.map((entry) => ({
+      month: entry.month,
+      netWorth: entry.netWorth,
+      totalAssets: entry.assets,
+      totalLiabilities: entry.liabilities,
+    }));
+
     const metrics: DashboardMetrics = {
       totalIncome: currentMonthIncome,
       totalExpenses: currentMonthExpenses,
@@ -334,6 +337,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       weeklySpending,
       monthlyIncomeSpending,
       assets: serializedAssets,
+      netWorthHistory,
     };
   } catch (error) {
     console.error("Error fetching dashboard data:", error);

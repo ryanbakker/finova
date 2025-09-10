@@ -26,10 +26,10 @@ const sumNumericArray = (arr: number[]): number =>
 // Convert color names or hex values to actual color values for recharts
 const getColorValue = (colorInput: string): string => {
   // If it's already a hex color, return it directly
-  if (colorInput.startsWith('#')) {
+  if (colorInput.startsWith("#")) {
     return colorInput;
   }
-  
+
   // Otherwise, treat it as a color name and look it up
   const colorMap: Record<AvailableChartColorsKeys, string> = {
     // Sky color gradient (lightest to darkest) - Enhanced darker values for better contrast
@@ -145,10 +145,17 @@ const ChartTooltip = ({
               <div className="flex items-center space-x-2">
                 <span
                   aria-hidden="true"
-                  style={{ backgroundColor: color.startsWith('#') ? color : undefined }}
+                  style={{
+                    backgroundColor: color.startsWith("#") ? color : undefined,
+                  }}
                   className={cx(
                     "size-2 shrink-0 rounded-full",
-                    !color.startsWith('#') ? getColorClassName(color as AvailableChartColorsKeys, "bg") : ""
+                    !color.startsWith("#")
+                      ? getColorClassName(
+                          color as AvailableChartColorsKeys,
+                          "bg"
+                        )
+                      : ""
                   )}
                 />
                 <p

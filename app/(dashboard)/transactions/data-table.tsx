@@ -233,7 +233,7 @@ export function DataTable<TData, TValue>({
       });
     }
 
-    // Apply custom sorting
+    // Apply custom sorting or default chronological order
     if (sortStates) {
       const activeSort = Object.entries(sortStates).find(
         ([, state]) => state !== false
@@ -286,7 +286,37 @@ export function DataTable<TData, TValue>({
               : 0;
           }
         });
+      } else {
+        // No custom sorting applied - maintain default chronological order (most recent first)
+        filtered = [...filtered].sort((a, b) => {
+          const aDate = new Date(a.date).getTime();
+          const bDate = new Date(b.date).getTime();
+
+          // If dates are the same, sort by creation time (most recent first)
+          if (aDate === bDate) {
+            const aCreated = new Date(a.createdAt).getTime();
+            const bCreated = new Date(b.createdAt).getTime();
+            return bCreated - aCreated; // Descending order (most recent first)
+          }
+
+          return bDate - aDate; // Descending order (most recent first)
+        });
       }
+    } else {
+      // No sort states at all - maintain default chronological order (most recent first)
+      filtered = [...filtered].sort((a, b) => {
+        const aDate = new Date(a.date).getTime();
+        const bDate = new Date(b.date).getTime();
+
+        // If dates are the same, sort by creation time (most recent first)
+        if (aDate === bDate) {
+          const aCreated = new Date(a.createdAt).getTime();
+          const bCreated = new Date(b.createdAt).getTime();
+          return bCreated - aCreated; // Descending order (most recent first)
+        }
+
+        return bDate - aDate; // Descending order (most recent first)
+      });
     }
 
     return filtered;
@@ -366,7 +396,8 @@ export function DataTable<TData, TValue>({
             No transactions to show
           </h3>
           <p className="text-sm text-muted-foreground">
-            Get started by adding your first transaction to track your spending and income
+            Get started by adding your first transaction to track your spending
+            and income
           </p>
         </div>
       </div>
