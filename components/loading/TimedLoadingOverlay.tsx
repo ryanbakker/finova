@@ -18,7 +18,7 @@ interface TimedLoadingOverlayProps {
 }
 
 export function TimedLoadingOverlay({
-  duration = 4200, // 4.2 seconds overlay duration
+  duration = 4000, // 4.0 seconds overlay duration
   onComplete,
   progressDurationMs = 4000, // 4.0 seconds to complete progress
 }: TimedLoadingOverlayProps) {
@@ -27,6 +27,9 @@ export function TimedLoadingOverlay({
 
   // Smooth progress animation: starts slow and accelerates, completes at progressDurationMs
   useEffect(() => {
+    console.log(
+      `TimedLoadingOverlay: Starting progress animation for ${progressDurationMs}ms`
+    );
     let frameId: number | null = null;
     const startTime = performance.now();
     const durationMs = Math.max(0, progressDurationMs);
@@ -36,10 +39,14 @@ export function TimedLoadingOverlay({
       const t = Math.min(1, elapsed / durationMs);
       // Linear progress: constant speed
       if (t >= 1) {
+        console.log(
+          `TimedLoadingOverlay: Progress animation completed at 100%`
+        );
         setProgress(100);
         return; // stop without scheduling another frame
       }
-      setProgress(t * 100);
+      const currentProgress = t * 100;
+      setProgress(currentProgress);
       frameId = requestAnimationFrame(tick);
     };
 
@@ -70,7 +77,9 @@ export function TimedLoadingOverlay({
 
   // Auto-hide overlay after the specified duration
   useEffect(() => {
+    console.log(`TimedLoadingOverlay: Starting timer for ${duration}ms`);
     const timer = setTimeout(() => {
+      console.log(`TimedLoadingOverlay: Timer completed after ${duration}ms`);
       setIsVisible(false);
       onComplete?.();
     }, duration);
@@ -122,7 +131,7 @@ export function TimedLoadingOverlay({
 
 // Minimal timed loading overlay
 export function MinimalTimedLoadingOverlay({
-  duration = 4700, // 4.7 seconds to mirror full overlay
+  duration = 4000, // 4.0 seconds to mirror full overlay
   onComplete,
 }: TimedLoadingOverlayProps) {
   const [isVisible, setIsVisible] = useState(true);

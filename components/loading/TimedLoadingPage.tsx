@@ -20,7 +20,7 @@ interface TimedLoadingPageProps {
 
 export function TimedLoadingPage({
   children,
-  duration = 4200,
+  duration = 4000,
   message = "Loading your financial data...",
   overlayType = "full",
   className,
@@ -28,7 +28,7 @@ export function TimedLoadingPage({
   excludePaths = [],
 }: TimedLoadingPageProps) {
   const pathname = usePathname();
-  const [, setShowOverlay] = useState(true);
+  const [showOverlay, setShowOverlay] = useState(true);
 
   // Check if current path should be excluded
   const shouldExclude = excludePaths.some((path) => pathname.startsWith(path));
@@ -43,14 +43,11 @@ export function TimedLoadingPage({
     return <>{children}</>;
   }
 
-  // TEMPORARY: Force overlay to always show for editing
-  const forceShowOverlay = true;
-
   return (
     <div className={cn("relative", className)}>
       {children}
 
-      {forceShowOverlay && (
+      {showOverlay && (
         <>
           {overlayType === "full" ? (
             <TimedLoadingOverlay
@@ -61,7 +58,6 @@ export function TimedLoadingPage({
           ) : (
             <MinimalTimedLoadingOverlay
               duration={duration}
-              message={message}
               onComplete={handleLoadingComplete}
             />
           )}
@@ -74,7 +70,7 @@ export function TimedLoadingPage({
 // Specialized timed loading page for root dashboard
 export function DashboardTimedLoadingPage({
   children,
-  duration = 4200,
+  duration = 4000,
   message = "Loading your financial dashboard...",
   onLoadingComplete,
 }: {
@@ -100,7 +96,7 @@ export function DashboardTimedLoadingPage({
 // Specialized timed loading page for dashboard sub-pages
 export function SubPageTimedLoadingPage({
   children,
-  duration = 4200,
+  duration = 4000,
   message = "Loading your data...",
   onLoadingComplete,
 }: {
@@ -124,7 +120,7 @@ export function SubPageTimedLoadingPage({
 }
 
 // Hook for managing timed loading state
-export function useTimedLoading(duration: number = 2000) {
+export function useTimedLoading(duration: number = 4000) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
