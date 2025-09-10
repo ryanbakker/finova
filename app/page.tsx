@@ -65,7 +65,7 @@ function DashboardContent({
     const categoryMap = new Map<string, Category>();
 
     // Extract from transactions
-    data.recentTransactions.forEach((transaction: any) => {
+    data.recentTransactions.forEach((transaction) => {
       // Extract account information
       if (transaction.accountId && transaction.accountName) {
         accountMap.set(transaction.accountId, {

@@ -192,7 +192,7 @@ export async function GET(
     // Get amount history from the liability's amountHistory array
     const history = (liability.amountHistory || [])
       .sort(
-        (a: any, b: any) =>
+        (a: { createdAt: Date }, b: { createdAt: Date }) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )
       .slice(0, limit);

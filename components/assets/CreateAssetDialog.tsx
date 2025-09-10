@@ -102,8 +102,12 @@ export function CreateAssetDialog({
     }
 
     // Validate change percentage if provided
-    if (formData.changePercentage && parseFloat(formData.changePercentage) < -100) {
-      newErrors.changePercentage = "Change percentage cannot be less than -100%";
+    if (
+      formData.changePercentage &&
+      parseFloat(formData.changePercentage) < -100
+    ) {
+      newErrors.changePercentage =
+        "Change percentage cannot be less than -100%";
     }
 
     setErrors(newErrors);
@@ -129,9 +133,13 @@ export function CreateAssetDialog({
         institution: formData.institution.trim() || undefined,
         accountNumber: formData.accountNumber.trim() || undefined,
         purchaseDate: formData.purchaseDate || undefined,
-        currentValue: formData.currentValue ? parseFloat(formData.currentValue) : undefined,
-        changeAmount: formData.changeAmount ? parseFloat(formData.changeAmount) : 0,
-        changePercentage: formData.changePercentage ? parseFloat(formData.changePercentage) : 0,
+        currentValue: parseFloat(formData.currentValue) || 0,
+        changeAmount: formData.changeAmount
+          ? parseFloat(formData.changeAmount)
+          : 0,
+        changePercentage: formData.changePercentage
+          ? parseFloat(formData.changePercentage)
+          : 0,
         notes: formData.notes.trim() || undefined,
         isActive: formData.isActive,
       };
@@ -199,9 +207,12 @@ export function CreateAssetDialog({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Create New Asset</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">
+            Create New Asset
+          </DialogTitle>
           <DialogDescription>
-            Add a new financial asset to your portfolio. Fill in the required fields below.
+            Add a new financial asset to your portfolio. Fill in the required
+            fields below.
           </DialogDescription>
         </DialogHeader>
 
@@ -228,7 +239,9 @@ export function CreateAssetDialog({
                 value={formData.category}
                 onValueChange={(value) => handleInputChange("category", value)}
               >
-                <SelectTrigger className={errors.category ? "border-red-500" : ""}>
+                <SelectTrigger
+                  className={errors.category ? "border-red-500" : ""}
+                >
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -291,7 +304,9 @@ export function CreateAssetDialog({
                 step="0.01"
                 min="0"
                 value={formData.currentValue}
-                onChange={(e) => handleInputChange("currentValue", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("currentValue", e.target.value)
+                }
                 placeholder="Auto-filled"
                 className={errors.currentValue ? "border-red-500" : ""}
               />
@@ -310,7 +325,9 @@ export function CreateAssetDialog({
                 type="number"
                 step="0.01"
                 value={formData.changeAmount}
-                onChange={(e) => handleInputChange("changeAmount", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("changeAmount", e.target.value)
+                }
                 placeholder="0.00"
                 className={errors.changeAmount ? "border-red-500" : ""}
               />
@@ -327,12 +344,16 @@ export function CreateAssetDialog({
                 step="0.01"
                 min="-100"
                 value={formData.changePercentage}
-                onChange={(e) => handleInputChange("changePercentage", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("changePercentage", e.target.value)
+                }
                 placeholder="0.00"
                 className={errors.changePercentage ? "border-red-500" : ""}
               />
               {errors.changePercentage && (
-                <p className="text-sm text-red-500">{errors.changePercentage}</p>
+                <p className="text-sm text-red-500">
+                  {errors.changePercentage}
+                </p>
               )}
             </div>
           </div>
@@ -344,7 +365,9 @@ export function CreateAssetDialog({
               <Input
                 id="institution"
                 value={formData.institution}
-                onChange={(e) => handleInputChange("institution", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("institution", e.target.value)
+                }
                 placeholder="e.g., Bank of America, Vanguard"
               />
             </div>
@@ -354,7 +377,9 @@ export function CreateAssetDialog({
               <Input
                 id="accountNumber"
                 value={formData.accountNumber}
-                onChange={(e) => handleInputChange("accountNumber", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("accountNumber", e.target.value)
+                }
                 placeholder="Last 4 digits only"
               />
             </div>
@@ -366,7 +391,9 @@ export function CreateAssetDialog({
               id="purchaseDate"
               type="date"
               value={formData.purchaseDate}
-              onChange={(e) => handleInputChange("purchaseDate", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("purchaseDate", e.target.value)
+              }
             />
           </div>
 

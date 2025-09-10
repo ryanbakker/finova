@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Asset, AssetValueHistoryEntry } from "@/lib/types";
+import { Asset, ValueHistoryEntry } from "@/lib/types";
 import { getAssetValueHistory } from "@/lib/actions/asset.actions";
 import { useToast } from "@/components/ui/use-toast";
 import { formatDateForChart, getQuarterYearInfo } from "@/lib/utils/dateUtils";
@@ -18,7 +18,6 @@ import {
   TrendingUp,
   TrendingDown,
   Calendar,
-  MessageSquare,
   CircleArrowUp,
   CircleArrowDown,
 } from "lucide-react";
@@ -44,7 +43,7 @@ export function AssetValueHistoryDialog({
   isOpen,
   onClose,
 }: AssetValueHistoryDialogProps) {
-  const [history, setHistory] = useState<AssetValueHistoryEntry[]>([]);
+  const [history, setHistory] = useState<ValueHistoryEntry[]>([]);
   const [chartData, setChartData] = useState<AssetValueChartData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -137,12 +136,16 @@ export function AssetValueHistoryDialog({
   }, [history, asset]);
 
   // Calculate change amount and percentage for a given record
-  const calculateChange = (record: AssetValueHistoryEntry, index: number) => {
+  const calculateChange = (record: ValueHistoryEntry, index: number) => {
+    if (!asset) {
+      return { changeAmount: 0, changePercentage: 0 };
+    }
+
     if (index === 0) {
       // First record - compare with initial asset value
-      const changeAmount = record.value - asset.value;
+      const changeAmount = record.value - asset.currentValue;
       const changePercentage =
-        asset.value > 0 ? (changeAmount / asset.value) * 100 : 0;
+        asset.currentValue > 0 ? (changeAmount / asset.currentValue) * 100 : 0;
       return { changeAmount, changePercentage };
     } else {
       // Compare with previous record
@@ -232,10 +235,7 @@ export function AssetValueHistoryDialog({
 
               <div className="space-y-2">
                 <div className="text-2xl font-extrabold text-sky-950 dark:text-sky-100">
-                  {formatCurrency(
-                    asset.currentValue || asset.value,
-                    asset.currency
-                  )}
+                  {formatCurrency(asset.currentValue, asset.currency)}
                 </div>
                 {asset.changeAmount !== undefined &&
                   asset.changePercentage !== undefined && (

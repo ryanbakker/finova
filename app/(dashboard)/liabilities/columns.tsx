@@ -220,7 +220,7 @@ export const createColumns = (
     ),
     cell: ({ row }) => {
       const liability = row.original;
-      const currentAmount = liability.currentAmount || liability.amount;
+      const currentAmount = liability.currentAmount || liability.amount || 0;
       return (
         <div className="text-left">
           <div className="font-medium text-sm text-red-600 dark:text-red-400">

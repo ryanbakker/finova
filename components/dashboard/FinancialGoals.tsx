@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Target, Plane, Car, Plus, Laptop, MoveRight } from "lucide-react";
+import { Target, Plane, Car, Laptop, MoveRight } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 

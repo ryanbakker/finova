@@ -109,7 +109,7 @@ export async function getBillById(billId: string) {
     // Transform MongoDB _id to id for frontend compatibility
     const transformedBill = {
       ...bill,
-      id: bill._id,
+      id: (bill as { _id: unknown })._id?.toString() || "",
       _id: undefined,
     };
 

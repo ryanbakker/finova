@@ -12,12 +12,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Asset, AssetValueHistoryEntry } from "@/lib/types";
+import { Asset, ValueHistoryEntry } from "@/lib/types";
 import { getAssetCategoryIcon } from "@/lib/utils/categoryUtils";
 import { getAssetValueHistory } from "@/lib/actions/asset.actions";
 import { useToast } from "@/components/ui/use-toast";
 import { formatDateForChart, getQuarterYearInfo } from "@/lib/utils/dateUtils";
-import { logAssetValueDiagnostics } from "@/lib/utils/assetDiagnostics";
 import {
   Calendar,
   Building2,
@@ -91,7 +90,7 @@ export function AssetDetailsAndHistoryDialog({
   isOpen,
   onClose,
 }: AssetDetailsAndHistoryDialogProps) {
-  const [history, setHistory] = useState<AssetValueHistoryEntry[]>([]);
+  const [history, setHistory] = useState<ValueHistoryEntry[]>([]);
   const [chartData, setChartData] = useState<AssetValueChartData[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
@@ -131,8 +130,6 @@ export function AssetDetailsAndHistoryDialog({
     console.log("Dialog state changed:", { isOpen, asset: asset?.name });
     if (isOpen && asset) {
       console.log("Dialog opened, loading history...");
-      // Log asset value diagnostics for debugging
-      logAssetValueDiagnostics(asset);
       loadHistory();
     }
   }, [isOpen, asset, loadHistory]);
@@ -186,12 +183,16 @@ export function AssetDetailsAndHistoryDialog({
   }, [history, asset]);
 
   // Calculate change amount and percentage for a given record
-  const calculateChange = (record: AssetValueHistoryEntry, index: number) => {
+  const calculateChange = (record: ValueHistoryEntry, index: number) => {
+    if (!asset) {
+      return { changeAmount: 0, changePercentage: 0 };
+    }
+
     if (index === 0) {
       // First record - compare with initial asset value
-      const changeAmount = record.value - asset.value;
+      const changeAmount = record.value - asset.currentValue;
       const changePercentage =
-        asset.value > 0 ? (changeAmount / asset.value) * 100 : 0;
+        asset.currentValue > 0 ? (changeAmount / asset.currentValue) * 100 : 0;
       return { changeAmount, changePercentage };
     } else {
       // Compare with previous record
@@ -296,10 +297,7 @@ export function AssetDetailsAndHistoryDialog({
                   Current Value
                 </h3>
                 <div className="text-2xl font-bold">
-                  {formatCurrency(
-                    asset.currentValue || asset.value,
-                    asset.currency
-                  )}
+                  {formatCurrency(asset.currentValue, asset.currency)}
                 </div>
                 {asset.changeAmount !== undefined && (
                   <div
@@ -317,7 +315,7 @@ export function AssetDetailsAndHistoryDialog({
                   Original Value
                 </h3>
                 <div className="text-xl font-semibold">
-                  {formatCurrency(asset.value, asset.currency)}
+                  {formatCurrency(asset.currentValue, asset.currency)}
                 </div>
                 {asset.purchaseDate && (
                   <div className="text-sm text-muted-foreground">
@@ -451,10 +449,7 @@ export function AssetDetailsAndHistoryDialog({
 
                     <div className="text-center p-4 bg-gray-50 dark:bg-gray-900/40 rounded-lg">
                       <div className="text-2xl font-bold">
-                        {formatCurrency(
-                          asset.currentValue || asset.value,
-                          asset.currency
-                        )}
+                        {formatCurrency(asset.currentValue, asset.currency)}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         Current Value
@@ -479,10 +474,7 @@ export function AssetDetailsAndHistoryDialog({
 
                 <div className="space-y-2">
                   <div className="text-2xl font-extrabold text-sky-950 dark:text-sky-100">
-                    {formatCurrency(
-                      asset.currentValue || asset.value,
-                      asset.currency
-                    )}
+                    {formatCurrency(asset.currentValue, asset.currency)}
                   </div>
                   {asset.changeAmount !== undefined &&
                     asset.changePercentage !== undefined && (

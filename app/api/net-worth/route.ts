@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import {
-  getCurrentNetWorth,
-  getMonthlyNetWorthHistory,
-} from "@/lib/services/networth.service";
+import { getMonthlyNetWorthHistory } from "@/lib/services/networth.service";
 
 export async function GET(request: NextRequest) {
   try {
@@ -40,4 +37,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

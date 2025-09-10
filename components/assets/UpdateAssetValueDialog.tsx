@@ -40,9 +40,8 @@ export function UpdateAssetValueDialog({
   // Initialize form data when asset changes
   useEffect(() => {
     if (asset) {
-      const currentValue = asset.currentValue || asset.value;
       setFormData({
-        newValue: currentValue.toString(),
+        newValue: asset.currentValue.toString(),
       });
     }
   }, [asset]);
@@ -100,12 +99,12 @@ export function UpdateAssetValueDialog({
 
     try {
       const newValue = parseFloat(formData.newValue);
-      const previousValue = asset.currentValue || asset.value;
+      const previousValue = asset.currentValue;
 
       await updateAssetValue({
         assetId: asset.id,
         newValue,
-        changeDate: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
       });
 
       toast({
@@ -148,7 +147,7 @@ export function UpdateAssetValueDialog({
     const newValueNum = parseFloat(formData.newValue);
     if (isNaN(newValueNum)) return null;
 
-    const previousValue = asset.currentValue || asset.value;
+    const previousValue = asset.currentValue;
     const changeAmount = newValueNum - previousValue;
     const changePercentage =
       previousValue > 0 ? (changeAmount / previousValue) * 100 : 0;
@@ -213,10 +212,7 @@ export function UpdateAssetValueDialog({
               Current Value
             </Label>
             <div className="text-lg font-semibold">
-              {formatCurrency(
-                asset.currentValue || asset.value,
-                asset.currency
-              )}
+              {formatCurrency(asset.currentValue, asset.currency)}
             </div>
           </div>
 

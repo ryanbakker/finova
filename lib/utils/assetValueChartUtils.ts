@@ -1,4 +1,4 @@
-import { AssetValueHistoryEntry } from "@/lib/types";
+import { ValueHistoryEntry } from "@/lib/types";
 import { getQuarterYearInfo, formatDateForChart } from "./dateUtils";
 
 /**
@@ -19,7 +19,7 @@ export interface AssetValueChartData {
  * @returns Processed chart data with quarter and year information
  */
 export function processAssetValueHistoryForChart(
-  history: AssetValueHistoryEntry[]
+  history: ValueHistoryEntry[]
 ): AssetValueChartData[] {
   if (!history || history.length === 0) {
     return [];
@@ -29,12 +29,12 @@ export function processAssetValueHistoryForChart(
 
   // Sort history by date (oldest first for chart)
   const sortedHistory = [...history].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
   );
 
   // Add all value changes with quarter and year information
   sortedHistory.forEach((record) => {
-    const recordDate = new Date(record.createdAt);
+    const recordDate = new Date(record.timestamp);
     const quarterYearInfo = getQuarterYearInfo(recordDate);
 
     processedData.push({

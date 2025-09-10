@@ -123,7 +123,7 @@ export async function getLiabilityById(liabilityId: string) {
     // Transform MongoDB _id to id for frontend compatibility
     const transformedLiability = {
       ...liability,
-      id: liability._id,
+      id: (liability as { _id: unknown })._id?.toString() || "",
       _id: undefined,
     };
 
@@ -154,9 +154,6 @@ export async function updateLiability(
 
     // Convert string dates to Date objects if provided
     const updateData: Record<string, unknown> = { ...updates };
-    if (updates.dueDate) {
-      updateData.dueDate = new Date(updates.dueDate);
-    }
 
     const updatedLiability = await Liability.findByIdAndUpdate(
       liabilityId,

@@ -54,7 +54,7 @@ export function DeleteLiabilityDialog({
                 </p>
                 <p className="text-xs text-red-600 dark:text-red-300">
                   {liability.category} • {liability.currency}{" "}
-                  {liability.amount.toLocaleString()}
+                  {liability.currentValue.toLocaleString()}
                 </p>
               </div>
             </div>

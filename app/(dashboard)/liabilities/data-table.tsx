@@ -243,15 +243,13 @@ export function DataTable<TData extends Liability, TValue>({
     // Amount range filter
     if (minAmount || maxAmount) {
       filtered = filtered.filter((liability) => {
+        const amount = liability.amount || liability.currentAmount || 0;
         if (minAmount && maxAmount) {
-          return (
-            liability.amount >= Number(minAmount) &&
-            liability.amount <= Number(maxAmount)
-          );
+          return amount >= Number(minAmount) && amount <= Number(maxAmount);
         } else if (minAmount) {
-          return liability.amount >= Number(minAmount);
+          return amount >= Number(minAmount);
         } else if (maxAmount) {
-          return liability.amount <= Number(maxAmount);
+          return amount <= Number(maxAmount);
         }
         return true;
       });

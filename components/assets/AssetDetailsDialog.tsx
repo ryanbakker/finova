@@ -103,10 +103,7 @@ export function AssetDetailsDialog({
                 Current Value
               </h3>
               <div className="text-2xl font-bold">
-                {formatCurrency(
-                  asset.currentValue || asset.value,
-                  asset.currency
-                )}
+                {formatCurrency(asset.currentValue, asset.currency)}
               </div>
               {asset.changeAmount !== undefined && (
                 <div
@@ -124,7 +121,7 @@ export function AssetDetailsDialog({
                 Original Value
               </h3>
               <div className="text-xl font-semibold">
-                {formatCurrency(asset.value, asset.currency)}
+                {formatCurrency(asset.currentValue, asset.currency)}
               </div>
               {asset.purchaseDate && (
                 <div className="text-sm text-muted-foreground">
@@ -256,10 +253,7 @@ export function AssetDetailsDialog({
 
                   <div className="text-center p-4 bg-gray-50 dark:bg-gray-900/40 rounded-lg">
                     <div className="text-2xl font-bold">
-                      {formatCurrency(
-                        asset.currentValue || asset.value,
-                        asset.currency
-                      )}
+                      {formatCurrency(asset.currentValue, asset.currency)}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Current Value

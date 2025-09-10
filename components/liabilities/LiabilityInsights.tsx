@@ -8,25 +8,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Liability, LiabilityAmountHistoryEntry } from "@/lib/types";
 import { DonutChart } from "@/components/DonutChart";
 import { getLiabilityAmountHistory } from "@/lib/actions/liability.actions";
 import { formatDateForChart, getQuarterYearInfo } from "@/lib/utils/dateUtils";
 import { AreaChart } from "@tremor/react";
-import {
-  Building2,
-  CreditCard,
-  TrendingDown,
-  DollarSign,
-  FileText,
-  AlertTriangle,
-  Calendar,
-  Percent,
-  CircleArrowUp,
-  CircleArrowDown,
-  Loader2,
-} from "lucide-react";
+import { Building2, TrendingDown, Loader2 } from "lucide-react";
 
 interface LiabilityInsightsProps {
   liabilities: Liability[];
@@ -49,16 +36,12 @@ export function LiabilityInsights({
   const [aggregatedHistory, setAggregatedHistory] = useState<
     LiabilityAmountChartData[]
   >([]);
-  const [recentChanges, setRecentChanges] = useState<
-    LiabilityAmountHistoryEntry[]
-  >([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   // Load aggregated liability history data
   const loadAggregatedHistory = useCallback(async () => {
     if (!liabilities || liabilities.length === 0) {
       setAggregatedHistory([]);
-      setRecentChanges([]);
       return;
     }
 
@@ -91,9 +74,6 @@ export function LiabilityInsights({
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       );
 
-      // Get recent changes (last 10 entries)
-      setRecentChanges(sortedHistory.slice(-10).reverse());
-
       // Aggregate by date for chart
       const dateMap = new Map<string, number>();
 
@@ -103,7 +83,7 @@ export function LiabilityInsights({
           .toISOString()
           .split("T")[0];
         const currentAmount = dateMap.get(initialDate) || 0;
-        dateMap.set(initialDate, currentAmount + liability.amount);
+        dateMap.set(initialDate, currentAmount + liability.currentValue);
       });
 
       // Add history entries
@@ -165,17 +145,10 @@ export function LiabilityInsights({
     if (!liabilities || liabilities.length === 0) return null;
 
     const activeLiabilities = liabilities.filter((l) => l.isActive);
-    const totalAmount = activeLiabilities.reduce((sum, l) => sum + l.amount, 0);
-    const totalMonthlyPayments = activeLiabilities.reduce(
-      (sum, l) => sum + (l.monthlyPayment || 0),
+    const totalAmount = activeLiabilities.reduce(
+      (sum, l) => sum + l.currentValue,
       0
     );
-    const totalInterest = activeLiabilities.reduce((sum, l) => {
-      if (l.interestRate && l.remainingBalance) {
-        return sum + (l.remainingBalance * l.interestRate) / 100 / 12;
-      }
-      return sum;
-    }, 0);
 
     // Category breakdown
     const categoryBreakdown = activeLiabilities.reduce((acc, liability) => {
@@ -187,7 +160,7 @@ export function LiabilityInsights({
           color: getCategoryColor(category),
         };
       }
-      acc[category].amount += liability.amount;
+      acc[category].amount += liability.currentValue;
       acc[category].count += 1;
       return acc;
     }, {} as Record<string, { amount: number; count: number; color: string }>);
@@ -198,59 +171,19 @@ export function LiabilityInsights({
       if (!acc[institution]) {
         acc[institution] = { amount: 0, count: 0 };
       }
-      acc[institution].amount += liability.amount;
+      acc[institution].amount += liability.currentValue;
       acc[institution].count += 1;
       return acc;
     }, {} as Record<string, { amount: number; count: number }>);
 
-    // High interest liabilities (above 10%)
-    const highInterestLiabilities = activeLiabilities.filter(
-      (l) => (l.interestRate || 0) > 10
-    );
-
-    // Due soon (within 30 days)
-    const dueSoon = activeLiabilities.filter((l) => {
-      if (!l.dueDate) return false;
-      const dueDate = new Date(l.dueDate);
-      const today = new Date();
-      const diffTime = dueDate.getTime() - today.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return diffDays <= 30 && diffDays >= 0;
-    });
-
     return {
       totalAmount,
-      totalMonthlyPayments,
-      totalInterest,
       categoryBreakdown,
       institutionBreakdown,
-      highInterestLiabilities,
-      dueSoon,
       activeCount: activeLiabilities.length,
       totalCount: liabilities.length,
     };
   }, [liabilities]);
-
-  const getCategoryIcon = (category: string) => {
-    switch (category.toLowerCase()) {
-      case "mortgage":
-        return <Building2 className="h-4 w-4" />;
-      case "vehicle loan":
-        return <TrendingDown className="h-4 w-4" />;
-      case "credit card":
-        return <CreditCard className="h-4 w-4" />;
-      case "personal loan":
-        return <DollarSign className="h-4 w-4" />;
-      case "education loan":
-        return <FileText className="h-4 w-4" />;
-      case "business loan":
-        return <Building2 className="h-4 w-4" />;
-      case "line of credit":
-        return <CreditCard className="h-4 w-4" />;
-      default:
-        return <DollarSign className="h-4 w-4" />;
-    }
-  };
 
   const formatCurrency = (amount: number, currency: string = "AUD"): string => {
     return new Intl.NumberFormat("en-AU", {
@@ -332,55 +265,6 @@ export function LiabilityInsights({
             </div>
             <p className="text-xs text-muted-foreground">
               {insights.activeCount} active liabilities
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Monthly Payments
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(insights.totalMonthlyPayments)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Total monthly obligations
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Monthly Interest
-            </CardTitle>
-            <Percent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-              {formatCurrency(insights.totalInterest)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Interest paid monthly
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">High Interest</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-              {insights.highInterestLiabilities.length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Above 10% interest rate
             </p>
           </CardContent>
         </Card>
@@ -508,159 +392,6 @@ export function LiabilityInsights({
                 </span>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Recent Liability Changes */}
-      {recentChanges.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Calendar className="h-5 w-5 text-blue-600" />
-              <span>Recent Liability Changes</span>
-            </CardTitle>
-            <CardDescription>
-              Latest updates to your liability amounts
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {recentChanges.slice(0, 8).map((change) => {
-                const liability = liabilities.find(
-                  (l) => l.id === change.liabilityId
-                );
-                if (!liability) return null;
-
-                // Calculate change from previous amount
-                const previousAmount = liability.amount;
-                const changeAmount = change.amount - previousAmount;
-                const changePercentage =
-                  previousAmount > 0
-                    ? (changeAmount / previousAmount) * 100
-                    : 0;
-                const isIncrease = changeAmount > 0;
-
-                return (
-                  <div
-                    key={`${change.liabilityId}-${change.createdAt}`}
-                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          isIncrease
-                            ? "bg-red-100 dark:bg-red-900/20"
-                            : "bg-green-100 dark:bg-green-900/20"
-                        }`}
-                      >
-                        {isIncrease ? (
-                          <CircleArrowUp className="h-4 w-4 text-red-600" />
-                        ) : (
-                          <CircleArrowDown className="h-4 w-4 text-green-600" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm">{liability.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {liability.category} •{" "}
-                          {new Date(change.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div
-                        className={`text-sm font-semibold ${
-                          isIncrease ? "text-red-600" : "text-green-600"
-                        }`}
-                      >
-                        {isIncrease ? "+" : ""}
-                        {formatCurrency(changeAmount)}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {isIncrease ? "+" : ""}
-                        {changePercentage.toFixed(1)}%
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {formatCurrency(change.amount)}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Alerts and Warnings */}
-      {(insights.highInterestLiabilities.length > 0 ||
-        insights.dueSoon.length > 0) && (
-        <Card className="border-orange-200 dark:border-orange-800">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2 text-orange-600 dark:text-orange-400">
-              <AlertTriangle className="h-5 w-5" />
-              <span>Important Alerts</span>
-            </CardTitle>
-            <CardDescription>Items that require your attention</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {insights.highInterestLiabilities.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="font-medium text-orange-800 dark:text-orange-200">
-                  High Interest Liabilities (
-                  {insights.highInterestLiabilities.length})
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {insights.highInterestLiabilities
-                    .slice(0, 4)
-                    .map((liability) => (
-                      <div
-                        key={liability.id}
-                        className="flex items-center justify-between p-2 bg-orange-50 dark:bg-orange-950/20 rounded-md"
-                      >
-                        <div className="flex items-center space-x-2">
-                          {getCategoryIcon(liability.category)}
-                          <span className="text-sm font-medium">
-                            {liability.name}
-                          </span>
-                        </div>
-                        <Badge variant="destructive" className="text-xs">
-                          {(liability.interestRate || 0).toFixed(1)}%
-                        </Badge>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
-
-            {insights.dueSoon.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="font-medium text-orange-800 dark:text-orange-200">
-                  Due Soon ({insights.dueSoon.length})
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {insights.dueSoon.slice(0, 4).map((liability) => (
-                    <div
-                      key={liability.id}
-                      className="flex items-center justify-between p-2 bg-orange-50 dark:bg-orange-950/20 rounded-md"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="h-4 w-4 text-orange-600" />
-                        <span className="text-sm font-medium">
-                          {liability.name}
-                        </span>
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        {liability.dueDate
-                          ? new Date(liability.dueDate).toLocaleDateString()
-                          : "N/A"}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
       )}

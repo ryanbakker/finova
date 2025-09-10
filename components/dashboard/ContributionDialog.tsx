@@ -84,6 +84,7 @@ export function ContributionDialog({
         name: `Savings Contribution - ${formData.description.trim()}`,
         category: "Savings Account",
         value: parseFloat(formData.amount),
+        currentValue: parseFloat(formData.amount),
         currency: "USD",
         institution: "Personal Savings",
         notes: formData.notes.trim() || undefined,

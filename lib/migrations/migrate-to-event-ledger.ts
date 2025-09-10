@@ -19,6 +19,7 @@ interface OldAsset {
     value: number;
     createdAt: Date;
   }>;
+  notes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,6 +36,7 @@ interface OldLiability {
     amount: number;
     createdAt: Date;
   }>;
+  notes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,7 +48,7 @@ export async function migrateToEventLedger() {
 
     // Step 1: Migrate Asset data
     console.log("Step 1: Migrating Asset data...");
-    const oldAssets = (await Asset.find({}).lean()) as OldAsset[];
+    const oldAssets = (await Asset.find({}).lean()) as unknown as OldAsset[];
 
     for (const asset of oldAssets) {
       console.log(`Migrating asset: ${asset.name} (${asset._id})`);
@@ -103,7 +105,9 @@ export async function migrateToEventLedger() {
 
     // Step 2: Migrate Liability data
     console.log("Step 2: Migrating Liability data...");
-    const oldLiabilities = (await Liability.find({}).lean()) as OldLiability[];
+    const oldLiabilities = (await Liability.find(
+      {}
+    ).lean()) as unknown as OldLiability[];
 
     for (const liability of oldLiabilities) {
       console.log(`Migrating liability: ${liability.name} (${liability._id})`);

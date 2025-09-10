@@ -109,15 +109,15 @@ export function DataTable<TData extends Asset, TValue>({
     setIsDialogOpen(true);
   };
 
-  const handleEditAsset = (asset: Asset) => {
-    setSelectedAsset(asset);
-    setIsEditDialogOpen(true);
-  };
+  // const handleEditAsset = (asset: Asset) => {
+  //   setSelectedAsset(asset);
+  //   setIsEditDialogOpen(true);
+  // };
 
-  const handleDeleteAsset = (asset: Asset) => {
-    setSelectedAsset(asset);
-    setIsDeleteDialogOpen(true);
-  };
+  // const handleDeleteAsset = (asset: Asset) => {
+  //   setSelectedAsset(asset);
+  //   setIsDeleteDialogOpen(true);
+  // };
 
   const handleSaveAsset = () => {
     // Asset update is handled by the EditAssetDialog component
@@ -171,7 +171,7 @@ export function DataTable<TData extends Asset, TValue>({
     // Value range filter
     if (minValue || maxValue) {
       filtered = filtered.filter((asset) => {
-        const currentValue = asset.currentValue || asset.value;
+        const currentValue = asset.currentValue || asset.value || 0;
         if (minValue && maxValue) {
           return (
             currentValue >= Number(minValue) && currentValue <= Number(maxValue)

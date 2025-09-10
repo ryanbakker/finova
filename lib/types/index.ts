@@ -69,6 +69,16 @@ export type ValueHistoryEntry = {
   updatedAt: string;
 };
 
+export type AssetValueHistoryEntry = {
+  value: number;
+  createdAt: string;
+};
+
+export type LiabilityAmountHistoryEntry = {
+  amount: number;
+  createdAt: string;
+};
+
 export type MonthlyNetWorthSummary = {
   id: string;
   userId: string;
@@ -91,6 +101,13 @@ export type Asset = {
   changeAmount: number;
   changePercentage: number;
   description?: string;
+  institution?: string;
+  currency?: string;
+  isActive?: boolean;
+  value?: number;
+  purchaseDate?: string;
+  accountNumber?: string;
+  notes?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -104,6 +121,11 @@ export type Liability = {
   changeAmount: number;
   changePercentage: number;
   description?: string;
+  institution?: string;
+  currentAmount?: number;
+  amount?: number;
+  currency?: string;
+  isActive?: boolean;
   createdAt: string;
   updatedAt: string;
 };

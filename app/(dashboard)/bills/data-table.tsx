@@ -129,7 +129,7 @@ export function DataTable<TData, TValue>({
     });
   }, []);
 
-  const handleSaveBill = (_updatedBill: Bill) => {
+  const handleSaveBill = () => {
     // The update is already handled in the EditBillDialog component
     // We just need to close the dialog and refresh the data
     setIsEditDialogOpen(false);
@@ -139,7 +139,7 @@ export function DataTable<TData, TValue>({
     }
   };
 
-  const handleConfirmDelete = (_bill: Bill) => {
+  const handleConfirmDelete = () => {
     // The deletion is already handled in the DeleteBillDialog component
     // We just need to close the dialog and refresh the data
     setIsDeleteDialogOpen(false);
@@ -355,7 +355,8 @@ export function DataTable<TData, TValue>({
             No bills to show
           </h3>
           <p className="text-sm text-muted-foreground">
-            Get started by adding your first bill to track your recurring expenses
+            Get started by adding your first bill to track your recurring
+            expenses
           </p>
         </div>
       </div>

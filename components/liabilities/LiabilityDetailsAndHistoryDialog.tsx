@@ -28,7 +28,6 @@ import {
   CircleArrowDown,
   BarChart3,
   Info,
-  Percent,
   DollarSign,
   FileText,
 } from "lucide-react";
@@ -220,9 +219,11 @@ export function LiabilityDetailsAndHistoryDialog({
 
     if (index === 0) {
       // First record - compare with initial liability amount
-      const changeAmount = record.amount - liability.amount;
+      const changeAmount = record.amount - liability.currentValue;
       const changePercentage =
-        liability.amount > 0 ? (changeAmount / liability.amount) * 100 : 0;
+        liability.currentValue > 0
+          ? (changeAmount / liability.currentValue) * 100
+          : 0;
       return { changeAmount, changePercentage };
     } else {
       // Compare with previous record
@@ -327,10 +328,7 @@ export function LiabilityDetailsAndHistoryDialog({
                   Current Amount
                 </h3>
                 <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-                  {formatCurrency(
-                    liability.currentAmount || liability.amount,
-                    liability.currency
-                  )}
+                  {formatCurrency(liability.currentValue, liability.currency)}
                 </div>
                 {liability.changeAmount !== undefined && (
                   <div
@@ -348,13 +346,8 @@ export function LiabilityDetailsAndHistoryDialog({
                   Original Amount
                 </h3>
                 <div className="text-xl font-semibold">
-                  {formatCurrency(liability.amount, liability.currency)}
+                  {formatCurrency(liability.currentValue, liability.currency)}
                 </div>
-                {liability.dueDate && (
-                  <div className="text-sm text-muted-foreground">
-                    Due {formatDate(liability.dueDate)}
-                  </div>
-                )}
               </div>
             </div>
 
@@ -373,68 +366,6 @@ export function LiabilityDetailsAndHistoryDialog({
                       <span className="text-sm font-medium">Institution</span>
                     </div>
                     <p className="text-sm">{liability.institution}</p>
-                  </div>
-                )}
-
-                {/* Account Number */}
-                {liability.accountNumber && (
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <CreditCard className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">
-                        Account Number
-                      </span>
-                    </div>
-                    <p className="text-sm font-mono">
-                      {liability.accountNumber}
-                    </p>
-                  </div>
-                )}
-
-                {/* Interest Rate */}
-                {liability.interestRate && (
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <Percent className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">Interest Rate</span>
-                    </div>
-                    <p className="text-sm">{liability.interestRate}%</p>
-                  </div>
-                )}
-
-                {/* Monthly Payment */}
-                {liability.monthlyPayment && (
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">
-                        Monthly Payment
-                      </span>
-                    </div>
-                    <p className="text-sm">
-                      {formatCurrency(
-                        liability.monthlyPayment,
-                        liability.currency
-                      )}
-                    </p>
-                  </div>
-                )}
-
-                {/* Remaining Balance */}
-                {liability.remainingBalance && (
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <TrendingDown className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">
-                        Remaining Balance
-                      </span>
-                    </div>
-                    <p className="text-sm">
-                      {formatCurrency(
-                        liability.remainingBalance,
-                        liability.currency
-                      )}
-                    </p>
                   </div>
                 )}
 
@@ -468,19 +399,6 @@ export function LiabilityDetailsAndHistoryDialog({
                 </div>
               </div>
             </div>
-
-            {/* Notes */}
-            {liability.notes && (
-              <>
-                <Separator />
-                <div className="space-y-2">
-                  <h3 className="text-lg font-semibold">Notes</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {liability.notes}
-                  </p>
-                </div>
-              </>
-            )}
 
             {/* Performance Summary */}
             {liability.changeAmount !== undefined && (
@@ -534,7 +452,7 @@ export function LiabilityDetailsAndHistoryDialog({
                     <div className="text-center p-4 bg-gray-50 dark:bg-gray-900/40 rounded-lg">
                       <div className="text-2xl font-bold text-red-600 dark:text-red-400">
                         {formatCurrency(
-                          liability.currentAmount || liability.amount,
+                          liability.currentValue,
                           liability.currency
                         )}
                       </div>
@@ -561,10 +479,7 @@ export function LiabilityDetailsAndHistoryDialog({
 
                 <div className="space-y-2">
                   <div className="text-2xl font-extrabold text-red-950 dark:text-red-100">
-                    {formatCurrency(
-                      liability.currentAmount || liability.amount,
-                      liability.currency
-                    )}
+                    {formatCurrency(liability.currentValue, liability.currency)}
                   </div>
                   {liability.changeAmount !== undefined &&
                     liability.changePercentage !== undefined && (

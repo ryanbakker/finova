@@ -3,33 +3,69 @@ import {
   getQuarterYearSummary,
   filterChartDataByQuarterYear,
 } from "../assetValueChartUtils";
-import { AssetValueHistoryEntry } from "@/lib/types";
+import { ValueHistoryEntry } from "@/lib/types";
 
 // Sample test data
-const sampleHistory: AssetValueHistoryEntry[] = [
+const sampleHistory: ValueHistoryEntry[] = [
   {
+    id: "1",
+    userId: "test-user",
+    itemId: "test-asset",
+    itemType: "ASSET",
     value: 10000,
-    createdAt: "2024-01-15T10:00:00Z", // Q1 2024
+    timestamp: "2024-01-15T10:00:00Z", // Q1 2024
+    createdAt: "2024-01-15T10:00:00Z",
+    updatedAt: "2024-01-15T10:00:00Z",
   },
   {
+    id: "2",
+    userId: "test-user",
+    itemId: "test-asset",
+    itemType: "ASSET",
     value: 10500,
-    createdAt: "2024-03-20T10:00:00Z", // Q1 2024
+    timestamp: "2024-03-20T10:00:00Z", // Q1 2024
+    createdAt: "2024-03-20T10:00:00Z",
+    updatedAt: "2024-03-20T10:00:00Z",
   },
   {
+    id: "3",
+    userId: "test-user",
+    itemId: "test-asset",
+    itemType: "ASSET",
     value: 11200,
-    createdAt: "2024-06-10T10:00:00Z", // Q2 2024
+    timestamp: "2024-06-10T10:00:00Z", // Q2 2024
+    createdAt: "2024-06-10T10:00:00Z",
+    updatedAt: "2024-06-10T10:00:00Z",
   },
   {
+    id: "4",
+    userId: "test-user",
+    itemId: "test-asset",
+    itemType: "ASSET",
     value: 10800,
-    createdAt: "2024-09-05T10:00:00Z", // Q3 2024
+    timestamp: "2024-09-05T10:00:00Z", // Q3 2024
+    createdAt: "2024-09-05T10:00:00Z",
+    updatedAt: "2024-09-05T10:00:00Z",
   },
   {
+    id: "5",
+    userId: "test-user",
+    itemId: "test-asset",
+    itemType: "ASSET",
     value: 12000,
-    createdAt: "2024-12-15T10:00:00Z", // Q4 2024
+    timestamp: "2024-12-15T10:00:00Z", // Q4 2024
+    createdAt: "2024-12-15T10:00:00Z",
+    updatedAt: "2024-12-15T10:00:00Z",
   },
   {
+    id: "6",
+    userId: "test-user",
+    itemId: "test-asset",
+    itemType: "ASSET",
     value: 12500,
-    createdAt: "2025-02-10T10:00:00Z", // Q1 2025
+    timestamp: "2025-02-10T10:00:00Z", // Q1 2025
+    createdAt: "2025-02-10T10:00:00Z",
+    updatedAt: "2025-02-10T10:00:00Z",
   },
 ];
 

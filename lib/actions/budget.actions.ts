@@ -139,7 +139,7 @@ export async function getBudgetById(budgetId: string) {
     // Transform MongoDB _id to id for frontend compatibility
     const transformedBudget = {
       ...budget,
-      id: budget._id,
+      id: (budget as { _id: unknown })._id?.toString() || "",
       _id: undefined,
     };
 

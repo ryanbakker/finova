@@ -101,7 +101,22 @@ monthlyNetWorthSummarySchema.virtual("monthName").get(function () {
 
 // Virtual for formatted display name
 monthlyNetWorthSummarySchema.virtual("displayName").get(function () {
-  return `${this.monthName} ${this.year}`;
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const monthName = monthNames[this.month - 1];
+  return `${monthName} ${this.year}`;
 });
 
 // Ensure virtuals are included when converting to JSON

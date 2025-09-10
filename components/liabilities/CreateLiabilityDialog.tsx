@@ -73,10 +73,13 @@ interface CreateLiabilityDialogProps {
   onLiabilityCreated?: () => void;
 }
 
-export function CreateLiabilityDialog({ onLiabilityCreated }: CreateLiabilityDialogProps) {
+export function CreateLiabilityDialog({
+  onLiabilityCreated,
+}: CreateLiabilityDialogProps) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState<CreateLiabilityFormData>(initialFormData);
+  const [formData, setFormData] =
+    useState<CreateLiabilityFormData>(initialFormData);
   const [errors, setErrors] = useState<Partial<CreateLiabilityFormData>>({});
   const { toast } = useToast();
 
@@ -99,7 +102,11 @@ export function CreateLiabilityDialog({ onLiabilityCreated }: CreateLiabilityDia
       newErrors.currency = "Currency is required";
     }
 
-    if (formData.interestRate && (parseFloat(formData.interestRate) < 0 || parseFloat(formData.interestRate) > 100)) {
+    if (
+      formData.interestRate &&
+      (parseFloat(formData.interestRate) < 0 ||
+        parseFloat(formData.interestRate) > 100)
+    ) {
       newErrors.interestRate = "Interest rate must be between 0% and 100%";
     }
 
@@ -107,7 +114,10 @@ export function CreateLiabilityDialog({ onLiabilityCreated }: CreateLiabilityDia
       newErrors.monthlyPayment = "Monthly payment must be non-negative";
     }
 
-    if (formData.remainingBalance && parseFloat(formData.remainingBalance) < 0) {
+    if (
+      formData.remainingBalance &&
+      parseFloat(formData.remainingBalance) < 0
+    ) {
       newErrors.remainingBalance = "Remaining balance must be non-negative";
     }
 
@@ -119,17 +129,20 @@ export function CreateLiabilityDialog({ onLiabilityCreated }: CreateLiabilityDia
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (field: keyof CreateLiabilityFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleInputChange = (
+    field: keyof CreateLiabilityFormData,
+    value: string
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -140,16 +153,8 @@ export function CreateLiabilityDialog({ onLiabilityCreated }: CreateLiabilityDia
       const liabilityData = {
         name: formData.name.trim(),
         category: formData.category,
-        amount: parseFloat(formData.amount),
-        currency: formData.currency,
-        institution: formData.institution.trim() || undefined,
-        accountNumber: formData.accountNumber.trim() || undefined,
-        dueDate: formData.dueDate || undefined,
-        interestRate: formData.interestRate ? parseFloat(formData.interestRate) : undefined,
-        monthlyPayment: formData.monthlyPayment ? parseFloat(formData.monthlyPayment) : undefined,
-        remainingBalance: formData.remainingBalance ? parseFloat(formData.remainingBalance) : undefined,
-        originalAmount: formData.originalAmount ? parseFloat(formData.originalAmount) : undefined,
-        notes: formData.notes.trim() || undefined,
+        currentValue: parseFloat(formData.amount),
+        description: formData.notes.trim() || undefined,
       };
 
       await createLiability(liabilityData);
@@ -224,7 +229,9 @@ export function CreateLiabilityDialog({ onLiabilityCreated }: CreateLiabilityDia
                 value={formData.category}
                 onValueChange={(value) => handleInputChange("category", value)}
               >
-                <SelectTrigger className={errors.category ? "border-red-500" : ""}>
+                <SelectTrigger
+                  className={errors.category ? "border-red-500" : ""}
+                >
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -287,7 +294,9 @@ export function CreateLiabilityDialog({ onLiabilityCreated }: CreateLiabilityDia
                 min="0"
                 max="100"
                 value={formData.interestRate}
-                onChange={(e) => handleInputChange("interestRate", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("interestRate", e.target.value)
+                }
                 placeholder="0.00"
                 className={errors.interestRate ? "border-red-500" : ""}
               />
@@ -303,7 +312,9 @@ export function CreateLiabilityDialog({ onLiabilityCreated }: CreateLiabilityDia
               <Input
                 id="institution"
                 value={formData.institution}
-                onChange={(e) => handleInputChange("institution", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("institution", e.target.value)
+                }
                 placeholder="e.g., Chase Bank"
               />
             </div>
@@ -313,7 +324,9 @@ export function CreateLiabilityDialog({ onLiabilityCreated }: CreateLiabilityDia
               <Input
                 id="accountNumber"
                 value={formData.accountNumber}
-                onChange={(e) => handleInputChange("accountNumber", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("accountNumber", e.target.value)
+                }
                 placeholder="Last 4 digits"
               />
             </div>
@@ -338,7 +351,9 @@ export function CreateLiabilityDialog({ onLiabilityCreated }: CreateLiabilityDia
                 step="0.01"
                 min="0"
                 value={formData.monthlyPayment}
-                onChange={(e) => handleInputChange("monthlyPayment", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("monthlyPayment", e.target.value)
+                }
                 placeholder="0.00"
                 className={errors.monthlyPayment ? "border-red-500" : ""}
               />
@@ -357,12 +372,16 @@ export function CreateLiabilityDialog({ onLiabilityCreated }: CreateLiabilityDia
                 step="0.01"
                 min="0"
                 value={formData.remainingBalance}
-                onChange={(e) => handleInputChange("remainingBalance", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("remainingBalance", e.target.value)
+                }
                 placeholder="0.00"
                 className={errors.remainingBalance ? "border-red-500" : ""}
               />
               {errors.remainingBalance && (
-                <p className="text-sm text-red-500">{errors.remainingBalance}</p>
+                <p className="text-sm text-red-500">
+                  {errors.remainingBalance}
+                </p>
               )}
             </div>
 
@@ -374,7 +393,9 @@ export function CreateLiabilityDialog({ onLiabilityCreated }: CreateLiabilityDia
                 step="0.01"
                 min="0"
                 value={formData.originalAmount}
-                onChange={(e) => handleInputChange("originalAmount", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("originalAmount", e.target.value)
+                }
                 placeholder="0.00"
                 className={errors.originalAmount ? "border-red-500" : ""}
               />

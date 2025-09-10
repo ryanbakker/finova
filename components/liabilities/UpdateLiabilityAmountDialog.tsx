@@ -43,7 +43,7 @@ export function UpdateLiabilityAmountDialog({
   // Initialize form data when liability changes
   useEffect(() => {
     if (liability) {
-      const currentAmount = liability.currentAmount || liability.amount;
+      const currentAmount = liability.currentValue;
       setFormData({
         newAmount: currentAmount.toString(),
       });
@@ -151,7 +151,7 @@ export function UpdateLiabilityAmountDialog({
       return null;
     }
 
-    const currentAmount = liability.currentAmount || liability.amount;
+    const currentAmount = liability.currentValue;
     const newAmount = parseFloat(formData.newAmount);
 
     if (isNaN(newAmount)) {
@@ -217,10 +217,7 @@ export function UpdateLiabilityAmountDialog({
               Current Amount
             </Label>
             <div className="text-lg font-semibold text-red-600 dark:text-red-400">
-              {formatCurrency(
-                liability.currentAmount || liability.amount,
-                liability.currency
-              )}
+              {formatCurrency(liability.currentValue, liability.currency)}
             </div>
           </div>
 

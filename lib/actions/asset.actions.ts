@@ -13,7 +13,16 @@ export interface CreateAssetParams {
   name: string;
   category: string;
   currentValue: number;
+  changeAmount?: number;
+  changePercentage?: number;
   description?: string;
+  institution?: string;
+  currency?: string;
+  isActive?: boolean;
+  value?: number;
+  purchaseDate?: string;
+  accountNumber?: string;
+  notes?: string;
 }
 
 export interface UpdateAssetParams extends Partial<CreateAssetParams> {
@@ -170,7 +179,7 @@ export async function getAssetById(assetId: string) {
     // Transform MongoDB _id to id for frontend compatibility
     const transformedAsset = {
       ...asset,
-      id: asset._id,
+      id: (asset as { _id: unknown })._id?.toString(),
       _id: undefined,
     };
 
@@ -614,8 +623,14 @@ export async function getAssetValueHistory(
       .lean();
 
     return valueHistory.map((entry) => ({
+      id: (entry as { _id: unknown })._id?.toString() || "",
+      userId: entry.userId,
+      itemId: entry.itemId,
+      itemType: entry.itemType,
       value: entry.value,
-      createdAt: entry.timestamp.toISOString(),
+      timestamp: entry.timestamp.toISOString(),
+      createdAt: entry.createdAt.toISOString(),
+      updatedAt: entry.updatedAt.toISOString(),
     }));
   } catch (error) {
     console.error("Error fetching asset value history:", error);

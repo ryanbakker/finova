@@ -9,15 +9,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Transaction } from "@/lib/types";
-import { Badge } from "@/components/ui/badge";
-import {
-  Calendar,
-  DollarSign,
-  Building2,
-  Tag,
-  User,
-  CreditCard,
-} from "lucide-react";
+import { Calendar, DollarSign, Tag, User, CreditCard } from "lucide-react";
 
 interface TransactionDetailsDialogProps {
   transaction: Transaction | null;

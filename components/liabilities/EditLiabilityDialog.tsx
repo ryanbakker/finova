@@ -11,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -66,13 +65,6 @@ export function EditLiabilityDialog({
         amount: liability.amount,
         currency: liability.currency,
         institution: liability.institution || "",
-        accountNumber: liability.accountNumber || "",
-        dueDate: liability.dueDate || "",
-        interestRate: liability.interestRate || 0,
-        monthlyPayment: liability.monthlyPayment || 0,
-        remainingBalance: liability.remainingBalance || 0,
-        originalAmount: liability.originalAmount || 0,
-        notes: liability.notes || "",
         isActive: liability.isActive,
       });
     }
@@ -96,25 +88,6 @@ export function EditLiabilityDialog({
 
     if (!formData.currency) {
       newErrors.currency = "Currency is required";
-    }
-
-    if (
-      formData.interestRate &&
-      (formData.interestRate < 0 || formData.interestRate > 100)
-    ) {
-      newErrors.interestRate = "Interest rate must be between 0 and 100";
-    }
-
-    if (formData.monthlyPayment && formData.monthlyPayment < 0) {
-      newErrors.monthlyPayment = "Monthly payment cannot be negative";
-    }
-
-    if (formData.remainingBalance && formData.remainingBalance < 0) {
-      newErrors.remainingBalance = "Remaining balance cannot be negative";
-    }
-
-    if (formData.originalAmount && formData.originalAmount < 0) {
-      newErrors.originalAmount = "Original amount cannot be negative";
     }
 
     setErrors(newErrors);
@@ -248,18 +221,6 @@ export function EditLiabilityDialog({
                   placeholder="e.g., Bank name"
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="accountNumber">Account Number</Label>
-                <Input
-                  id="accountNumber"
-                  value={formData.accountNumber || ""}
-                  onChange={(e) =>
-                    handleInputChange("accountNumber", e.target.value)
-                  }
-                  placeholder="e.g., ****1234"
-                />
-              </div>
             </div>
           </div>
 
@@ -310,113 +271,12 @@ export function EditLiabilityDialog({
                   <p className="text-sm text-red-500">{errors.currency}</p>
                 )}
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="remainingBalance">Remaining Balance</Label>
-                <Input
-                  id="remainingBalance"
-                  type="number"
-                  step="0.01"
-                  value={formData.remainingBalance || ""}
-                  onChange={(e) =>
-                    handleInputChange(
-                      "remainingBalance",
-                      parseFloat(e.target.value) || 0
-                    )
-                  }
-                  placeholder="0.00"
-                  className={errors.remainingBalance ? "border-red-500" : ""}
-                />
-                {errors.remainingBalance && (
-                  <p className="text-sm text-red-500">
-                    {errors.remainingBalance}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="originalAmount">Original Amount</Label>
-                <Input
-                  id="originalAmount"
-                  type="number"
-                  step="0.01"
-                  value={formData.originalAmount || ""}
-                  onChange={(e) =>
-                    handleInputChange(
-                      "originalAmount",
-                      parseFloat(e.target.value) || 0
-                    )
-                  }
-                  placeholder="0.00"
-                  className={errors.originalAmount ? "border-red-500" : ""}
-                />
-                {errors.originalAmount && (
-                  <p className="text-sm text-red-500">
-                    {errors.originalAmount}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="interestRate">Interest Rate (%)</Label>
-                <Input
-                  id="interestRate"
-                  type="number"
-                  step="0.01"
-                  value={formData.interestRate || ""}
-                  onChange={(e) =>
-                    handleInputChange(
-                      "interestRate",
-                      parseFloat(e.target.value) || 0
-                    )
-                  }
-                  placeholder="0.00"
-                  className={errors.interestRate ? "border-red-500" : ""}
-                />
-                {errors.interestRate && (
-                  <p className="text-sm text-red-500">{errors.interestRate}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="monthlyPayment">Monthly Payment</Label>
-                <Input
-                  id="monthlyPayment"
-                  type="number"
-                  step="0.01"
-                  value={formData.monthlyPayment || ""}
-                  onChange={(e) =>
-                    handleInputChange(
-                      "monthlyPayment",
-                      parseFloat(e.target.value) || 0
-                    )
-                  }
-                  placeholder="0.00"
-                  className={errors.monthlyPayment ? "border-red-500" : ""}
-                />
-                {errors.monthlyPayment && (
-                  <p className="text-sm text-red-500">
-                    {errors.monthlyPayment}
-                  </p>
-                )}
-              </div>
             </div>
           </div>
 
           {/* Dates */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Important Dates</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="dueDate">Due Date</Label>
-                <Input
-                  id="dueDate"
-                  type="date"
-                  value={formData.dueDate || ""}
-                  onChange={(e) => handleInputChange("dueDate", e.target.value)}
-                />
-              </div>
-            </div>
           </div>
 
           {/* Status */}
@@ -431,21 +291,6 @@ export function EditLiabilityDialog({
                 }
               />
               <Label htmlFor="isActive">Active liability</Label>
-            </div>
-          </div>
-
-          {/* Notes */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Additional Information</h3>
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea
-                id="notes"
-                value={formData.notes || ""}
-                onChange={(e) => handleInputChange("notes", e.target.value)}
-                placeholder="Add any additional notes about this liability..."
-                rows={3}
-              />
             </div>
           </div>
 

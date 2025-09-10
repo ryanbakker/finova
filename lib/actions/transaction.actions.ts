@@ -168,7 +168,7 @@ export async function getTransactionById(transactionId: string) {
     // Transform MongoDB _id to id for frontend compatibility
     const transformedTransaction = {
       ...transaction,
-      id: transaction._id,
+      id: (transaction as { _id: unknown })._id?.toString() || "",
       _id: undefined,
     };
 

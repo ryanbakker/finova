@@ -191,7 +191,7 @@ export async function GET(
     // Get value history from the asset's valueHistory array
     const history = (asset.valueHistory || [])
       .sort(
-        (a, b) =>
+        (a: { createdAt: Date }, b: { createdAt: Date }) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )
       .slice(0, limit);
