@@ -28,7 +28,7 @@ export function TimedLoadingPage({
   excludePaths = [],
 }: TimedLoadingPageProps) {
   const pathname = usePathname();
-  const [showOverlay, setShowOverlay] = useState(true);
+  const [, setShowOverlay] = useState(true);
 
   // Check if current path should be excluded
   const shouldExclude = excludePaths.some((path) => pathname.startsWith(path));

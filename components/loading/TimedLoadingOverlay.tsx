@@ -19,9 +19,7 @@ interface TimedLoadingOverlayProps {
 
 export function TimedLoadingOverlay({
   duration = 5000, // 5 seconds overlay duration
-  message = "Loading your financial data...",
   onComplete,
-  progressSchedule,
   progressDurationMs = 4500, // 4.5 seconds to complete progress
 }: TimedLoadingOverlayProps) {
   const [isVisible, setIsVisible] = useState(true);
