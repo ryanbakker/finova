@@ -330,7 +330,6 @@ export function DataTable<TData, TValue>({
 
     if (window.confirm(confirmMessage)) {
       // TODO: Implement actual deletion logic here
-      console.log("Deleting bills:", selectedBills);
 
       // Clear selection after deletion
       setRowSelection({});

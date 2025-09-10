@@ -121,17 +121,14 @@ export function LiabilityDetailsAndHistoryDialog({
 
   const loadHistory = useCallback(async () => {
     if (!liability) {
-      console.log("No liability provided to loadHistory");
       return;
     }
 
-    console.log("Loading history for liability:", liability.id, liability.name);
     setIsLoadingHistory(true);
     setHistoryError(null);
 
     try {
       const historyData = await getLiabilityAmountHistory(liability.id, 50);
-      console.log("Loaded history data:", historyData);
       setHistory(historyData);
     } catch (error) {
       console.error("Error loading liability amount history:", error);
@@ -150,12 +147,7 @@ export function LiabilityDetailsAndHistoryDialog({
 
   // Load history when dialog opens
   useEffect(() => {
-    console.log("Dialog state changed:", {
-      isOpen,
-      liability: liability?.name,
-    });
     if (isOpen && liability) {
-      console.log("Dialog opened, loading history...");
       loadHistory();
     }
   }, [isOpen, liability, loadHistory]);
@@ -171,11 +163,6 @@ export function LiabilityDetailsAndHistoryDialog({
 
   // Process chart data when history changes
   useEffect(() => {
-    console.log("Processing chart data:", {
-      history: history.length,
-      liability: liability?.name,
-    });
-
     if (history.length > 0 && liability) {
       const processedData: LiabilityAmountChartData[] = [];
 
@@ -200,10 +187,8 @@ export function LiabilityDetailsAndHistoryDialog({
         });
       });
 
-      console.log("Processed chart data:", processedData);
       setChartData(processedData);
     } else {
-      console.log("No history data, setting empty chart data");
       setChartData([]);
     }
   }, [history, liability]);

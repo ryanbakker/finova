@@ -336,7 +336,6 @@ export function DataTable<TData extends Asset, TValue>({
 
     if (window.confirm(confirmMessage)) {
       // TODO: Implement actual deletion logic here
-      console.log("Deleting assets:", selectedAssets);
 
       // Clear selection after deletion
       setRowSelection({});

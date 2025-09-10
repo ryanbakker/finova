@@ -81,14 +81,6 @@ function AssetsPageContent() {
     });
   }, []);
 
-  // Debug dialog state
-  useEffect(() => {
-    console.log("Dialog state:", {
-      showDetailsDialog,
-      selectedAsset: selectedAsset?.name,
-    });
-  }, [showDetailsDialog, selectedAsset]);
-
   // Load assets from database
   useEffect(() => {
     const loadAssets = async () => {

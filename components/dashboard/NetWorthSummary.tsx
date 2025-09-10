@@ -95,9 +95,6 @@ export function NetWorthSummary({ className }: NetWorthSummaryProps) {
       totalLiabilities: entry.totalLiabilities,
     }));
 
-    // Debug: Log the chart data to see what's being passed
-    console.log("Chart data:", chartData);
-
     const hasData = netWorthHistory.length > 0;
 
     return {

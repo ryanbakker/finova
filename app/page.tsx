@@ -120,12 +120,11 @@ function DashboardContent({
   useEffect(() => {
     async function fetchDashboardData() {
       try {
-        console.log("🔄 Starting dashboard data fetch...");
         setIsLoading(true);
         setError(null);
 
         const data = await getDashboardData();
-        console.log("✅ Dashboard data fetched successfully");
+
         setDashboardData(data);
 
         // Extract accounts and categories from dashboard data
@@ -137,72 +136,7 @@ function DashboardContent({
         setError(null);
 
         // Console log all financial data in an easy-to-understand format
-        console.log("🏦 FINOVA FINANCIAL DATA OVERVIEW", {
-          "💰 Financial Metrics": {
-            "Total Income (This Month)": `$${data.metrics.totalIncome.toLocaleString()}`,
-            "Total Expenses (This Month)": `$${data.metrics.totalExpenses.toLocaleString()}`,
-            "Savings Contributions (This Month)": `$${data.metrics.savings.toLocaleString()}`,
-            "Remaining (This Month)": `$${data.metrics.netIncome.toLocaleString()}`,
-            "Net Worth": `$${data.metrics.netWorth.toLocaleString()}`,
-            "Total Assets": `$${data.metrics.totalAssets.toLocaleString()}`,
-            "Total Liabilities": `$${data.metrics.totalLiabilities.toLocaleString()}`,
-          },
-          "💳 Recent Transactions": data.recentTransactions.map((t) => ({
-            Description: t.title,
-            Amount: `${
-              t.type === "income" ? "+" : "-"
-            }$${t.amount.toLocaleString()}`,
-            Type: t.type,
-            Date: t.time,
-          })),
-          "📅 Upcoming Bills": data.upcomingBills.map((bill) => ({
-            "Bill Name": bill.name,
-            Amount: `$${bill.amount.toLocaleString()}`,
-            "Due Date": bill.dueDate,
-          })),
-          "📊 Budget Progress": data.budgetProgress.map((budget) => ({
-            Category: budget.category,
-            Budgeted: `$${budget.budgeted.toLocaleString()}`,
-            Spent: `$${budget.spent.toLocaleString()}`,
-            Remaining: `$${budget.remaining.toLocaleString()}`,
-            Progress: `${budget.percentage.toFixed(1)}%`,
-          })),
-          "🎯 Financial Goals": data.financialGoals.map((goal) => ({
-            "Goal Name": goal.name,
-            "Target Amount": `$${goal.targetAmount.toLocaleString()}`,
-            "Current Amount": `$${goal.currentAmount.toLocaleString()}`,
-            Progress: `${goal.progress.toFixed(1)}%`,
-            "Target Date": new Date(goal.targetDate).toLocaleDateString(),
-            Priority: goal.priority,
-          })),
-          "🏠 Assets": data.assets.map((asset) => ({
-            "Asset Name": asset.name,
-            Type: asset.type,
-            "Current Value": `$${(
-              asset.currentValue ||
-              asset.value ||
-              0
-            ).toLocaleString()}`,
-            "Original Value": `$${(
-              asset.originalValue ||
-              asset.value ||
-              0
-            ).toLocaleString()}`,
-          })),
-          "📈 Category Breakdown (This Month)": data.categoryBreakdown.map(
-            (cat) => ({
-              Category: cat.category,
-              "Amount Spent": `$${cat.amount.toLocaleString()}`,
-            })
-          ),
-          "📊 Monthly Income vs Spending (Last 6 Months)":
-            data.monthlyIncomeSpending.map((month) => ({
-              Month: month.month,
-              Income: `$${month.income.toLocaleString()}`,
-              Spending: `$${month.spending.toLocaleString()}`,
-              Surplus: `$${month.surplus.toLocaleString()}`,
-            })),
-        });
+        /* removed debug console output */
       } catch (err) {
         console.error("❌ Error fetching dashboard data:", err);
 

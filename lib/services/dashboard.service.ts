@@ -100,19 +100,14 @@ export interface DashboardData {
 
 export async function getDashboardData(): Promise<DashboardData> {
   try {
-    console.log("🔍 Starting getDashboardData...");
-
     const { userId } = await auth();
-    console.log("👤 User ID from auth:", userId ? "✅ Present" : "❌ Missing");
 
     if (!userId) {
       console.error("❌ Authentication failed: No user ID");
       throw new Error("Unauthorized: User not authenticated");
     }
 
-    console.log("🔌 Connecting to database...");
     await connectToDB();
-    console.log("✅ Database connected successfully");
 
     // Helper function to serialize data for client components
     const serializeData = (data: unknown): unknown => {

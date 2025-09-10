@@ -4,19 +4,11 @@ import { connectToDB } from "@/database/db";
 
 export async function GET() {
   try {
-    console.log("🏥 Health check started");
-
     // Check authentication
     const { userId } = await auth();
-    console.log(
-      "👤 Auth check:",
-      userId ? "✅ Authenticated" : "❌ Not authenticated"
-    );
 
     // Check database connection
-    console.log("🔌 Testing database connection...");
     await connectToDB();
-    console.log("✅ Database connection successful");
 
     // Check environment variables
     const envCheck = {
@@ -25,8 +17,6 @@ export async function GET() {
         !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
       CLERK_SECRET_KEY: !!process.env.CLERK_SECRET_KEY,
     };
-
-    console.log("🔧 Environment variables:", envCheck);
 
     return NextResponse.json({
       status: "healthy",

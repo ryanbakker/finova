@@ -312,7 +312,6 @@ export async function generateMonthlySummary(
     }).lean();
 
     if (valueHistory.length === 0) {
-      console.log(`No value history found for ${year}-${month}`);
       return;
     }
 
@@ -367,12 +366,6 @@ export async function generateMonthlySummary(
         averageLiabilities: totalLiabilities,
       },
       { upsert: true, new: true }
-    );
-
-    console.log(
-      `Generated monthly summary for ${userId} - ${year}-${month}: Net Worth $${averageNetWorth.toFixed(
-        2
-      )}`
     );
   } catch (error) {
     console.error(

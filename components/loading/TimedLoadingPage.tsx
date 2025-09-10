@@ -20,7 +20,7 @@ interface TimedLoadingPageProps {
 
 export function TimedLoadingPage({
   children,
-  duration = 4650,
+  duration = 4200,
   message = "Loading your financial data...",
   overlayType = "full",
   className,
@@ -74,7 +74,7 @@ export function TimedLoadingPage({
 // Specialized timed loading page for root dashboard
 export function DashboardTimedLoadingPage({
   children,
-  duration = 4650,
+  duration = 4200,
   message = "Loading your financial dashboard...",
   onLoadingComplete,
 }: {
@@ -100,7 +100,7 @@ export function DashboardTimedLoadingPage({
 // Specialized timed loading page for dashboard sub-pages
 export function SubPageTimedLoadingPage({
   children,
-  duration = 4650,
+  duration = 4200,
   message = "Loading your data...",
   onLoadingComplete,
 }: {

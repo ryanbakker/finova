@@ -18,9 +18,9 @@ interface TimedLoadingOverlayProps {
 }
 
 export function TimedLoadingOverlay({
-  duration = 5000, // 5 seconds overlay duration
+  duration = 4200, // 4.2 seconds overlay duration
   onComplete,
-  progressDurationMs = 4500, // 4.5 seconds to complete progress
+  progressDurationMs = 4000, // 4.0 seconds to complete progress
 }: TimedLoadingOverlayProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -122,7 +122,7 @@ export function TimedLoadingOverlay({
 
 // Minimal timed loading overlay
 export function MinimalTimedLoadingOverlay({
-  duration = 5000, // 5 seconds to mirror full overlay
+  duration = 4700, // 4.7 seconds to mirror full overlay
   onComplete,
 }: TimedLoadingOverlayProps) {
   const [isVisible, setIsVisible] = useState(true);

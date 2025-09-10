@@ -409,7 +409,6 @@ export function DataTable<TData extends Liability, TValue>({
 
     if (window.confirm(confirmMessage)) {
       // TODO: Implement actual deletion logic here
-      console.log("Deleting liabilities:", selectedLiabilities);
 
       // Clear selection after deletion
       setRowSelection({});

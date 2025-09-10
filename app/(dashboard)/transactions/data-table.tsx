@@ -169,7 +169,6 @@ export function DataTable<TData, TValue>({
 
   const handleSaveTransaction = () => {
     // TODO: Implement actual update logic here
-    console.log("Transaction updated successfully");
 
     // For now, just close the dialog
     setIsEditDialogOpen(false);
@@ -178,7 +177,6 @@ export function DataTable<TData, TValue>({
 
   const handleConfirmDelete = () => {
     // TODO: Implement actual deletion logic here
-    console.log("Transaction deleted successfully");
 
     // For now, just close the dialog
     setIsDeleteDialogOpen(false);
@@ -423,7 +421,6 @@ export function DataTable<TData, TValue>({
 
     if (window.confirm(confirmMessage)) {
       // TODO: Implement actual deletion logic here
-      console.log("Deleting transactions:", selectedTransactions);
 
       // Clear selection after deletion
       setRowSelection({});

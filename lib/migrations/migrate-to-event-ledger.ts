@@ -44,15 +44,12 @@ interface OldLiability {
 export async function migrateToEventLedger() {
   try {
     await connectToDB();
-    console.log("Starting migration to event ledger pattern...");
 
     // Step 1: Migrate Asset data
-    console.log("Step 1: Migrating Asset data...");
+
     const oldAssets = (await Asset.find({}).lean()) as unknown as OldAsset[];
 
     for (const asset of oldAssets) {
-      console.log(`Migrating asset: ${asset.name} (${asset._id})`);
-
       // Create value history entries from embedded history
       if (asset.valueHistory && asset.valueHistory.length > 0) {
         const valueHistoryEntries = asset.valueHistory.map((entry) => ({
@@ -64,9 +61,6 @@ export async function migrateToEventLedger() {
         }));
 
         await ValueHistory.insertMany(valueHistoryEntries);
-        console.log(
-          `  - Created ${valueHistoryEntries.length} value history entries`
-        );
       }
 
       // Update asset with new structure
@@ -99,19 +93,15 @@ export async function migrateToEventLedger() {
           },
         }
       );
-
-      console.log(`  - Updated asset structure`);
     }
 
     // Step 2: Migrate Liability data
-    console.log("Step 2: Migrating Liability data...");
+
     const oldLiabilities = (await Liability.find(
       {}
     ).lean()) as unknown as OldLiability[];
 
     for (const liability of oldLiabilities) {
-      console.log(`Migrating liability: ${liability.name} (${liability._id})`);
-
       // Create value history entries from embedded history
       if (liability.amountHistory && liability.amountHistory.length > 0) {
         const valueHistoryEntries = liability.amountHistory.map((entry) => ({
@@ -123,9 +113,6 @@ export async function migrateToEventLedger() {
         }));
 
         await ValueHistory.insertMany(valueHistoryEntries);
-        console.log(
-          `  - Created ${valueHistoryEntries.length} value history entries`
-        );
       }
 
       // Update liability with new structure
@@ -165,15 +152,12 @@ export async function migrateToEventLedger() {
           },
         }
       );
-
-      console.log(`  - Updated liability structure`);
     }
 
     // Step 3: Generate monthly net worth summaries
-    console.log("Step 3: Generating monthly net worth summaries...");
+
     await generateMonthlyNetWorthSummaries();
 
-    console.log("Migration completed successfully!");
     return { success: true, message: "Migration completed successfully!" };
   } catch (error) {
     console.error("Migration failed:", error);
@@ -186,8 +170,6 @@ async function generateMonthlyNetWorthSummaries() {
   const users = await ValueHistory.distinct("userId");
 
   for (const userId of users) {
-    console.log(`Generating monthly summaries for user: ${userId}`);
-
     // Get all value history entries for this user
     const valueHistory = await ValueHistory.find({ userId })
       .sort({ timestamp: 1 })
@@ -277,12 +259,6 @@ async function generateMonthlyNetWorthSummaries() {
         },
         { upsert: true, new: true }
       );
-
-      console.log(
-        `  - Generated summary for ${year}-${month}: Net Worth $${averageNetWorth.toFixed(
-          2
-        )}`
-      );
     }
   }
 }
@@ -291,13 +267,11 @@ async function generateMonthlyNetWorthSummaries() {
 export async function rollbackMigration() {
   try {
     await connectToDB();
-    console.log("Rolling back migration...");
 
     // Clear the new collections
     await ValueHistory.deleteMany({});
     await MonthlyNetWorthSummary.deleteMany({});
 
-    console.log("Rollback completed - new collections cleared");
     return { success: true, message: "Rollback completed" };
   } catch (error) {
     console.error("Rollback failed:", error);
@@ -308,15 +282,12 @@ export async function rollbackMigration() {
 export async function regenerateMonthlySummaries() {
   try {
     await connectToDB();
-    console.log("Regenerating monthly summaries with abbreviated months...");
 
     // Clear existing monthly summaries
     await MonthlyNetWorthSummary.deleteMany({});
-    console.log("Cleared existing monthly summaries");
 
     // Regenerate them
     await generateMonthlyNetWorthSummaries();
-    console.log("Regenerated monthly summaries with abbreviated months");
 
     return {
       success: true,

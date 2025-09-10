@@ -142,7 +142,6 @@ export function DataTable<TData extends FinancialGoal, TValue>({
   const handleSaveGoal = useCallback(
     (goal: FinancialGoal) => {
       // TODO: Implement save logic
-      console.log("Saving goal:", goal);
       handleCloseEditDialog();
     },
     [handleCloseEditDialog]
@@ -249,7 +248,8 @@ export function DataTable<TData extends FinancialGoal, TValue>({
             No goals to show
           </h3>
           <p className="text-sm text-muted-foreground">
-            Get started by adding your first financial goal to track your progress
+            Get started by adding your first financial goal to track your
+            progress
           </p>
         </div>
       </div>

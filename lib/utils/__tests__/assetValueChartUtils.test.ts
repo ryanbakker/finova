@@ -173,19 +173,13 @@ describe("Asset Value Chart Utils", () => {
 
 // Example usage function for demonstration
 export function demonstrateAssetValueChartFunctionality() {
-  console.log("=== Asset Value Chart Functionality Demo ===");
-
   const chartData = processAssetValueHistoryForChart(sampleHistory);
-  console.log("Processed Chart Data:", chartData);
 
   const summary = getQuarterYearSummary(chartData);
-  console.log("Quarter/Year Summary:", summary);
 
   const q1Data = filterChartDataByQuarterYear(chartData, 1);
-  console.log("Q1 Data:", q1Data);
 
   const year2024Data = filterChartDataByQuarterYear(chartData, undefined, 2024);
-  console.log("2024 Data:", year2024Data);
 
   return {
     chartData,

@@ -8,7 +8,6 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { createUser, deleteUser, updateUser } from "@/lib/actions/user.actions";
 
 export async function POST(req: Request) {
-  console.log("=== WEBHOOK ROUTE CALLED ===");
   const SIGNING_SECRET = process.env.SIGNING_SECRET;
 
   if (!SIGNING_SECRET) {
@@ -22,23 +21,14 @@ export async function POST(req: Request) {
     );
   }
 
-  console.log("SIGNING_SECRET exists:", !!SIGNING_SECRET);
-
   try {
     const wh = new Webhook(SIGNING_SECRET);
-    console.log("Webhook instance created");
 
     // Get headers (synchronously)
     const headerPayload = await headers();
     const svix_id = headerPayload.get("svix-id");
     const svix_timestamp = headerPayload.get("svix-timestamp");
     const svix_signature = headerPayload.get("svix-signature");
-
-    console.log("Headers received:", {
-      svix_id: !!svix_id,
-      svix_timestamp: !!svix_timestamp,
-      svix_signature: !!svix_signature,
-    });
 
     if (!svix_id || !svix_timestamp || !svix_signature) {
       console.error("Missing Svix headers:", {
@@ -71,12 +61,7 @@ export async function POST(req: Request) {
     const { id } = evt.data;
     const eventType = evt.type;
 
-    console.log(`Processing webhook: ${eventType} for user ${id}`);
-
     if (evt.type === "user.created") {
-      console.log("Processing user.created event");
-      console.log("User data:", evt.data);
-
       const userInfo = evt.data;
 
       // Check if user has email addresses
@@ -99,11 +84,8 @@ export async function POST(req: Request) {
         photo: userInfo.image_url || "",
       };
 
-      console.log("Creating user with data:", user);
-
       try {
         const newUser = await createUser(user);
-        console.log("User created successfully:", newUser);
 
         if (newUser) {
           // Update Clerk user metadata with MongoDB user ID
@@ -114,10 +96,6 @@ export async function POST(req: Request) {
                 userId: newUser._id,
               },
             });
-            console.log(
-              "Updated Clerk user metadata with MongoDB ID:",
-              newUser._id
-            );
           } catch (metadataError) {
             console.error("Failed to update Clerk metadata:", metadataError);
           }
@@ -140,7 +118,6 @@ export async function POST(req: Request) {
     }
 
     if (evt.type === "user.updated") {
-      console.log("Processing user.updated event");
       const { id, image_url, first_name, last_name, username } = evt.data;
 
       const user = {
@@ -152,7 +129,6 @@ export async function POST(req: Request) {
 
       try {
         const updatedUser = await updateUser(id, user);
-        console.log("User updated successfully:", updatedUser);
         return NextResponse.json({ message: "OK", user: updatedUser });
       } catch (updateError) {
         console.error("Failed to update user:", updateError);
@@ -170,12 +146,10 @@ export async function POST(req: Request) {
     }
 
     if (eventType === "user.deleted") {
-      console.log("Processing user.deleted event");
       const { id } = evt.data;
 
       try {
         const deletedUser = await deleteUser(id!);
-        console.log("User deleted successfully:", deletedUser);
         return NextResponse.json({ message: "OK", user: deletedUser });
       } catch (deleteError) {
         console.error("Failed to delete user:", deleteError);
@@ -192,7 +166,6 @@ export async function POST(req: Request) {
       }
     }
 
-    console.log(`Webhook processed successfully: ${eventType} for user ${id}`);
     return new Response("Webhook processed", { status: 200 });
   } catch (error) {
     console.error("Webhook processing error:", error);

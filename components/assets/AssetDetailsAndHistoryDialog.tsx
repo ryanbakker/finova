@@ -98,17 +98,14 @@ export function AssetDetailsAndHistoryDialog({
 
   const loadHistory = useCallback(async () => {
     if (!asset) {
-      console.log("No asset provided to loadHistory");
       return;
     }
 
-    console.log("Loading history for asset:", asset.id, asset.name);
     setIsLoadingHistory(true);
     setHistoryError(null);
 
     try {
       const historyData = await getAssetValueHistory(asset.id, 50);
-      console.log("Loaded history data:", historyData);
       setHistory(historyData);
     } catch (error) {
       console.error("Error loading asset value history:", error);
@@ -127,9 +124,7 @@ export function AssetDetailsAndHistoryDialog({
 
   // Load history when dialog opens
   useEffect(() => {
-    console.log("Dialog state changed:", { isOpen, asset: asset?.name });
     if (isOpen && asset) {
-      console.log("Dialog opened, loading history...");
       loadHistory();
     }
   }, [isOpen, asset, loadHistory]);
@@ -145,11 +140,6 @@ export function AssetDetailsAndHistoryDialog({
 
   // Process chart data when history changes
   useEffect(() => {
-    console.log("Processing chart data:", {
-      history: history.length,
-      asset: asset?.name,
-    });
-
     if (history.length > 0 && asset) {
       const processedData: AssetValueChartData[] = [];
 
@@ -174,10 +164,8 @@ export function AssetDetailsAndHistoryDialog({
         });
       });
 
-      console.log("Processed chart data:", processedData);
       setChartData(processedData);
     } else {
-      console.log("No history data, setting empty chart data");
       setChartData([]);
     }
   }, [history, asset]);

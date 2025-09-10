@@ -22,18 +22,11 @@ declare type UpdateUserParams = {
 
 export async function createUser(user: CreateUserParams) {
   try {
-    console.log("createUser called with:", user);
-    console.log("Attempting to connect to database...");
-
     await connectToDB();
-    console.log("Database connected successfully");
 
-    console.log("Creating user in database...");
     const newUser = await User.create(user);
-    console.log("User created in database:", newUser);
 
     const result = JSON.parse(JSON.stringify(newUser));
-    console.log("Returning parsed user:", result);
     return result;
   } catch (e) {
     console.error("Error in createUser:", e);

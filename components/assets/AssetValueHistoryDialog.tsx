@@ -51,17 +51,13 @@ export function AssetValueHistoryDialog({
 
   const loadHistory = useCallback(async () => {
     if (!asset) {
-      console.log("No asset provided to loadHistory");
       return;
     }
-
-    console.log("Loading history for asset:", asset.id, asset.name);
     setIsLoading(true);
     setError(null);
 
     try {
       const historyData = await getAssetValueHistory(asset.id, 50);
-      console.log("Loaded history data:", historyData);
       setHistory(historyData);
     } catch (error) {
       console.error("Error loading asset value history:", error);
@@ -80,9 +76,7 @@ export function AssetValueHistoryDialog({
 
   // Load history when dialog opens
   useEffect(() => {
-    console.log("Dialog state changed:", { isOpen, asset: asset?.name });
     if (isOpen && asset) {
-      console.log("Dialog opened, loading history...");
       loadHistory();
     }
   }, [isOpen, asset, loadHistory]);
@@ -98,11 +92,6 @@ export function AssetValueHistoryDialog({
 
   // Process chart data when history changes
   useEffect(() => {
-    console.log("Processing chart data:", {
-      history: history.length,
-      asset: asset?.name,
-    });
-
     if (history.length > 0 && asset) {
       const processedData: AssetValueChartData[] = [];
 
@@ -127,10 +116,8 @@ export function AssetValueHistoryDialog({
         });
       });
 
-      console.log("Processed chart data:", processedData);
       setChartData(processedData);
     } else {
-      console.log("No history data, setting empty chart data");
       setChartData([]);
     }
   }, [history, asset]);
@@ -284,9 +271,6 @@ export function AssetValueHistoryDialog({
             <div className="flex-1 flex items-center justify-center bg-neutral-50 p-4 rounded-lg border border-neutral-200 dark:invert dark:bg-neutral-100/40">
               {chartData.length > 0 ? (
                 <div>
-                  <div className="text-xs text-gray-500 mb-2">
-                    Debug: {chartData.length} data points
-                  </div>
                   <LineChart
                     data={chartData}
                     index="date"

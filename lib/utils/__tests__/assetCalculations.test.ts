@@ -102,62 +102,6 @@ describe("Asset Calculations", () => {
 
 // Example usage function for demonstration
 export function demonstrateAssetValueFix() {
-  console.log("=== Asset Value Fix Demonstration ===");
-
-  console.log("Asset 1 (with currentValue):");
-  console.log(
-    `  Original Value: $${sampleAssetWithCurrentValue.value.toLocaleString()}`
-  );
-  console.log(
-    `  Current Value Field: $${sampleAssetWithCurrentValue.currentValue?.toLocaleString()}`
-  );
-  console.log(
-    `  Most Recent History: $${sampleAssetWithCurrentValue.valueHistory[
-      sampleAssetWithCurrentValue.valueHistory.length - 1
-    ].value.toLocaleString()}`
-  );
-  console.log(
-    `  Calculated Current Value: $${getCurrentAssetValue(
-      sampleAssetWithCurrentValue
-    ).toLocaleString()}`
-  );
-
-  console.log("\nAsset 2 (without currentValue):");
-  console.log(
-    `  Original Value: $${sampleAssetWithoutCurrentValue.value.toLocaleString()}`
-  );
-  console.log(
-    `  Current Value Field: ${
-      sampleAssetWithoutCurrentValue.currentValue || "null"
-    }`
-  );
-  console.log(
-    `  Most Recent History: $${sampleAssetWithoutCurrentValue.valueHistory[
-      sampleAssetWithoutCurrentValue.valueHistory.length - 1
-    ].value.toLocaleString()}`
-  );
-  console.log(
-    `  Calculated Current Value: $${getCurrentAssetValue(
-      sampleAssetWithoutCurrentValue
-    ).toLocaleString()}`
-  );
-
-  console.log("\nAsset 3 (no history):");
-  console.log(
-    `  Original Value: $${sampleAssetWithoutHistory.value.toLocaleString()}`
-  );
-  console.log(
-    `  Current Value Field: ${sampleAssetWithoutHistory.currentValue || "null"}`
-  );
-  console.log(
-    `  History Count: ${sampleAssetWithoutHistory.valueHistory.length}`
-  );
-  console.log(
-    `  Calculated Current Value: $${getCurrentAssetValue(
-      sampleAssetWithoutHistory
-    ).toLocaleString()}`
-  );
-
   return {
     asset1: getCurrentAssetValue(sampleAssetWithCurrentValue),
     asset2: getCurrentAssetValue(sampleAssetWithoutCurrentValue),
