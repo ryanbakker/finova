@@ -119,8 +119,12 @@ function DashboardContent({
   useEffect(() => {
     async function fetchDashboardData() {
       try {
+        console.log("🔄 Starting dashboard data fetch...");
         setIsLoading(true);
+        setError(null);
+
         const data = await getDashboardData();
+        console.log("✅ Dashboard data fetched successfully");
         setDashboardData(data);
 
         // Extract accounts and categories from dashboard data
@@ -199,8 +203,23 @@ function DashboardContent({
             })),
         });
       } catch (err) {
-        console.error("Error fetching dashboard data:", err);
-        setError("Failed to load dashboard data");
+        console.error("❌ Error fetching dashboard data:", err);
+
+        // Enhanced error handling
+        let errorMessage = "Failed to load dashboard data";
+        if (err instanceof Error) {
+          if (err.message.includes("Unauthorized")) {
+            errorMessage =
+              "Authentication failed. Please try logging in again.";
+          } else if (err.message.includes("MONGODB_URL")) {
+            errorMessage =
+              "Database connection failed. Please try again later.";
+          } else {
+            errorMessage = `Error: ${err.message}`;
+          }
+        }
+
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }

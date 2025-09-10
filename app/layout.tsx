@@ -19,7 +19,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      signInUrl="/welcome"
+      signUpUrl="/welcome"
+      afterSignInUrl="/"
+      afterSignUpUrl="/"
+    >
       <html
         lang="en"
         className={`${GeistSans.className} antialiased dark:bg-gray-950`}
