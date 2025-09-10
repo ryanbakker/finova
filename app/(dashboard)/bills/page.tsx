@@ -25,6 +25,7 @@ function BillsPage() {
   useEffect(() => {
     const fetchBills = async () => {
       try {
+        setIsLoading(true);
         const userBills = await getUserBills();
         setBills(userBills || []);
       } catch (error) {

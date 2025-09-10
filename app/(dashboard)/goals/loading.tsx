@@ -1,12 +1,5 @@
-import { DashboardFooter } from "@/components/DashboardFooter";
-import { GoalPageSkeleton } from "@/components/goals";
+import { GoalsLoading } from "@/components/loading";
 
-export default function GoalsLoading() {
-  return (
-    <div className="space-y-6">
-      <GoalPageSkeleton />
-
-      <DashboardFooter />
-    </div>
-  );
+export default function GoalsLoadingPage() {
+  return <GoalsLoading />;
 }

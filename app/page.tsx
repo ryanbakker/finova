@@ -37,6 +37,7 @@ import {
 import { CreateTransactionDialog } from "@/components/transactions/CreateTransactionDialog";
 import { ContributionDialog } from "@/components/dashboard/ContributionDialog";
 import { Account, Category } from "@/lib/types";
+import { DashboardTimedLoadingPage } from "@/components/loading";
 import Image from "next/image";
 
 function DashboardContent({
@@ -288,7 +289,7 @@ function DashboardContent({
   }
 
   return (
-    <>
+    <DashboardTimedLoadingPage message="Loading your financial dashboard...">
       <header className="rounded-b-xl">
         <div className="flex h-16 shrink-0 items-center gap-2 px-4 rounded-xl mb-1 dark:bg-[#0a0a0a] bg-white shadow-sm mt-1">
           <SidebarTrigger className="-ml-1 text-sky-600 cursor-pointer hover:text-sky-800" />
@@ -584,7 +585,7 @@ function DashboardContent({
         onClose={() => setIsContributionDialogOpen(false)}
         onSuccess={refreshDashboardData}
       />
-    </>
+    </DashboardTimedLoadingPage>
   );
 }
 

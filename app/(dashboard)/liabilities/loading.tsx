@@ -1,11 +1,5 @@
-import { LiabilityPageSkeleton } from "@/components/liabilities";
-import { DashboardFooter } from "@/components/DashboardFooter";
+import { LiabilitiesLoading } from "@/components/loading";
 
-export default function Loading() {
-  return (
-    <div className="space-y-6">
-      <LiabilityPageSkeleton />
-      <DashboardFooter />
-    </div>
-  );
+export default function LiabilitiesLoadingPage() {
+  return <LiabilitiesLoading />;
 }

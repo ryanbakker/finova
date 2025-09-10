@@ -27,7 +27,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getUserAssets } from "@/lib/actions/asset.actions";
 
 import { useToast } from "@/components/ui/use-toast";
-
 import { useSearchParams } from "next/navigation";
 
 function AssetsPageContent() {

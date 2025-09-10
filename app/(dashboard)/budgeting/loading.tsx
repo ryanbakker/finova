@@ -1,11 +1,5 @@
-import { BudgetPageSkeleton } from "@/components/budgeting";
-import { DashboardFooter } from "@/components/DashboardFooter";
+import { BudgetingLoading } from "@/components/loading";
 
-export default function BudgetingLoading() {
-  return (
-    <div className="space-y-6">
-      <BudgetPageSkeleton />
-      <DashboardFooter />
-    </div>
-  );
+export default function BudgetingLoadingPage() {
+  return <BudgetingLoading />;
 }

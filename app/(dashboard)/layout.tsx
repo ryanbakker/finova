@@ -9,6 +9,7 @@ import {
 import { DynamicBreadcrumb } from "@/components/ui/breadcrumb";
 import React from "react";
 import { Separator } from "@/components/ui/separator";
+import { SubPageTimedLoadingPage } from "@/components/loading";
 import Image from "next/image";
 
 export default function DashboardLayout({
@@ -42,7 +43,9 @@ export default function DashboardLayout({
             </div>
           </header>
           <main className="flex-1 overflow-auto w-full rounded-xl mt-1 md:pt-4 dark:bg-[#0a0a0a] lg:bg-white shadow-sm">
-            {children}
+            <SubPageTimedLoadingPage message="Loading your data...">
+              {children}
+            </SubPageTimedLoadingPage>
           </main>
         </SidebarInset>
       </div>

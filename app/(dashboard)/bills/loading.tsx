@@ -1,11 +1,5 @@
-import { DashboardFooter } from "@/components/DashboardFooter";
-import { BillPageSkeleton } from "@/components/bills";
+import { BillsLoading } from "@/components/loading";
 
-export default function BillsLoading() {
-  return (
-    <div className="space-y-6">
-      <BillPageSkeleton />
-      <DashboardFooter />
-    </div>
-  );
+export default function BillsLoadingPage() {
+  return <BillsLoading />;
 }
