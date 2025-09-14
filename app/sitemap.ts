@@ -1,70 +1,46 @@
-import { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://finova-management.vercel.app";
-  const currentDate = new Date().toISOString().split("T")[0];
-
   return [
     {
-      url: baseUrl,
-      lastModified: currentDate,
-      changeFrequency: "daily",
-      priority: 1.0,
+      url: "https://finova-management.vercel.app",
+      lastModified: new Date(),
     },
     {
-      url: `${baseUrl}/welcome`,
-      lastModified: currentDate,
-      changeFrequency: "weekly",
-      priority: 0.9,
+      url: "https://finova-management.vercel.app/welcome",
+      lastModified: new Date(),
     },
     {
-      url: `${baseUrl}/privacy`,
-      lastModified: currentDate,
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-    // Dashboard pages (protected but included for completeness)
-    {
-      url: `${baseUrl}/assets`,
-      lastModified: currentDate,
-      changeFrequency: "daily",
-      priority: 0.8,
+      url: "https://finova-management.vercel.app/privacy",
+      lastModified: new Date(),
     },
     {
-      url: `${baseUrl}/bills`,
-      lastModified: currentDate,
-      changeFrequency: "daily",
-      priority: 0.8,
+      url: "https://finova-management.vercel.app/assets",
+      lastModified: new Date(),
     },
     {
-      url: `${baseUrl}/budgeting`,
-      lastModified: currentDate,
-      changeFrequency: "daily",
-      priority: 0.8,
+      url: "https://finova-management.vercel.app/bills",
+      lastModified: new Date(),
     },
     {
-      url: `${baseUrl}/goals`,
-      lastModified: currentDate,
-      changeFrequency: "daily",
-      priority: 0.8,
+      url: "https://finova-management.vercel.app/budgeting",
+      lastModified: new Date(),
     },
     {
-      url: `${baseUrl}/liabilities`,
-      lastModified: currentDate,
-      changeFrequency: "daily",
-      priority: 0.8,
+      url: "https://finova-management.vercel.app/goals",
+      lastModified: new Date(),
     },
     {
-      url: `${baseUrl}/transactions`,
-      lastModified: currentDate,
-      changeFrequency: "daily",
-      priority: 0.8,
+      url: "https://finova-management.vercel.app/liabilities",
+      lastModified: new Date(),
     },
     {
-      url: `${baseUrl}/report`,
-      lastModified: currentDate,
-      changeFrequency: "weekly",
-      priority: 0.7,
+      url: "https://finova-management.vercel.app/transactions",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://finova-management.vercel.app/report",
+      lastModified: new Date(),
     },
   ];
 }
