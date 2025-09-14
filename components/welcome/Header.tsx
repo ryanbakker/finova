@@ -1,3 +1,5 @@
+"use client";
+
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,11 +8,11 @@ import { ThemeToggle } from "../ThemeToggle";
 import { LogIn } from "lucide-react";
 import { navigationLinks } from "../../constants";
 import MobileNav from "./MobileNav";
+import { handleSmoothScrollClick } from "../../lib/utils/smoothScroll";
 
 function WelcomeHeader() {
   return (
     <header className="w-full fixed left-0 right-0 top-0 z-[9999] backdrop-blur-xl bg-white/60 dark:bg-neutral-950/70 border-b border-white/20 dark:border-neutral-800/50 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
-      <div className="absolute bg-gradient-to-b from-sky-100 dark:from-sky-900 to-transparent h-[70px] w-full top-0 left-0 -z-10" />
       <nav className="welcome-nav flex justify-between items-center px-4 py-2 lg:py-4 mx-auto max-w-7xl">
         <Image src="/finova-logo.svg" alt="Finova" width={100} height={40} />
 
@@ -19,14 +21,17 @@ function WelcomeHeader() {
         <ul className="lg:flex hidden flex-row items-center gap-8">
           {navigationLinks.map((link, index) => (
             <li key={index}>
-              <Link
+              <a
                 href={link.href}
-                className="group relative text-sky-950 dark:text-sky-50 hover:text-sky-950! dark:hover:text-sky-50! transition-all duration-300 font-medium text-sm uppercase tracking-wide"
+                onClick={(e) =>
+                  handleSmoothScrollClick(e, link.href.replace("/#", ""), 50)
+                }
+                className="group relative text-sky-950 dark:text-sky-50 hover:text-sky-950! dark:hover:text-sky-50! transition-all duration-300 font-medium text-sm uppercase tracking-wide cursor-pointer"
               >
                 <span className="relative z-10">{link.label}</span>
                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-sky-500 to-cyan-500 group-hover:w-full transition-all duration-300 ease-out"></div>
                 <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-sky-500/20 to-cyan-500/20 group-hover:opacity-0 transition-opacity duration-300"></div>
-              </Link>
+              </a>
             </li>
           ))}
 

@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { handleSmoothScrollClick } from "../../lib/utils/smoothScroll";
 
 function WelcomeFooter() {
   return (
@@ -14,36 +17,48 @@ function WelcomeFooter() {
               </h3>
               <ul className="space-y-3">
                 <li>
-                  <Link
+                  <a
                     href="/#welcome-hero"
-                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm"
+                    onClick={(e) =>
+                      handleSmoothScrollClick(e, "welcome-hero", 50)
+                    }
+                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm cursor-pointer"
                   >
                     Get Started
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link
+                  <a
                     href="/#welcome-features"
-                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm"
+                    onClick={(e) =>
+                      handleSmoothScrollClick(e, "welcome-features", 50)
+                    }
+                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm cursor-pointer"
                   >
                     Features
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link
+                  <a
                     href="/#welcome-pricing"
-                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm"
+                    onClick={(e) =>
+                      handleSmoothScrollClick(e, "welcome-pricing", 50)
+                    }
+                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm cursor-pointer"
                   >
                     Pricing
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link
+                  <a
                     href="/#welcome-contact"
-                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm"
+                    onClick={(e) =>
+                      handleSmoothScrollClick(e, "welcome-contact", 50)
+                    }
+                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm cursor-pointer"
                   >
                     Contact
-                  </Link>
+                  </a>
                 </li>
               </ul>
             </div>
