@@ -134,12 +134,12 @@ _Take control of your financial future with intelligent insights and beautiful d
 #### Light Mode
 
 <div align="center">
-  <img src="/hero/light-desktop-dashboard.png" alt="Dashboard - Light Mode" width="100%" />
+  <img src="https://github.com/user-attachments/assets/79e9158a-0633-4da6-b746-6eea5c8f70a7" alt="Dashboard - Light Mode" width="100%" />
   <p><em>Main Dashboard - Light Theme</em></p>
 </div>
 
 <div align="center">
-  <img src="/hero/light-desktop-transactions.png" alt="Transactions - Light Mode" width="100%" />
+  <img src="https://github.com/user-attachments/assets/17d2b37e-c39e-4c95-9d0f-4773d2f4d5fa" alt="Transactions - Light Mode" width="100%" />
   <p><em>Transaction Management - Light Theme</em></p>
 </div>
 
@@ -149,12 +149,12 @@ _Take control of your financial future with intelligent insights and beautiful d
 #### Dark Mode
 
 <div align="center">
-  <img src="/hero/dark-desktop-dashboard.png" alt="Dashboard - Dark Mode" width="100%" />
+  <img src="https://github.com/user-attachments/assets/84628725-4763-415d-bf64-4391b6461b70" alt="Dashboard - Dark Mode" width="100%" />
   <p><em>Main Dashboard - Dark Theme</em></p>
 </div>
 
 <div align="center">
-  <img src="/hero/dark-desktop-transactions.png" alt="Transactions - Dark Mode" width="100%" />
+  <img src="https://github.com/user-attachments/assets/37e35f4b-c761-41d4-b25f-2f22f6eaf59b" alt="Transactions - Dark Mode" width="100%" />
   <p><em>Transaction Management - Dark Theme</em></p>
 </div>
 
@@ -171,12 +171,12 @@ _Take control of your financial future with intelligent insights and beautiful d
 #### Light Mode
 
 <div align="center">
-  <img src="/hero/light-mobile-nav.png" alt="Mobile Navigation - Light Mode" width="200" />
+  <img src="https://github.com/user-attachments/assets/7a48461a-5cf8-4928-a80e-ef5c3b226d29" alt="Mobile Navigation - Light Mode" width="200" />
   <p><em>Mobile Navigation - Light Theme</em></p>
 </div>
 
 <div align="center">
-  <img src="/hero/light-mobile-transactions.png" alt="Mobile Transactions - Light Mode" width="200" />
+  <img src="https://github.com/user-attachments/assets/91186c22-1cc9-41a2-96fb-0e1078129318" alt="Mobile Transactions - Light Mode" width="200" />
   <p><em>Mobile Transactions - Light Theme</em></p>
 </div>
 
@@ -186,12 +186,12 @@ _Take control of your financial future with intelligent insights and beautiful d
 #### Dark Mode
 
 <div align="center">
-  <img src="/hero/dark-mobile-nav.png" alt="Mobile Navigation - Dark Mode" width="200" />
+  <img src="https://github.com/user-attachments/assets/7ec5a501-b08a-473b-9bca-58d5d66d4cc1" alt="Mobile Navigation - Dark Mode" width="200" />
   <p><em>Mobile Navigation - Dark Theme</em></p>
 </div>
 
 <div align="center">
-  <img src="/hero/dark-mobile-transactions.png" alt="Mobile Transactions - Dark Mode" width="200" />
+  <img src="https://github.com/user-attachments/assets/2396fcf8-4001-410f-9957-e67bb46bd688" alt="Mobile Transactions - Dark Mode" width="200" />
   <p><em>Mobile Transactions - Dark Theme</em></p>
 </div>
 
