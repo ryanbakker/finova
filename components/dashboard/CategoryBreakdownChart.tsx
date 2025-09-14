@@ -13,21 +13,105 @@ import Link from "next/link";
 import { MoveRight } from "lucide-react";
 import { DonutChart } from "@/components/DonutChart";
 import { type AvailableChartColorsKeys } from "@/lib/chartUtils";
+import { useTheme } from "next-themes";
 
 interface CategoryBreakdownChartProps {
   isLoading?: boolean;
   categoryData?: Array<{ category: string; amount: number }>;
 }
 
+// Helper function to get the appropriate color class for the legend based on theme
+const getLegendColorClass = (
+  colorKey: AvailableChartColorsKeys,
+  isDarkMode: boolean
+): string => {
+  const lightColorMap: Record<AvailableChartColorsKeys, string> = {
+    sky50: "bg-sky-100",
+    sky100: "bg-sky-100",
+    sky200: "bg-sky-200",
+    sky300: "bg-sky-300",
+    sky400: "bg-sky-400",
+    sky500: "bg-sky-500",
+    sky600: "bg-sky-600",
+    sky700: "bg-sky-700",
+    sky800: "bg-sky-800",
+    sky900: "bg-sky-900",
+    sky950: "bg-sky-950",
+    sky1000: "bg-sky-950",
+    sky1100: "bg-sky-950",
+    sky1200: "bg-sky-950",
+    sky: "bg-sky-500",
+    blue: "bg-blue-500",
+    emerald: "bg-emerald-500",
+    violet: "bg-violet-500",
+    amber: "bg-amber-500",
+    gray: "bg-gray-500",
+    cyan: "bg-cyan-500",
+    pink: "bg-pink-500",
+    lime: "bg-lime-500",
+    fuchsia: "bg-fuchsia-500",
+    red: "bg-red-500",
+    orange: "bg-orange-500",
+    green: "bg-green-500",
+    teal: "bg-teal-500",
+    indigo: "bg-indigo-500",
+    purple: "bg-purple-500",
+    rose: "bg-rose-500",
+    yellow: "bg-yellow-500",
+  };
+
+  const darkColorMap: Record<AvailableChartColorsKeys, string> = {
+    sky50: "bg-sky-950", // sky950 equivalent
+    sky100: "bg-sky-900", // sky900 equivalent
+    sky200: "bg-sky-800", // sky800 equivalent
+    sky300: "bg-sky-700", // sky700 equivalent
+    sky400: "bg-sky-600", // sky600 equivalent
+    sky500: "bg-sky-500", // keep same
+    sky600: "bg-sky-400", // sky400 equivalent
+    sky700: "bg-sky-300", // sky300 equivalent
+    sky800: "bg-sky-200", // sky200 equivalent
+    sky900: "bg-sky-100", // sky100 equivalent
+    sky950: "bg-sky-100", // sky100 equivalent
+    sky1000: "bg-sky-100",
+    sky1100: "bg-sky-100",
+    sky1200: "bg-sky-100",
+    sky: "bg-sky-500",
+    blue: "bg-blue-700",
+    emerald: "bg-emerald-700",
+    violet: "bg-violet-600",
+    amber: "bg-amber-600",
+    gray: "bg-gray-700",
+    cyan: "bg-cyan-600",
+    pink: "bg-pink-700",
+    lime: "bg-lime-600",
+    fuchsia: "bg-fuchsia-600",
+    red: "bg-red-600",
+    orange: "bg-orange-600",
+    green: "bg-green-600",
+    teal: "bg-teal-600",
+    indigo: "bg-indigo-600",
+    purple: "bg-purple-600",
+    rose: "bg-rose-600",
+    yellow: "bg-yellow-600",
+  };
+
+  const colorMap = isDarkMode ? darkColorMap : lightColorMap;
+  return colorMap[colorKey] || (isDarkMode ? "bg-gray-700" : "bg-gray-500");
+};
+
 export function CategoryBreakdownChart({
   isLoading = false,
   categoryData,
 }: CategoryBreakdownChartProps) {
+  const { theme } = useTheme();
+  const isDarkMode = theme === "dark";
+
   // Use provided data only - no fallback to example data
-  const data = categoryData?.map((item) => ({
-    name: item.category,
-    amount: item.amount,
-  })) || [];
+  const data =
+    categoryData?.map((item) => ({
+      name: item.category,
+      amount: item.amount,
+    })) || [];
 
   // Sort data by amount in descending order (highest to lowest)
   // Note: Highest value gets darkest color, lowest value gets lightest color
@@ -91,7 +175,7 @@ export function CategoryBreakdownChart({
                   {[1, 2, 3, 4, 5, 6].map((i) => (
                     <li
                       key={i}
-                      className="flex items-center justify-between py-1.5 px-2.5 bg-gray-100 dark:bg-gray-800 rounded-full"
+                      className="flex items-center justify-between py-1.5 px-2.5 bg-gray-100 dark:bg-gray-800 rounded-lg"
                     >
                       <div className="flex items-center space-x-2 min-w-0 flex-1">
                         <Skeleton className="w-3 h-3 rounded-full flex-shrink-0" />
@@ -133,7 +217,9 @@ export function CategoryBreakdownChart({
           <div className="flex-1 flex items-center justify-center min-h-[400px]">
             <div className="text-center text-muted-foreground">
               <p className="mb-2">No spending data available yet.</p>
-              <p className="text-sm">Add transactions to see your category breakdown.</p>
+              <p className="text-sm">
+                Add transactions to see your category breakdown.
+              </p>
             </div>
           </div>
         </CardContent>
@@ -194,25 +280,14 @@ export function CategoryBreakdownChart({
                   return (
                     <li
                       key={category.name}
-                      className="flex items-center justify-between py-1.5 px-2.5 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      className="flex items-center justify-between py-1.5 px-2.5 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     >
                       <div className="flex items-center space-x-2 min-w-0 flex-1">
                         <div
-                          className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                            colorKey === "sky50"
-                              ? "bg-sky-100"
-                              : colorKey === "sky200"
-                              ? "bg-sky-200"
-                              : colorKey === "sky400"
-                              ? "bg-sky-400"
-                              : colorKey === "sky600"
-                              ? "bg-sky-600"
-                              : colorKey === "sky800"
-                              ? "bg-sky-800"
-                              : colorKey === "sky950"
-                              ? "bg-sky-950"
-                              : "bg-gray-500"
-                          }`}
+                          className={`w-3 h-3 rounded-full flex-shrink-0 ${getLegendColorClass(
+                            colorKey,
+                            isDarkMode
+                          )}`}
                         />
                         <span className="font-medium text-gray-700 dark:text-gray-300 truncate text-xs">
                           {category.name}

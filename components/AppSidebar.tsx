@@ -195,7 +195,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 ))}
           </SidebarMenu>
           <SidebarMenu>
-            <Collapsible className="group/collapsible">
+            <Collapsible className="group/collapsible" id="reports-collapsible">
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild className="cursor-pointer mb-0.5">
                   <SidebarMenuButton

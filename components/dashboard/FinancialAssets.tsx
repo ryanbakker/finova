@@ -215,7 +215,9 @@ export function FinancialAssets({
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className={`text-sm font-semibold text-sky-800`}>
+                      <div
+                        className={`text-sm font-semibold text-sky-900 dark:text-gray-100`}
+                      >
                         ${currentValue.toLocaleString()}
                       </div>
                       <div

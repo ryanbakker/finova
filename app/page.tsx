@@ -226,14 +226,21 @@ function DashboardContent({
     <DashboardTimedLoadingPage message="Loading your financial dashboard...">
       <header className="rounded-b-xl">
         <div className="flex h-16 shrink-0 items-center gap-2 px-4 rounded-xl mb-1 dark:bg-[#0a0a0a] bg-white shadow-sm mt-1">
-          <SidebarTrigger className="-ml-1 text-sky-600 cursor-pointer hover:text-sky-800" />
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4"
-          />
-          <DynamicBreadcrumb />
-          <div className="ml-auto">
-            <Image src="/finova-logo.svg" alt="Finova" width={80} height={30} />
+          <div className="mx-auto max-w-7xl flex items-center gap-2 justify-between w-full">
+            <SidebarTrigger className="-ml-1 text-sky-600 cursor-pointer hover:text-sky-800" />
+            <Separator
+              orientation="vertical"
+              className="mr-2 data-[orientation=vertical]:h-4"
+            />
+            <DynamicBreadcrumb />
+            <div className="ml-auto">
+              <Image
+                src="/finova-logo.svg"
+                alt="Finova"
+                width={80}
+                height={30}
+              />
+            </div>
           </div>
         </div>
       </header>
@@ -528,9 +535,9 @@ export default function Home() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full">
+      <div className="flex h-full w-full">
         <AppSidebar />
-        <SidebarInset className="flex-1 shadow-none! w-full min-w-0 dark:bg-[#171717] bg-[#fafafa]">
+        <SidebarInset className="flex-1 shadow-none! w-full min-h-full min-w-0 dark:bg-[#171717] bg-[#fafafa]">
           <DashboardContent user={user} isLoaded={isLoaded} />
         </SidebarInset>
       </div>

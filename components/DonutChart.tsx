@@ -11,6 +11,7 @@ import {
   Tooltip,
   Cell,
 } from "recharts";
+import { useTheme } from "next-themes";
 
 import {
   AvailableChartColors,
@@ -24,14 +25,17 @@ const sumNumericArray = (arr: number[]): number =>
   arr.reduce((sum, num) => sum + num, 0);
 
 // Convert color names or hex values to actual color values for recharts
-const getColorValue = (colorInput: string): string => {
+const getColorValue = (
+  colorInput: string,
+  isDarkMode: boolean = false
+): string => {
   // If it's already a hex color, return it directly
   if (colorInput.startsWith("#")) {
     return colorInput;
   }
 
   // Otherwise, treat it as a color name and look it up
-  const colorMap: Record<AvailableChartColorsKeys, string> = {
+  const lightColorMap: Record<AvailableChartColorsKeys, string> = {
     // Sky color gradient (lightest to darkest) - Enhanced darker values for better contrast
     sky50: "#f0f9ff",
     sky100: "#e0f2fe",
@@ -70,13 +74,59 @@ const getColorValue = (colorInput: string): string => {
     rose: "#f43f5e",
     yellow: "#eab308",
   };
-  return colorMap[colorInput as AvailableChartColorsKeys] || "#6b7280"; // fallback to gray
+
+  const darkColorMap: Record<AvailableChartColorsKeys, string> = {
+    // Sky color gradient - darker shades for dark mode
+    sky50: "#082f49", // sky950 equivalent
+    sky100: "#0c4a6e", // sky900 equivalent
+    sky200: "#075985", // sky800 equivalent
+    sky300: "#0369a1", // sky700 equivalent
+    sky400: "#0284c7", // sky600 equivalent
+    sky500: "#0ea5e9", // sky500 (keep same)
+    sky600: "#38bdf8", // sky400 equivalent
+    sky700: "#7dd3fc", // sky300 equivalent
+    sky800: "#bae6fd", // sky200 equivalent
+    sky900: "#e0f2fe", // sky100 equivalent
+    sky950: "#f0f9ff", // sky50 equivalent
+    // Custom darker sky colors for maximum contrast
+    sky1000: "#f0f9ff",
+    sky1100: "#f0f9ff",
+    sky1200: "#f0f9ff",
+    // Add missing sky color
+    sky: "#0ea5e9",
+    // Original colors - darker shades for dark mode
+    blue: "#1d4ed8", // blue-700
+    emerald: "#047857", // emerald-700
+    violet: "#7c3aed", // violet-600
+    amber: "#d97706", // amber-600
+    gray: "#374151", // gray-700
+    cyan: "#0891b2", // cyan-600
+    pink: "#be185d", // pink-700
+    lime: "#65a30d", // lime-600
+    fuchsia: "#c026d3", // fuchsia-600
+    // New vibrant colors - darker shades for dark mode
+    red: "#dc2626", // red-600
+    orange: "#ea580c", // orange-600
+    green: "#16a34a", // green-600
+    teal: "#0d9488", // teal-600
+    indigo: "#4f46e5", // indigo-600
+    purple: "#9333ea", // purple-600
+    rose: "#e11d48", // rose-600
+    yellow: "#ca8a04", // yellow-600
+  };
+
+  const colorMap = isDarkMode ? darkColorMap : lightColorMap;
+  return (
+    colorMap[colorInput as AvailableChartColorsKeys] ||
+    (isDarkMode ? "#374151" : "#6b7280")
+  ); // fallback to gray
 };
 
 const parseData = (
   data: Record<string, any>[],
   categoryColors: Map<string, AvailableChartColorsKeys>,
-  category: string
+  category: string,
+  isDarkMode: boolean = false
 ) => {
   return data.map((dataPoint) => {
     // If the data already has a color property, use it; otherwise fall back to category mapping
@@ -87,7 +137,7 @@ const parseData = (
 
     return {
       ...dataPoint,
-      color: colorValue,
+      color: getColorValue(colorValue, isDarkMode),
     };
   });
 };
@@ -174,7 +224,7 @@ const ChartTooltip = ({
                   // base
                   "text-right font-medium whitespace-nowrap tabular-nums",
                   // text color
-                  "text-gray-900 dark:bg-gray-50"
+                  "text-gray-900 dark:text-gray-100"
                 )}
               >
                 {valueFormatter(value)}
@@ -233,6 +283,8 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
     },
     forwardedRef
   ) => {
+    const { theme } = useTheme();
+    const isDarkMode = theme === "dark";
     const CustomTooltip = customTooltip;
     const [activeIndex, setActiveIndex] = React.useState<number | undefined>(
       undefined
@@ -309,8 +361,16 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
                     x2="100%"
                     y2="0%"
                   >
-                    <stop offset="0%" stopColor="#082f49" /> {/* Sky-950 */}
-                    <stop offset="100%" stopColor="#0284c7" /> {/* Sky-600 */}
+                    <stop
+                      offset="0%"
+                      stopColor={isDarkMode ? "#e0f2fe" : "#082f49"}
+                    />{" "}
+                    {/* Sky-100 in dark mode, Sky-950 in light mode */}
+                    <stop
+                      offset="100%"
+                      stopColor={isDarkMode ? "#bae6fd" : "#0284c7"}
+                    />{" "}
+                    {/* Sky-200 in dark mode, Sky-600 in light mode */}
                   </linearGradient>
                 </defs>
                 {/* Main value label with gradient fill */}
@@ -329,7 +389,7 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
               </>
             )}
             <Pie
-              data={parseData(data, categoryColors, category)}
+              data={parseData(data, categoryColors, category, isDarkMode)}
               cx="50%"
               cy="50%"
               startAngle={90}
@@ -344,9 +404,11 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
               onClick={handleShapeClick}
               style={{ outline: "none" }}
             >
-              {parseData(data, categoryColors, category).map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={getColorValue(entry.color)} />
-              ))}
+              {parseData(data, categoryColors, category, isDarkMode).map(
+                (entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                )
+              )}
             </Pie>
             {showTooltip && (
               <Tooltip
@@ -359,7 +421,8 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
                         const dataEntry = parseData(
                           data,
                           categoryColors,
-                          category
+                          category,
+                          isDarkMode
                         ).find(
                           (entry: any) =>
                             entry[category] === item.payload[category]
@@ -367,7 +430,9 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
                         return {
                           category: item.payload[category],
                           value: item.value,
-                          color: dataEntry?.color || AvailableChartColors[0],
+                          color:
+                            dataEntry?.color ||
+                            getColorValue(AvailableChartColors[0], isDarkMode),
                         };
                       })
                     : [];
