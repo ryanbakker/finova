@@ -1,0 +1,29 @@
+User-agent: *
+Allow: /
+
+# Allow all public pages
+Allow: /welcome
+Allow: /privacy
+
+# Disallow private dashboard pages (require authentication)
+Disallow: /assets
+Disallow: /bills
+Disallow: /budgeting
+Disallow: /goals
+Disallow: /liabilities
+Disallow: /transactions
+Disallow: /report
+
+# Disallow API routes
+Disallow: /api/
+
+# Disallow admin and internal pages
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /_vercel/
+
+# Sitemap location
+Sitemap: https://finova-management.vercel.app/sitemap.xml
+
+# Crawl delay (optional - be respectful to server resources)
+Crawl-delay: 1
