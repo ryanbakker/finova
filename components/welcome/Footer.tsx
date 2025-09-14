@@ -17,7 +17,7 @@ function WelcomeFooter() {
               </h3>
               <ul className="space-y-3">
                 <li>
-                  <a
+                  <Link
                     href="/#welcome-hero"
                     onClick={(e) =>
                       handleSmoothScrollClick(e, "welcome-hero", 50)
@@ -25,10 +25,10 @@ function WelcomeFooter() {
                     className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm cursor-pointer"
                   >
                     Get Started
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
+                  <Link
                     href="/#welcome-features"
                     onClick={(e) =>
                       handleSmoothScrollClick(e, "welcome-features", 50)
@@ -36,10 +36,10 @@ function WelcomeFooter() {
                     className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm cursor-pointer"
                   >
                     Features
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
+                  <Link
                     href="/#welcome-pricing"
                     onClick={(e) =>
                       handleSmoothScrollClick(e, "welcome-pricing", 50)
@@ -47,10 +47,10 @@ function WelcomeFooter() {
                     className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm cursor-pointer"
                   >
                     Pricing
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
+                  <Link
                     href="/#welcome-contact"
                     onClick={(e) =>
                       handleSmoothScrollClick(e, "welcome-contact", 50)
@@ -58,7 +58,7 @@ function WelcomeFooter() {
                     className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm cursor-pointer"
                   >
                     Contact
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
