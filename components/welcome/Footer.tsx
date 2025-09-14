@@ -82,13 +82,29 @@ function WelcomeFooter() {
               <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
                 © 2025 Finova. All rights reserved.
               </p>
-              <div>
+              <div className="flex items-center gap-4">
                 <Link
                   href="/privacy"
                   className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm underline"
                 >
                   Privacy Policy
                 </Link>
+                <Link
+                  href="https://creativecommons.org/licenses/by-nc/4.0/"
+                  target="_blank"
+                  className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm underline"
+                >
+                  License
+                </Link>
+                <a href="#" id="shielded-logo-welcome">
+                  <img
+                    alt="shielded"
+                    src="https://shielded.co.nz/img/custom-logo.png"
+                    height="24"
+                    width="24"
+                    className="opacity-70 hover:opacity-100 transition-opacity"
+                  />
+                </a>
               </div>
             </div>
           </div>
@@ -158,6 +174,24 @@ function WelcomeFooter() {
           }}
         />
       </div>
+
+      {/* Third-party Shielded script */}
+      <script src="https://staticcdn.co.nz/embed/embed.js"></script>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function () {
+              window.onload = function(){
+                var frameName = new ds07o6pcmkorn({
+                  openElementId: "#shielded-logo-welcome",
+                  modalID: "modal",
+                });
+                frameName.init();
+              }
+            })();
+          `,
+        }}
+      />
     </footer>
   );
 }

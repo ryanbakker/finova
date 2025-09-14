@@ -1,4 +1,5 @@
 import { Heart } from "lucide-react";
+import Link from "next/link";
 
 export function DashboardFooter() {
   return (
@@ -13,7 +14,57 @@ export function DashboardFooter() {
           <span>Made with</span>
           <Heart className="h-4 w-4 text-red-500" fill="red" />
         </div>
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <ul className="flex items-center gap-4">
+            <li>
+              <a href="#" id="shielded-logo">
+                <img
+                  alt="shielded"
+                  src="https://shielded.co.nz/img/custom-logo.png"
+                  height="30"
+                  width="30"
+                  className="opacity-70 hover:opacity-100 transition-opacity"
+                />
+              </a>
+            </li>
+            <li>
+              <Link
+                href="/privacy"
+                className="hover:text-foreground transition-colors"
+              >
+                Privacy Policy
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="https://creativecommons.org/licenses/by-nc/4.0/"
+                target="_blank"
+                className="hover:text-foreground transition-colors"
+              >
+                License
+              </Link>
+            </li>
+          </ul>
+        </div>
       </div>
+
+      {/* Third-party Shielded script */}
+      <script src="https://staticcdn.co.nz/embed/embed.js"></script>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function () {
+              window.onload = function(){
+                var frameName = new ds07o6pcmkorn({
+                  openElementId: "#shielded-logo",
+                  modalID: "modal",
+                });
+                frameName.init();
+              }
+            })();
+          `,
+        }}
+      />
     </footer>
   );
 }

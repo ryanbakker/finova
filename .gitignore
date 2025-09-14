@@ -522,3 +522,6 @@ node_modules
 .next/static/chunks/\[turbopack\]_browser_dev_hmr-client_hmr-client_ts_bf4925a4._.js.map
 .next/static/chunks/18406_geist_dist_geistsans_81192321_module_css_e59ae46c._.single.css
 .next/static/chunks/18406_geist_dist_geistsans_81192321_module_css_e59ae46c._.single.css.map
+
+# clerk configuration (can include secrets)
+/.clerk/

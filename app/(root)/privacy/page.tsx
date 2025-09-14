@@ -460,6 +460,27 @@ function PrivacyPolicyPage() {
       <FadeIn delay={0} duration={600}>
         <WelcomeFooter />
       </FadeIn>
+
+      {/* Additional Shielded script for privacy page */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function () {
+              window.onload = function(){
+                // Check if the welcome footer shielded logo exists and initialize it
+                var welcomeShielded = document.getElementById('shielded-logo-welcome');
+                if (welcomeShielded && typeof ds07o6pcmkorn !== 'undefined') {
+                  var frameName = new ds07o6pcmkorn({
+                    openElementId: "#shielded-logo-welcome",
+                    modalID: "modal-privacy",
+                  });
+                  frameName.init();
+                }
+              }
+            })();
+          `,
+        }}
+      />
     </>
   );
 }
