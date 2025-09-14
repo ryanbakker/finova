@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 import { handleSmoothScrollClick } from "../../lib/utils/smoothScroll";
 
 function WelcomeFooter() {
@@ -97,7 +98,7 @@ function WelcomeFooter() {
                   License
                 </Link>
                 <a href="#" id="shielded-logo-welcome">
-                  <img
+                  <Image
                     alt="shielded"
                     src="https://shielded.co.nz/img/custom-logo.png"
                     height="24"
@@ -176,8 +177,13 @@ function WelcomeFooter() {
       </div>
 
       {/* Third-party Shielded script */}
-      <script src="https://staticcdn.co.nz/embed/embed.js"></script>
-      <script
+      <Script
+        src="https://staticcdn.co.nz/embed/embed.js"
+        strategy="afterInteractive"
+      />
+      <Script
+        id="shielded-script-welcome"
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             (function () {

@@ -1,5 +1,7 @@
 import { Heart } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 
 export function DashboardFooter() {
   return (
@@ -18,7 +20,7 @@ export function DashboardFooter() {
           <ul className="flex items-center gap-4">
             <li>
               <a href="#" id="shielded-logo">
-                <img
+                <Image
                   alt="shielded"
                   src="https://shielded.co.nz/img/custom-logo.png"
                   height="30"
@@ -49,8 +51,13 @@ export function DashboardFooter() {
       </div>
 
       {/* Third-party Shielded script */}
-      <script src="https://staticcdn.co.nz/embed/embed.js"></script>
-      <script
+      <Script
+        src="https://staticcdn.co.nz/embed/embed.js"
+        strategy="afterInteractive"
+      />
+      <Script
+        id="shielded-script"
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             (function () {
