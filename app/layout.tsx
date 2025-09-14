@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans"; // import font
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
+import { ThemeAwareClerkProvider } from "@/components/ThemeAwareClerkProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { UserSync } from "@/components/UserSync";
 import { Toaster } from "@/components/ui/toaster";
@@ -19,33 +19,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-      signInUrl="/welcome"
-      signUpUrl="/welcome"
-      afterSignInUrl="/"
-      afterSignUpUrl="/"
+    <html
+      lang="en"
+      className={`${GeistSans.className} antialiased dark:bg-gray-950`}
+      suppressHydrationWarning
     >
-      <html
-        lang="en"
-        className={`${GeistSans.className} antialiased dark:bg-gray-950`}
-        suppressHydrationWarning
-      >
-        <body className="w-full h-full">
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
+      <body className="w-full h-full">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ThemeAwareClerkProvider
+            publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+            signInUrl="/welcome"
+            signUpUrl="/welcome"
+            afterSignInUrl="/"
+            afterSignUpUrl="/"
           >
             <UserSync />
             {children}
             <Toaster />
             <Analytics />
             <SpeedInsights />
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+          </ThemeAwareClerkProvider>
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }
