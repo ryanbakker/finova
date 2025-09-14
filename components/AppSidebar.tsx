@@ -197,11 +197,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenu>
             <Collapsible className="group/collapsible">
               <SidebarMenuItem>
-                <CollapsibleTrigger
-                  asChild
-                  className="cursor-pointer mb-0.5"
-                  disabled
-                >
+                <CollapsibleTrigger asChild className="cursor-pointer mb-0.5">
                   <SidebarMenuButton
                     asChild
                     className="h-9 px-3 rounded-md transition-colors"
@@ -218,8 +214,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuSubItem>
                       <SidebarMenuSubButton asChild>
                         <Link href="/" className="text-xs font-medium">
-                          Generate Report
                           <Plus className="w-[5px] h-[5px] scale-90" />
+                          Generate Report
                         </Link>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
@@ -235,22 +231,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
                           {/* Add toast notification when report is generating, and then when it is completed or errored out */}
                         </div>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-
-                    <SidebarMenuSubItem>
-                      <SidebarMenuSubButton asChild>
-                        <Link href="/" className="text-xs">
-                          2025-09-17
-                        </Link>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-
-                    <SidebarMenuSubItem>
-                      <SidebarMenuSubButton asChild>
-                        <Link href="/" className="text-xs">
-                          2025-08-22
-                        </Link>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
 

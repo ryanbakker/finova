@@ -297,6 +297,99 @@
   }
 }
 
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes slowPulse {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.05);
+  }
+}
+
+.animate-slow-pulse {
+  animation: slowPulse 3s ease-in-out infinite;
+}
+
+@keyframes floatLeft {
+  0% {
+    transform: translateX(0) translateY(0);
+  }
+  25% {
+    transform: translateX(-20px) translateY(-15px);
+  }
+  50% {
+    transform: translateX(10px) translateY(10px);
+  }
+  75% {
+    transform: translateX(-10px) translateY(-5px);
+  }
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+}
+
+@keyframes floatRight {
+  0% {
+    transform: translateX(0) translateY(0);
+  }
+  25% {
+    transform: translateX(15px) translateY(12px);
+  }
+  50% {
+    transform: translateX(-25px) translateY(-8px);
+  }
+  75% {
+    transform: translateX(5px) translateY(18px);
+  }
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+}
+
+@keyframes floatCenter {
+  0% {
+    transform: translateX(0) translateY(0);
+  }
+  33% {
+    transform: translateX(-15px) translateY(-12px);
+  }
+  66% {
+    transform: translateX(20px) translateY(15px);
+  }
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+}
+
+.animate-float-left {
+  animation: slowPulse 4s ease-in-out infinite, floatLeft 16s ease-in-out infinite;
+}
+
+.animate-float-right {
+  animation: slowPulse 4s ease-in-out infinite, floatRight 20s ease-in-out infinite;
+}
+
+.animate-float-center {
+  animation: slowPulse 4s ease-in-out infinite, floatCenter 24s ease-in-out infinite;
+}
+
 /* Custom Chart Styling for Tremor Charts */
 @layer components {
   /* Area Chart Colors */
@@ -566,4 +659,8 @@
 
 .button-blue-bg {
   @apply bg-gradient-to-r from-sky-500 via-sky-500 to-sky-600 text-white hover:from-sky-600 hover:via-sky-600 hover:text-white transition-colors cursor-pointer shadow-sm dark:from-sky-600 dark:via-sky-600 dark:to-sky-800 dark:hover:to-sky-600;
+}
+
+.mobile-nav-link {
+  @apply flex items-center gap-2 px-3 py-2.5 rounded-md text-sky-700 dark:text-sky-100 hover:bg-sky-500/10 dark:hover:bg-sky-500/20 transition-all duration-200 bg-sky-100 dark:bg-sky-900;
 }

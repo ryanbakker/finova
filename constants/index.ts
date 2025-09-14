@@ -91,94 +91,94 @@ export const footerLinks = [
 
 export const pricingPlans = [
   {
-    name: "Free Beta",
-    price: "$0",
-    period: "/month",
-    description:
-      "Limited time offer while we're in beta. Get full access to all features!",
+    name: "Free Trial",
+    price: {
+      monthly: "",
+      annual: "",
+    },
+    period: {
+      monthly: "14 days",
+      annual: "14 days",
+    },
+    description: "Perfect for getting started with managing your finances.",
     features: [
-      "Full Feature Access",
-      "Unlimited Transactions",
-      "Advanced Analytics",
-      "Priority Support",
+      "Expense Tracking",
+      "Transaction Management",
+      "Bill Tracking",
+      "Personal Budgeting",
+      "Financial Goals",
+      "Data Protection",
+      "Mobile Responsive",
     ],
-    buttonText: "Get Started Free",
-    buttonAction: "signup",
-    isPopular: true,
-    isActive: true,
-    gradient: "from-sky-500 to-blue-600",
-    borderColor: "border-sky-400",
+    buttonText: "Start Free Trial",
+    isPopular: false,
+    gradient: "from-gray-100 to-gray-200",
+    borderColor: "border-gray-200",
+    isTrial: true,
   },
   {
     name: "Premium",
-    price: "$9",
-    period: "/month",
+    price: {
+      monthly: "$9.99",
+      annual: "$99.99",
+    },
+    period: {
+      monthly: "/month",
+      annual: "/year",
+    },
     description:
-      "Coming soon after beta. Advanced features and priority support.",
+      "Finance management for individuals serious about financial planning.",
     features: [
-      "Advanced Features",
-      "Priority Support",
-      "Custom Reports",
-      "API Access",
+      "Expense Tracking",
+      "Transaction Management",
+      "Bill Tracking",
+      "Personal Budgeting",
+      "Financial Goals",
+      "Data Protection",
+      "Mobile Responsive",
     ],
-    buttonText: "Coming Soon",
-    buttonAction: "disabled",
+    buttonText: "Purchase",
+    isPopular: true,
+    gradient: "from-sky-500 to-blue-600",
+    borderColor: "border-sky-400",
+    isTrial: false,
+  },
+  {
+    name: "Pro",
+    price: {
+      monthly: "$29.99",
+      annual: "$299.99",
+    },
+    period: {
+      monthly: "/month",
+      annual: "/year",
+    },
+    description:
+      "Advanced financial management for power users and small businesses.",
+    features: [
+      "Preimum Features",
+      "Net Worth Tracking",
+      "Asset Tracking",
+      "Liability Tracking",
+      "AI-Generated Reports",
+      "Data Protection",
+      "Mobile Responsive",
+    ],
+    buttonText: "Purchase",
     isPopular: false,
-    isActive: false,
     gradient: "from-gray-100 to-gray-200",
     borderColor: "border-gray-200",
-  },
-  {
-    name: "Enterprise",
-    price: "$29",
-    period: "/month",
-    description:
-      "Coming soon after beta. Team collaboration and advanced analytics.",
-    features: [
-      "Team Collaboration",
-      "Advanced Analytics",
-      "Custom Integrations",
-      "Dedicated Support",
-    ],
-    buttonText: "Coming Soon",
-    buttonAction: "disabled",
-    isPopular: false,
-    isActive: false,
-    gradient: "from-gray-100 to-gray-200",
-    borderColor: "border-gray-200",
-  },
-];
-
-export const betaFeatures = [
-  {
-    icon: Check,
-    title: "Full Feature Access",
-    description: "All premium features available during beta",
-  },
-  {
-    icon: Check,
-    title: "Unlimited Transactions",
-    description: "Track as many transactions as you need",
-  },
-  {
-    icon: Check,
-    title: "Advanced Analytics",
-    description: "Comprehensive financial insights & reports",
-  },
-  {
-    icon: Check,
-    title: "Priority Support",
-    description: "Direct access to our development team",
+    isTrial: false,
   },
 ];
 
 export const pricingSection = {
   title: "Simple, Transparent Pricing",
-  subtitle: "Start your financial journey today with our powerful platform",
+  subtitle: "Start your financial journey today with our powerful platform.",
   betaBadge: "Currently in Beta - 100% Free!",
   betaFeaturesTitle: "What's Included in Beta",
   betaNotice:
-    "Beta pricing is subject to change. Early adopters will receive special pricing when we launch our paid plans.",
+    "All prices are subject to change. Please check our website for the most current pricing information.",
 };
 
 export const menuItems = [
