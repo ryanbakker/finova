@@ -43,11 +43,12 @@ function PrivacyPolicyPage() {
                   Introduction
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Finova ("we," "our," or "us") is committed to protecting your
-                  privacy and ensuring the security of your personal and
-                  financial information. This Privacy Policy explains how we
-                  collect, use, disclose, and safeguard your information when
-                  you use our financial management application and services.
+                  Finova (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is
+                  committed to protecting your privacy and ensuring the security
+                  of your personal and financial information. This Privacy
+                  Policy explains how we collect, use, disclose, and safeguard
+                  your information when you use our financial management
+                  application and services.
                 </p>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
                   By using our services, you agree to the collection and use of
@@ -176,8 +177,8 @@ function PrivacyPolicyPage() {
                   </li>
                   <li>
                     <strong>Service Improvement:</strong> To analyze usage
-                    patterns and improve our application's functionality and
-                    user experience
+                    patterns and improve our application&apos;s functionality
+                    and user experience
                   </li>
                 </ul>
 
@@ -267,11 +268,6 @@ function PrivacyPolicyPage() {
                   <li>
                     <strong>Vercel:</strong> For application hosting, analytics,
                     and performance monitoring
-                  </li>
-                  <li>
-                    <strong>Google Gemini:</strong> For AI-powered financial
-                    report generation (data is processed but not stored by
-                    Google)
                   </li>
                 </ul>
               </section>
@@ -376,7 +372,8 @@ function PrivacyPolicyPage() {
                 </ul>
                 <p className="text-gray-600 dark:text-gray-300">
                   To exercise these rights, please contact us using the
-                  information provided in the "Contact Us" section below.
+                  information provided in the &quot;Contact Us&quot; section
+                  below.
                 </p>
               </section>
 
@@ -391,15 +388,11 @@ function PrivacyPolicyPage() {
                 <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2">
                   <li>
                     <strong>Clerk:</strong> User authentication and account
-                    management (subject to Clerk's privacy policy)
+                    management (subject to Clerk&apos;s privacy policy)
                   </li>
                   <li>
                     <strong>Vercel Analytics:</strong> Anonymous usage analytics
                     and performance monitoring
-                  </li>
-                  <li>
-                    <strong>Google Gemini:</strong> AI-powered financial report
-                    generation (data is processed but not stored by Google)
                   </li>
                 </ul>
                 <p className="text-gray-600 dark:text-gray-300 mt-4">
@@ -423,7 +416,7 @@ function PrivacyPolicyPage() {
 
               <section className="mb-8">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-                  Children's Privacy
+                  Children&apos;s Privacy
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
                   Our services are not intended for children under 13 years of
@@ -441,9 +434,9 @@ function PrivacyPolicyPage() {
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
                   We may update this Privacy Policy from time to time. We will
                   notify you of any changes by posting the new Privacy Policy on
-                  this page and updating the "Last updated" date. We encourage
-                  you to review this Privacy Policy periodically for any
-                  changes.
+                  this page and updating the &quot;Last updated&quot; date. We
+                  encourage you to review this Privacy Policy periodically for
+                  any changes.
                 </p>
                 <p className="text-gray-600 dark:text-gray-300">
                   Your continued use of our services after any modifications to

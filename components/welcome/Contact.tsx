@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, Bug, Lightbulb, Github, MessageCircle } from "lucide-react";
+import { Bug, Lightbulb, Github } from "lucide-react";
 import { Button } from "../ui/button";
 import { FadeInUp } from "../ui/animate-on-scroll";
 

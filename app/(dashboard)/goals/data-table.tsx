@@ -139,13 +139,10 @@ export function DataTable<TData extends FinancialGoal, TValue>({
     setIsDeleteDialogOpen(true);
   }, []);
 
-  const handleSaveGoal = useCallback(
-    (goal: FinancialGoal) => {
-      // TODO: Implement save logic
-      handleCloseEditDialog();
-    },
-    [handleCloseEditDialog]
-  );
+  const handleSaveGoal = useCallback(() => {
+    // TODO: Implement save logic
+    handleCloseEditDialog();
+  }, [handleCloseEditDialog]);
 
   const handleDeleteGoalConfirm = useCallback(() => {
     if (selectedGoal && onDelete) {

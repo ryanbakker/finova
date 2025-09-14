@@ -75,7 +75,7 @@ const reportSchema = new Schema<IReport>(
       model: {
         type: String,
         required: false,
-        default: "gemini-1.5-flash",
+        default: "basic",
       },
       tokensUsed: {
         type: Number,

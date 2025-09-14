@@ -33,7 +33,8 @@ export default function WelcomeNotFound() {
             Page Not Found
           </CardTitle>
           <CardDescription className="text-gray-600 dark:text-gray-400">
-            This welcome page doesn't exist. Let's get you back on track.
+            This welcome page doesn&apos;t exist. Let&apos;s get you back on
+            track.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

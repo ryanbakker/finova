@@ -6,7 +6,7 @@ import { Report } from "@/database/models/report.model";
 // GET /api/reports/[id] - Get a specific report
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -17,8 +17,9 @@ export async function GET(
 
     await connectToDB();
 
+    const { id } = await params;
     const report = await Report.findOne({
-      _id: params.id,
+      _id: id,
       userId,
     }).lean();
 
@@ -39,7 +40,7 @@ export async function GET(
 // DELETE /api/reports/[id] - Delete a report
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -50,8 +51,9 @@ export async function DELETE(
 
     await connectToDB();
 
+    const { id } = await params;
     const report = await Report.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       userId,
     });
 

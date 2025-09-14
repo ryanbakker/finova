@@ -10,7 +10,7 @@ import {
 } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { ThemeToggleMobile } from "../ThemeToggleMobile";
-import { SignedIn, SignedOut, SignInButton, SignUpButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import {
   LayoutDashboard,
   LogIn,
@@ -21,15 +21,12 @@ import {
   Mail,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useUser, useClerk } from "@clerk/nextjs";
-import { useTheme } from "next-themes";
+import { useClerk } from "@clerk/nextjs";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 
 function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
-  const { openUserProfile, signOut } = useClerk();
-  const { theme } = useTheme();
+  const {} = useClerk();
 
   const handleLinkClick = () => {
     setIsOpen(false);

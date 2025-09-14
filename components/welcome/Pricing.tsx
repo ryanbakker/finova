@@ -1,6 +1,6 @@
 "use client";
 
-import { Star, Zap, Check } from "lucide-react";
+import { Star, Check } from "lucide-react";
 import { Button } from "../ui/button";
 import { SignUpButton } from "@clerk/nextjs";
 import { pricingPlans, pricingSection } from "../../constants";

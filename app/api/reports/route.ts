@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { connectToDB } from "@/database/db";
 import { Report } from "@/database/models/report.model";
-import { geminiService, FinancialData } from "@/lib/services/gemini.service";
 import { getDashboardData } from "@/lib/services/dashboard.service";
 
 // GET /api/reports - Get all reports for the user
@@ -21,7 +20,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const offset = parseInt(searchParams.get("offset") || "0");
 
-    const query: any = { userId };
+    const query: { userId: string; type?: string } = { userId };
     if (type) {
       query.type = type;
     }
@@ -80,20 +79,14 @@ export async function POST(request: NextRequest) {
         generatedAt: new Date(),
         dataRange,
         prompt: customPrompt,
-        model: "gemini-1.5-flash",
+        model: "basic",
       },
     });
 
     await report.save();
 
     // Generate report in background
-    generateReportAsync(
-      report._id.toString(),
-      userId,
-      type,
-      customPrompt,
-      dataRange
-    );
+    generateReportAsync(report._id.toString(), userId, type, customPrompt);
 
     return NextResponse.json({
       report: {
@@ -118,45 +111,26 @@ async function generateReportAsync(
   reportId: string,
   userId: string,
   type: string,
-  customPrompt?: string,
-  dataRange?: { startDate: string; endDate: string }
+  customPrompt?: string
 ) {
   try {
     // Fetch financial data
     const dashboardData = await getDashboardData();
 
-    const financialData: FinancialData = {
-      transactions: dashboardData.recentTransactions || [],
-      assets: dashboardData.assets || [],
-      liabilities: dashboardData.liabilities || [],
-      budgets: dashboardData.budgetProgress || [],
-      goals: dashboardData.financialGoals || [],
-      bills: dashboardData.upcomingBills || [],
-      netWorth: dashboardData.metrics?.netWorth || 0,
-      totalIncome: dashboardData.metrics?.totalIncome || 0,
-      totalExpenses: dashboardData.metrics?.totalExpenses || 0,
-      monthlyData: dashboardData.monthlyIncomeSpending || [],
-    };
-
-    // Generate report using Gemini
-    const result = await geminiService.generateFinancialReport(financialData, {
-      type: type as any,
-      customPrompt,
-      dataRange: dataRange
-        ? {
-            startDate: new Date(dataRange.startDate),
-            endDate: new Date(dataRange.endDate),
-          }
-        : undefined,
-    });
+    // Generate basic report content
+    const reportContent = generateBasicReport(
+      dashboardData,
+      type,
+      customPrompt
+    );
 
     // Update report with generated content
     await Report.findByIdAndUpdate(reportId, {
-      title: result.title,
-      content: result.content,
+      title: reportContent.title,
+      content: reportContent.content,
       status: "completed",
-      insights: result.insights,
-      "metadata.tokensUsed": result.tokensUsed,
+      insights: reportContent.insights,
+      "metadata.tokensUsed": 0,
     });
 
     console.log(`Report ${reportId} generated successfully`);
@@ -169,4 +143,156 @@ async function generateReportAsync(
       content: "Failed to generate report. Please try again.",
     });
   }
+}
+
+// Generate basic report content without AI
+function generateBasicReport(
+  dashboardData: {
+    metrics?: {
+      netWorth?: number;
+      totalIncome?: number;
+      totalExpenses?: number;
+    };
+    assets?: Array<{
+      name: string;
+      currentValue?: number;
+      type?: string;
+      category?: string;
+    }>;
+    liabilities?: Array<{
+      name: string;
+      currentAmount?: number;
+      type?: string;
+    }>;
+    recentTransactions?: Array<{
+      time: string;
+      type: string;
+      amount: number;
+      title: string;
+    }>;
+    financialGoals?: Array<{
+      name: string;
+      currentAmount?: number;
+      targetAmount?: number;
+    }>;
+    upcomingBills?: Array<{
+      name: string;
+      amount?: number;
+      dueDate: string;
+    }>;
+  },
+  type: string,
+  customPrompt?: string
+) {
+  const metrics = dashboardData.metrics || {};
+  const assets = dashboardData.assets || [];
+  const liabilities = dashboardData.liabilities || [];
+  const recentTransactions = dashboardData.recentTransactions || [];
+  const goals = dashboardData.financialGoals || [];
+  const bills = dashboardData.upcomingBills || [];
+
+  const netWorth = metrics.netWorth || 0;
+  const totalIncome = metrics.totalIncome || 0;
+  const totalExpenses = metrics.totalExpenses || 0;
+
+  const title = `Financial Summary Report - ${new Date().toLocaleDateString()}`;
+
+  let content = `# Financial Summary Report\n\n`;
+  content += `**Generated on:** ${new Date().toLocaleDateString()}\n\n`;
+
+  content += `## Overview\n`;
+  content += `- **Net Worth:** $${netWorth.toLocaleString()}\n`;
+  content += `- **Total Income:** $${totalIncome.toLocaleString()}\n`;
+  content += `- **Total Expenses:** $${totalExpenses.toLocaleString()}\n`;
+  content += `- **Savings Rate:** ${
+    totalIncome > 0
+      ? (((totalIncome - totalExpenses) / totalIncome) * 100).toFixed(1)
+      : 0
+  }%\n\n`;
+
+  if (assets.length > 0) {
+    content += `## Assets (${assets.length})\n`;
+    assets.forEach((asset) => {
+      content += `- **${asset.name}:** $${
+        asset.currentValue?.toLocaleString() || 0
+      } (${asset.type || asset.category || "Unknown"})\n`;
+    });
+    content += `\n`;
+  }
+
+  if (liabilities.length > 0) {
+    content += `## Liabilities (${liabilities.length})\n`;
+    liabilities.forEach((liability) => {
+      content += `- **${liability.name}:** $${
+        liability.currentAmount?.toLocaleString() || 0
+      } (${liability.type || "Unknown"})\n`;
+    });
+    content += `\n`;
+  }
+
+  if (goals.length > 0) {
+    content += `## Financial Goals (${goals.length})\n`;
+    goals.forEach((goal) => {
+      const progress =
+        goal.targetAmount && goal.targetAmount > 0
+          ? (((goal.currentAmount || 0) / goal.targetAmount) * 100).toFixed(1)
+          : 0;
+      content += `- **${goal.name}:** $${
+        goal.currentAmount?.toLocaleString() || 0
+      } / $${goal.targetAmount?.toLocaleString() || 0} (${progress}%)\n`;
+    });
+    content += `\n`;
+  }
+
+  if (recentTransactions.length > 0) {
+    content += `## Recent Transactions (Last ${Math.min(
+      5,
+      recentTransactions.length
+    )})\n`;
+    recentTransactions.slice(0, 5).forEach((transaction) => {
+      content += `- ${transaction.time}: ${transaction.type} $${transaction.amount} - ${transaction.title}\n`;
+    });
+    content += `\n`;
+  }
+
+  if (bills.length > 0) {
+    content += `## Upcoming Bills (${bills.length})\n`;
+    bills.forEach((bill) => {
+      content += `- **${bill.name}:** $${
+        bill.amount?.toLocaleString() || 0
+      } due ${bill.dueDate}\n`;
+    });
+    content += `\n`;
+  }
+
+  if (customPrompt) {
+    content += `## Custom Analysis\n`;
+    content += `*Note: Custom prompt analysis is not available in basic mode.*\n\n`;
+  }
+
+  const insights = {
+    keyFindings: [
+      `Net worth of $${netWorth.toLocaleString()}`,
+      `Monthly income of $${totalIncome.toLocaleString()}`,
+      `Monthly expenses of $${totalExpenses.toLocaleString()}`,
+      `${assets.length} assets and ${liabilities.length} liabilities tracked`,
+    ],
+    recommendations: [
+      "Review your spending patterns regularly",
+      "Consider increasing your savings rate",
+      "Monitor your financial goals progress",
+      "Keep track of upcoming bills and payments",
+    ],
+    riskFactors: [
+      "High debt-to-income ratio",
+      "Low emergency fund",
+      "Inconsistent savings habits",
+    ],
+  };
+
+  return {
+    title,
+    content,
+    insights,
+  };
 }

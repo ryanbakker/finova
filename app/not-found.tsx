@@ -9,13 +9,6 @@ import {
 import { DynamicBreadcrumb } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { ArrowLeft, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -86,9 +79,9 @@ export default function NotFound() {
 
                     {/* Descriptive Text */}
                     <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in-up delay-200">
-                      The page you're looking for doesn't exist or has been
-                      moved. Let's get you back on track with your financial
-                      journey.
+                      The page you&apos;re looking for doesn&apos;t exist or has
+                      been moved. Let&apos;s get you back on track with your
+                      financial journey.
                     </p>
 
                     {/* Action Buttons with Animations */}
