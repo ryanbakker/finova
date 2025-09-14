@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     if (timeRange !== "all") {
       const now = new Date();
       let startDate = new Date();
-      
+
       switch (timeRange) {
         case "1y":
           startDate.setFullYear(now.getFullYear() - 1);
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         default:
           startDate = new Date(0); // Beginning of time
       }
-      
+
       baseMatch.createdAt = { $gte: startDate };
     }
 
@@ -110,10 +110,20 @@ export async function GET(request: NextRequest) {
             $cond: [
               { $eq: ["$totalValue", 0] },
               0,
-              { $multiply: [{ $divide: [{ $subtract: ["$totalCurrentValue", "$totalValue"] }, "$totalValue"] }, 100] }
-            ]
-          }
-        }
+              {
+                $multiply: [
+                  {
+                    $divide: [
+                      { $subtract: ["$totalCurrentValue", "$totalValue"] },
+                      "$totalValue",
+                    ],
+                  },
+                  100,
+                ],
+              },
+            ],
+          },
+        },
       },
       {
         $sort: { totalCurrentValue: -1 },
@@ -130,10 +140,20 @@ export async function GET(request: NextRequest) {
             $cond: [
               { $eq: ["$value", 0] },
               0,
-              { $multiply: [{ $divide: [{ $subtract: ["$currentValue", "$value"] }, "$value"] }, 100] }
-            ]
-          }
-        }
+              {
+                $multiply: [
+                  {
+                    $divide: [
+                      { $subtract: ["$currentValue", "$value"] },
+                      "$value",
+                    ],
+                  },
+                  100,
+                ],
+              },
+            ],
+          },
+        },
       },
       {
         $group: {
@@ -141,9 +161,15 @@ export async function GET(request: NextRequest) {
           totalReturn: { $sum: "$returnAmount" },
           averageReturn: { $avg: "$returnAmount" },
           totalReturnPercentage: { $avg: "$returnPercentage" },
-          positiveReturns: { $sum: { $cond: [{ $gt: ["$returnAmount", 0] }, 1, 0] } },
-          negativeReturns: { $sum: { $cond: [{ $lt: ["$returnAmount", 0] }, 1, 0] } },
-          neutralReturns: { $sum: { $cond: [{ $eq: ["$returnAmount", 0] }, 1, 0] } },
+          positiveReturns: {
+            $sum: { $cond: [{ $gt: ["$returnAmount", 0] }, 1, 0] },
+          },
+          negativeReturns: {
+            $sum: { $cond: [{ $lt: ["$returnAmount", 0] }, 1, 0] },
+          },
+          neutralReturns: {
+            $sum: { $cond: [{ $eq: ["$returnAmount", 0] }, 1, 0] },
+          },
         },
       },
     ]);
@@ -153,7 +179,9 @@ export async function GET(request: NextRequest) {
       .sort({ updatedAt: -1 })
       .limit(10)
       .lean()
-      .select('name category value currentValue changeAmount changePercentage updatedAt');
+      .select(
+        "name category value currentValue changeAmount changePercentage updatedAt"
+      );
 
     // Get top performing assets
     const topPerformers = await Asset.aggregate([
@@ -164,10 +192,20 @@ export async function GET(request: NextRequest) {
             $cond: [
               { $eq: ["$value", 0] },
               0,
-              { $multiply: [{ $divide: [{ $subtract: ["$currentValue", "$value"] }, "$value"] }, 100] }
-            ]
-          }
-        }
+              {
+                $multiply: [
+                  {
+                    $divide: [
+                      { $subtract: ["$currentValue", "$value"] },
+                      "$value",
+                    ],
+                  },
+                  100,
+                ],
+              },
+            ],
+          },
+        },
       },
       {
         $sort: { returnPercentage: -1 },
@@ -196,10 +234,20 @@ export async function GET(request: NextRequest) {
             $cond: [
               { $eq: ["$value", 0] },
               0,
-              { $multiply: [{ $divide: [{ $subtract: ["$currentValue", "$value"] }, "$value"] }, 100] }
-            ]
-          }
-        }
+              {
+                $multiply: [
+                  {
+                    $divide: [
+                      { $subtract: ["$currentValue", "$value"] },
+                      "$value",
+                    ],
+                  },
+                  100,
+                ],
+              },
+            ],
+          },
+        },
       },
       {
         $sort: { returnPercentage: 1 },
@@ -250,9 +298,18 @@ export async function GET(request: NextRequest) {
       },
       performance: {
         ...performance,
-        returnRate: baseStats.totalValue > 0 ? (performance.totalReturn / baseStats.totalValue) * 100 : 0,
-        positiveReturnRate: baseStats.totalAssets > 0 ? (performance.positiveReturns / baseStats.totalAssets) * 100 : 0,
-        negativeReturnRate: baseStats.totalAssets > 0 ? (performance.negativeReturns / baseStats.totalAssets) * 100 : 0,
+        returnRate:
+          baseStats.totalValue > 0
+            ? (performance.totalReturn / baseStats.totalValue) * 100
+            : 0,
+        positiveReturnRate:
+          baseStats.totalAssets > 0
+            ? (performance.positiveReturns / baseStats.totalAssets) * 100
+            : 0,
+        negativeReturnRate:
+          baseStats.totalAssets > 0
+            ? (performance.negativeReturns / baseStats.totalAssets) * 100
+            : 0,
       },
       categoryBreakdown,
       recentAssets,
@@ -268,8 +325,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error("Error fetching asset stats:", error);
-    
     // Handle specific error types
     if (error instanceof Error) {
       if (error.message.includes("Unauthorized")) {

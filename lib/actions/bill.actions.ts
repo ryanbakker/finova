@@ -52,7 +52,6 @@ export async function createBill(billData: CreateBillParams) {
 
     return JSON.parse(JSON.stringify(transformedBill));
   } catch (error) {
-    console.error("Error creating bill:", error);
     handleError(error);
     throw error;
   }
@@ -80,7 +79,6 @@ export async function getUserBills() {
 
     return JSON.parse(JSON.stringify(transformedBills));
   } catch (error) {
-    console.error("Error fetching user bills:", error);
     handleError(error);
     throw error;
   }
@@ -115,7 +113,6 @@ export async function getBillById(billId: string) {
 
     return JSON.parse(JSON.stringify(transformedBill));
   } catch (error) {
-    console.error("Error fetching bill:", error);
     handleError(error);
     throw error;
   }
@@ -159,7 +156,6 @@ export async function updateBill(billData: UpdateBillParams) {
 
     return JSON.parse(JSON.stringify(transformedBill));
   } catch (error) {
-    console.error("Error updating bill:", error);
     handleError(error);
     throw error;
   }
@@ -190,7 +186,6 @@ export async function deleteBill(billId: string) {
 
     return JSON.parse(JSON.stringify(deletedBill));
   } catch (error) {
-    console.error("Error deleting bill:", error);
     handleError(error);
     throw error;
   }
@@ -241,7 +236,6 @@ export async function getBillStats() {
       }
     );
   } catch (error) {
-    console.error("Error fetching bill stats:", error);
     handleError(error);
     throw error;
   }
@@ -276,7 +270,6 @@ export async function markBillAsPaid(billId: string) {
 
     return JSON.parse(JSON.stringify(updatedBill));
   } catch (error) {
-    console.error("Error marking bill as paid:", error);
     handleError(error);
     throw error;
   }
@@ -307,7 +300,6 @@ export async function getUpcomingBills() {
 
     return JSON.parse(JSON.stringify(upcomingBills));
   } catch (error) {
-    console.error("Error fetching upcoming bills:", error);
     handleError(error);
     throw error;
   }

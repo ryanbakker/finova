@@ -6,8 +6,12 @@ import { getDashboardData } from "@/lib/services/dashboard.service";
 
 // GET /api/reports - Get all reports for the user
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  let userId: string | null = null;
+
   try {
-    const { userId } = await auth();
+    const authResult = await auth();
+    userId = authResult.userId;
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -19,6 +23,39 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get("type");
     const limit = parseInt(searchParams.get("limit") || "10");
     const offset = parseInt(searchParams.get("offset") || "0");
+
+    // Validate pagination parameters
+    if (limit < 1 || limit > 100) {
+      console.warn(`[API] GET /api/reports - Invalid limit parameter`, {
+        userId,
+        limit,
+        timestamp: new Date().toISOString(),
+      });
+      return NextResponse.json(
+        { error: "Limit must be between 1 and 100" },
+        { status: 400 }
+      );
+    }
+
+    if (offset < 0) {
+      console.warn(`[API] GET /api/reports - Invalid offset parameter`, {
+        userId,
+        offset,
+        timestamp: new Date().toISOString(),
+      });
+      return NextResponse.json(
+        { error: "Offset must be non-negative" },
+        { status: 400 }
+      );
+    }
+
+    console.log(`[API] GET /api/reports - Query parameters parsed`, {
+      userId,
+      type,
+      limit,
+      offset,
+      timestamp: new Date().toISOString(),
+    });
 
     const query: { userId: string; type?: string } = { userId };
     if (type) {
@@ -33,13 +70,29 @@ export async function GET(request: NextRequest) {
 
     const total = await Report.countDocuments(query);
 
+    const responseTime = Date.now() - startTime;
+    console.log(`[API] GET /api/reports - Reports fetched successfully`, {
+      userId,
+      reportsCount: reports.length,
+      total,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
+
     return NextResponse.json({
       reports,
       total,
       hasMore: offset + limit < total,
     });
   } catch (error) {
-    console.error("Error fetching reports:", error);
+    const responseTime = Date.now() - startTime;
+    console.error(`[API] GET /api/reports - Error occurred`, {
+      userId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
     return NextResponse.json(
       { error: "Failed to fetch reports" },
       { status: 500 }
@@ -49,19 +102,74 @@ export async function GET(request: NextRequest) {
 
 // POST /api/reports - Generate a new report
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  let userId: string | null = null;
+
   try {
-    const { userId } = await auth();
+    console.log(`[API] POST /api/reports - Request started`, {
+      timestamp: new Date().toISOString(),
+      userAgent: request.headers.get("user-agent"),
+      ip:
+        request.headers.get("x-forwarded-for") ||
+        request.headers.get("x-real-ip"),
+    });
+
+    const authResult = await auth();
+    userId = authResult.userId;
 
     if (!userId) {
+      console.warn(`[API] POST /api/reports - Unauthorized access attempt`, {
+        timestamp: new Date().toISOString(),
+        userAgent: request.headers.get("user-agent"),
+        ip:
+          request.headers.get("x-forwarded-for") ||
+          request.headers.get("x-real-ip"),
+      });
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    console.log(`[API] POST /api/reports - User authenticated`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
 
     const body = await request.json();
     const { type, customPrompt, dataRange } = body;
 
+    console.log(`[API] POST /api/reports - Request body received`, {
+      userId,
+      type,
+      hasCustomPrompt: !!customPrompt,
+      dataRange,
+      timestamp: new Date().toISOString(),
+    });
+
     if (!type) {
+      console.warn(`[API] POST /api/reports - Missing report type`, {
+        userId,
+        body,
+        timestamp: new Date().toISOString(),
+      });
       return NextResponse.json(
         { error: "Report type is required" },
+        { status: 400 }
+      );
+    }
+
+    // Validate report type
+    const validTypes = ["summary", "detailed", "custom"];
+    if (!validTypes.includes(type)) {
+      console.warn(`[API] POST /api/reports - Invalid report type`, {
+        userId,
+        type,
+        validTypes,
+        timestamp: new Date().toISOString(),
+      });
+      return NextResponse.json(
+        {
+          error:
+            "Invalid report type. Must be one of: " + validTypes.join(", "),
+        },
         { status: 400 }
       );
     }
@@ -85,8 +193,23 @@ export async function POST(request: NextRequest) {
 
     await report.save();
 
+    console.log(`[API] POST /api/reports - Report record created`, {
+      userId,
+      reportId: report._id,
+      type,
+      timestamp: new Date().toISOString(),
+    });
+
     // Generate report in background
     generateReportAsync(report._id.toString(), userId, type, customPrompt);
+
+    const responseTime = Date.now() - startTime;
+    console.log(`[API] POST /api/reports - Report generation initiated`, {
+      userId,
+      reportId: report._id,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
 
     return NextResponse.json({
       report: {
@@ -98,7 +221,14 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error creating report:", error);
+    const responseTime = Date.now() - startTime;
+    console.error(`[API] POST /api/reports - Error occurred`, {
+      userId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
     return NextResponse.json(
       { error: "Failed to create report" },
       { status: 500 }
@@ -113,9 +243,26 @@ async function generateReportAsync(
   type: string,
   customPrompt?: string
 ) {
+  const startTime = Date.now();
+
   try {
+    console.log(`[REPORT_GENERATION] Starting report generation`, {
+      reportId,
+      userId,
+      type,
+      hasCustomPrompt: !!customPrompt,
+      timestamp: new Date().toISOString(),
+    });
+
     // Fetch financial data
     const dashboardData = await getDashboardData();
+
+    console.log(`[REPORT_GENERATION] Dashboard data fetched`, {
+      reportId,
+      userId,
+      dataKeys: Object.keys(dashboardData),
+      timestamp: new Date().toISOString(),
+    });
 
     // Generate basic report content
     const reportContent = generateBasicReport(
@@ -123,6 +270,16 @@ async function generateReportAsync(
       type,
       customPrompt
     );
+
+    console.log(`[REPORT_GENERATION] Report content generated`, {
+      reportId,
+      userId,
+      contentLength: reportContent.content.length,
+      insightsCount: reportContent.insights
+        ? Object.keys(reportContent.insights).length
+        : 0,
+      timestamp: new Date().toISOString(),
+    });
 
     // Update report with generated content
     await Report.findByIdAndUpdate(reportId, {
@@ -133,15 +290,49 @@ async function generateReportAsync(
       "metadata.tokensUsed": 0,
     });
 
-    console.log(`Report ${reportId} generated successfully`);
+    const responseTime = Date.now() - startTime;
+    console.log(
+      `[REPORT_GENERATION] Report generation completed successfully`,
+      {
+        reportId,
+        userId,
+        responseTime: `${responseTime}ms`,
+        timestamp: new Date().toISOString(),
+      }
+    );
   } catch (error) {
-    console.error(`Error generating report ${reportId}:`, error);
+    const responseTime = Date.now() - startTime;
+    console.error(`[REPORT_GENERATION] Report generation failed`, {
+      reportId,
+      userId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
 
     // Update report status to failed
-    await Report.findByIdAndUpdate(reportId, {
-      status: "failed",
-      content: "Failed to generate report. Please try again.",
-    });
+    try {
+      await Report.findByIdAndUpdate(reportId, {
+        status: "failed",
+        content: "Failed to generate report. Please try again.",
+        "metadata.error":
+          error instanceof Error ? error.message : "Unknown error",
+      });
+    } catch (updateError) {
+      console.error(
+        `[REPORT_GENERATION] Failed to update report status to failed`,
+        {
+          reportId,
+          userId,
+          updateError:
+            updateError instanceof Error
+              ? updateError.message
+              : "Unknown error",
+          timestamp: new Date().toISOString(),
+        }
+      );
+    }
   }
 }
 

@@ -6,7 +6,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { DynamicBreadcrumb } from "@/components/ui/breadcrumb";
-import React from "react";
 import { Separator } from "@/components/ui/separator";
 import { SubPageTimedLoadingPage } from "@/components/loading";
 import Image from "next/image";

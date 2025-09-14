@@ -112,8 +112,7 @@ export function CreateBillDialog({
 
       onSuccess();
       onClose();
-    } catch (error) {
-      console.error("Error creating bill:", error);
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to create bill. Please try again.",

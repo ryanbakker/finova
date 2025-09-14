@@ -60,7 +60,6 @@ export function AssetValueHistoryDialog({
       const historyData = await getAssetValueHistory(asset.id, 50);
       setHistory(historyData);
     } catch (error) {
-      console.error("Error loading asset value history:", error);
       setError(
         error instanceof Error ? error.message : "Failed to load history"
       );

@@ -60,11 +60,8 @@ export function LiabilityInsights({
               liabilityName: liability.name,
             }))
           );
-        } catch (error) {
-          console.error(
-            `Error loading history for liability ${liability.id}:`,
-            error
-          );
+        } catch (_error) {
+          // Error loading history for liability - continue with other liabilities
         }
       }
 
@@ -115,8 +112,7 @@ export function LiabilityInsights({
         );
 
       setAggregatedHistory(chartData);
-    } catch (error) {
-      console.error("Error loading aggregated liability history:", error);
+    } catch (_error) {
     } finally {
       setIsLoadingHistory(false);
     }

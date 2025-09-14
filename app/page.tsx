@@ -110,8 +110,7 @@ function DashboardContent({
       setCategories(extractedCategories);
 
       setError(null);
-    } catch (err) {
-      console.error("Error refreshing dashboard data:", err);
+    } catch (_err) {
       setError("Failed to refresh dashboard data");
     }
   };
@@ -137,20 +136,18 @@ function DashboardContent({
 
         // Console log all financial data in an easy-to-understand format
         /* removed debug console output */
-      } catch (err) {
-        console.error("❌ Error fetching dashboard data:", err);
-
+      } catch (_err) {
         // Enhanced error handling
         let errorMessage = "Failed to load dashboard data";
-        if (err instanceof Error) {
-          if (err.message.includes("Unauthorized")) {
+        if (_err instanceof Error) {
+          if (_err.message.includes("Unauthorized")) {
             errorMessage =
               "Authentication failed. Please try logging in again.";
-          } else if (err.message.includes("MONGODB_URL")) {
+          } else if (_err.message.includes("MONGODB_URL")) {
             errorMessage =
               "Database connection failed. Please try again later.";
           } else {
-            errorMessage = `Error: ${err.message}`;
+            errorMessage = `Error: ${_err.message}`;
           }
         }
 

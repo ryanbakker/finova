@@ -103,7 +103,6 @@ export async function getDashboardData(): Promise<DashboardData> {
     const { userId } = await auth();
 
     if (!userId) {
-      console.error("❌ Authentication failed: No user ID");
       throw new Error("Unauthorized: User not authenticated");
     }
 
@@ -440,25 +439,6 @@ export async function getDashboardData(): Promise<DashboardData> {
       netWorthHistory,
     };
   } catch (error) {
-    console.error("❌ Error fetching dashboard data:", error);
-
-    // Enhanced error logging for production debugging
-    if (error instanceof Error) {
-      console.error("Error name:", error.name);
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
-    }
-
-    // Check if it's a database connection error
-    if (error instanceof Error && error.message.includes("MONGODB_URL")) {
-      console.error("❌ Database connection string issue detected");
-    }
-
-    // Check if it's an authentication error
-    if (error instanceof Error && error.message.includes("Unauthorized")) {
-      console.error("❌ Authentication issue detected");
-    }
-
     throw error;
   }
 }

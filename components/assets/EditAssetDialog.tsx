@@ -146,8 +146,7 @@ export function EditAssetDialog({
 
       onSuccess();
       onClose();
-    } catch (error) {
-      console.error("Error updating asset:", error);
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to update asset. Please try again.",
@@ -440,7 +439,11 @@ export function EditAssetDialog({
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="button-blue-bg min-w-[100px]">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="button-blue-bg min-w-[100px]"
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

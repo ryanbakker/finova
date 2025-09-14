@@ -46,8 +46,7 @@ export function DeleteAssetDialog({
 
       onSuccess();
       onClose();
-    } catch (error) {
-      console.error("Error deleting asset:", error);
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to delete asset. Please try again.",

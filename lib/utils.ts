@@ -47,31 +47,46 @@ export const handleError = (error: unknown): never => {
   if (error instanceof Error) {
     // Handle standard JavaScript errors
     errorMessage = error.message;
-    
+
     // Classify common error types
-    if (error.message.includes("Unauthorized") || error.message.includes("not authenticated")) {
+    if (
+      error.message.includes("Unauthorized") ||
+      error.message.includes("not authenticated")
+    ) {
       errorType = "AUTHENTICATION_ERROR";
       statusCode = 401;
     } else if (error.message.includes("not found")) {
       errorType = "NOT_FOUND_ERROR";
       statusCode = 404;
-    } else if (error.message.includes("Validation failed") || error.message.includes("Validation error")) {
+    } else if (
+      error.message.includes("Validation failed") ||
+      error.message.includes("Validation error")
+    ) {
       errorType = "VALIDATION_ERROR";
       statusCode = 400;
-    } else if (error.message.includes("Invalid") || error.message.includes("Invalid format")) {
+    } else if (
+      error.message.includes("Invalid") ||
+      error.message.includes("Invalid format")
+    ) {
       errorType = "INVALID_INPUT_ERROR";
       statusCode = 400;
-    } else if (error.message.includes("duplicate") || error.message.includes("already exists")) {
+    } else if (
+      error.message.includes("duplicate") ||
+      error.message.includes("already exists")
+    ) {
       errorType = "DUPLICATE_ERROR";
       statusCode = 409;
-    } else if (error.message.includes("permission") || error.message.includes("unauthorized")) {
+    } else if (
+      error.message.includes("permission") ||
+      error.message.includes("unauthorized")
+    ) {
       errorType = "PERMISSION_ERROR";
       statusCode = 403;
     }
   } else if (typeof error === "string") {
     // Handle string error messages
     errorMessage = error;
-    
+
     // Classify string-based errors
     if (error.toLowerCase().includes("unauthorized")) {
       errorType = "AUTHENTICATION_ERROR";
@@ -85,19 +100,19 @@ export const handleError = (error: unknown): never => {
     }
   } else if (typeof error === "object" && error !== null) {
     // Handle object-based errors
-    if ('code' in error && typeof error.code === 'number') {
+    if ("code" in error && typeof error.code === "number") {
       statusCode = error.code;
     }
-    
-    if ('type' in error && typeof error.type === 'string') {
+
+    if ("type" in error && typeof error.type === "string") {
       errorType = error.type;
     }
-    
+
     errorMessage = JSON.stringify(error);
   }
 
   // Log error with context
-  console.error("Error Details:", {
+  console.error({
     type: errorType,
     message: errorMessage,
     statusCode,
@@ -121,7 +136,7 @@ export const handleValidationError = (error: unknown): never => {
   if (error instanceof Error && error.message.includes("Validation failed")) {
     throw error;
   }
-  
+
   throw new Error("Validation failed");
 };
 
@@ -129,7 +144,7 @@ export const handleAuthenticationError = (error: unknown): never => {
   if (error instanceof Error && error.message.includes("Unauthorized")) {
     throw error;
   }
-  
+
   throw new Error("Unauthorized: User not authenticated");
 };
 
@@ -137,7 +152,7 @@ export const handleNotFoundError = (error: unknown): never => {
   if (error instanceof Error && error.message.includes("not found")) {
     throw error;
   }
-  
+
   throw new Error("Resource not found");
 };
 

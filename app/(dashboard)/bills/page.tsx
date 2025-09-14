@@ -28,8 +28,7 @@ function BillsPage() {
         setIsLoading(true);
         const userBills = await getUserBills();
         setBills(userBills || []);
-      } catch (error) {
-        console.error("Error fetching bills:", error);
+      } catch (_error) {
         toast({
           title: "Error",
           description: "Failed to fetch bills. Please try again.",
@@ -47,8 +46,7 @@ function BillsPage() {
     try {
       const userBills = await getUserBills();
       setBills(userBills || []);
-    } catch (error) {
-      console.error("Error refreshing bills:", error);
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to refresh bills. Please try again.",

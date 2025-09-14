@@ -11,7 +11,6 @@ export async function POST(req: Request) {
   const SIGNING_SECRET = process.env.SIGNING_SECRET;
 
   if (!SIGNING_SECRET) {
-    console.error("Missing SIGNING_SECRET environment variable");
     return NextResponse.json(
       {
         error:
@@ -31,11 +30,6 @@ export async function POST(req: Request) {
     const svix_signature = headerPayload.get("svix-signature");
 
     if (!svix_id || !svix_timestamp || !svix_signature) {
-      console.error("Missing Svix headers:", {
-        svix_id,
-        svix_timestamp,
-        svix_signature,
-      });
       return new Response("Error: Missing Svix headers", {
         status: 400,
       });
@@ -51,8 +45,7 @@ export async function POST(req: Request) {
         "svix-timestamp": svix_timestamp,
         "svix-signature": svix_signature,
       }) as WebhookEvent;
-    } catch (err) {
-      console.error("Error: Could not verify webhook:", err);
+    } catch (_err) {
       return new Response("Error: Verification error", {
         status: 400,
       });
@@ -66,7 +59,6 @@ export async function POST(req: Request) {
 
       // Check if user has email addresses
       if (!userInfo.email_addresses || userInfo.email_addresses.length === 0) {
-        console.error("User has no email addresses:", userInfo);
         return NextResponse.json(
           {
             error: "User has no email addresses",
@@ -96,14 +88,13 @@ export async function POST(req: Request) {
                 userId: newUser._id,
               },
             });
-          } catch (metadataError) {
-            console.error("Failed to update Clerk metadata:", metadataError);
+          } catch (_metadataError) {
+            // Failed to update Clerk metadata
           }
         }
 
         return NextResponse.json({ message: "OK", user: newUser });
       } catch (createError) {
-        console.error("Failed to create user:", createError);
         return NextResponse.json(
           {
             error: "Failed to create user",
@@ -131,7 +122,6 @@ export async function POST(req: Request) {
         const updatedUser = await updateUser(id, user);
         return NextResponse.json({ message: "OK", user: updatedUser });
       } catch (updateError) {
-        console.error("Failed to update user:", updateError);
         return NextResponse.json(
           {
             error: "Failed to update user",
@@ -152,7 +142,6 @@ export async function POST(req: Request) {
         const deletedUser = await deleteUser(id!);
         return NextResponse.json({ message: "OK", user: deletedUser });
       } catch (deleteError) {
-        console.error("Failed to delete user:", deleteError);
         return NextResponse.json(
           {
             error: "Failed to delete user",
@@ -168,7 +157,6 @@ export async function POST(req: Request) {
 
     return new Response("Webhook processed", { status: 200 });
   } catch (error) {
-    console.error("Webhook processing error:", error);
     return NextResponse.json(
       {
         error: "Internal server error",

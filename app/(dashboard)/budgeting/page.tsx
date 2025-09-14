@@ -64,8 +64,7 @@ export default function BudgetingPage() {
           overBudgetCount: statsData.overBudgetCount,
           warningBudgetCount: statsData.warningBudgetCount,
         });
-      } catch (error) {
-        console.error("Error loading budgets:", error);
+      } catch (_error) {
         toast({
           title: "Error",
           description: "Failed to load budgets",
@@ -150,8 +149,7 @@ export default function BudgetingPage() {
         title: "Success",
         description: "Budget deleted successfully",
       });
-    } catch (error) {
-      console.error("Error deleting budget:", error);
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to delete budget",
@@ -212,9 +210,8 @@ export default function BudgetingPage() {
         overBudgetCount: statsData.overBudgetCount,
         warningBudgetCount: statsData.warningBudgetCount,
       });
-    } catch (error) {
-      console.error("Error saving budget:", error);
-      throw error; // Re-throw to let the dialog handle the error
+    } catch (_error) {
+      throw _error; // Re-throw to let the dialog handle the error
     }
   };
 

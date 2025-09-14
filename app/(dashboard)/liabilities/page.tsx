@@ -77,8 +77,7 @@ function LiabilitiesPage() {
       const data = await getLiabilitiesByUserId();
       // Set the liabilities array regardless of whether it's empty or has data
       setLiabilities(data || []);
-    } catch (error) {
-      console.error("Error loading liabilities:", error);
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to load liabilities. Please try again.",

@@ -4,12 +4,18 @@ import { connectToDB } from "@/database/db";
 import Liability from "@/database/models/liability.model";
 
 // Enhanced validation function for updates
-function validateLiabilityUpdate(body: Record<string, unknown>): { isValid: boolean; errors: string[] } {
+function validateLiabilityUpdate(body: Record<string, unknown>): {
+  isValid: boolean;
+  errors: string[];
+} {
   const errors: string[] = [];
 
   // Optional field validation (all fields are optional for updates)
   if (body.name !== undefined) {
-    if (typeof body.name !== "string" || (body.name as string).trim().length === 0) {
+    if (
+      typeof body.name !== "string" ||
+      (body.name as string).trim().length === 0
+    ) {
       errors.push("Liability name must be a non-empty string");
     } else if ((body.name as string).trim().length > 100) {
       errors.push("Liability name cannot exceed 100 characters");
@@ -17,7 +23,10 @@ function validateLiabilityUpdate(body: Record<string, unknown>): { isValid: bool
   }
 
   if (body.category !== undefined) {
-    if (typeof body.category !== "string" || (body.category as string).trim().length === 0) {
+    if (
+      typeof body.category !== "string" ||
+      (body.category as string).trim().length === 0
+    ) {
       errors.push("Category must be a non-empty string");
     }
   }
@@ -31,13 +40,20 @@ function validateLiabilityUpdate(body: Record<string, unknown>): { isValid: bool
   }
 
   if (body.currency !== undefined) {
-    if (typeof body.currency !== "string" || (body.currency as string).trim().length === 0) {
+    if (
+      typeof body.currency !== "string" ||
+      (body.currency as string).trim().length === 0
+    ) {
       errors.push("Currency must be a non-empty string");
     }
   }
 
   if (body.interestRate !== undefined && body.interestRate !== null) {
-    if (typeof body.interestRate !== "number" || body.interestRate < 0 || body.interestRate > 100) {
+    if (
+      typeof body.interestRate !== "number" ||
+      body.interestRate < 0 ||
+      body.interestRate > 100
+    ) {
       errors.push("Interest rate must be between 0% and 100%");
     }
   }
@@ -49,7 +65,10 @@ function validateLiabilityUpdate(body: Record<string, unknown>): { isValid: bool
   }
 
   if (body.remainingBalance !== undefined && body.remainingBalance !== null) {
-    if (typeof body.remainingBalance !== "number" || body.remainingBalance < 0) {
+    if (
+      typeof body.remainingBalance !== "number" ||
+      body.remainingBalance < 0
+    ) {
       errors.push("Remaining balance must be a non-negative number");
     }
   }
@@ -100,7 +119,7 @@ export async function GET(
     // Ensure user can only access their own liability
     const liability = await Liability.findOne({
       _id: id,
-      userId
+      userId,
     }).lean();
 
     if (!liability) {
@@ -111,8 +130,7 @@ export async function GET(
     }
 
     return NextResponse.json(liability);
-  } catch (error) {
-    console.error("Error fetching liability:", error);
+  } catch (_error) {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -159,7 +177,7 @@ export async function PUT(
     // Ensure user can only update their own liability
     const existingLiability = await Liability.findOne({
       _id: id,
-      userId
+      userId,
     });
 
     if (!existingLiability) {
@@ -171,7 +189,7 @@ export async function PUT(
 
     // Sanitize and prepare update data
     const updateData: Record<string, unknown> = {};
-    
+
     if (body.name !== undefined) {
       updateData.name = (body.name as string).trim();
     }
@@ -191,7 +209,9 @@ export async function PUT(
       updateData.accountNumber = (body.accountNumber as string)?.trim();
     }
     if (body.dueDate !== undefined) {
-      updateData.dueDate = body.dueDate ? new Date(body.dueDate as string) : undefined;
+      updateData.dueDate = body.dueDate
+        ? new Date(body.dueDate as string)
+        : undefined;
     }
     if (body.interestRate !== undefined) {
       updateData.interestRate = body.interestRate as number;
@@ -212,11 +232,10 @@ export async function PUT(
       updateData.isActive = body.isActive as boolean;
     }
 
-    const updatedLiability = await Liability.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const updatedLiability = await Liability.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedLiability) {
       return NextResponse.json(
@@ -226,13 +245,11 @@ export async function PUT(
     }
 
     return NextResponse.json(updatedLiability);
-  } catch (error) {
-    console.error("Error updating liability:", error);
-    
+  } catch (_error) {
     // Handle MongoDB validation errors
-    if (error instanceof Error && error.name === "ValidationError") {
+    if (_error instanceof Error && _error.name === "ValidationError") {
       return NextResponse.json(
-        { error: "Validation error", details: error.message },
+        { error: "Validation error", details: _error.message },
         { status: 400 }
       );
     }
@@ -265,7 +282,7 @@ export async function DELETE(
     // Ensure user can only delete their own liability
     const existingLiability = await Liability.findOne({
       _id: id,
-      userId
+      userId,
     });
 
     if (!existingLiability) {
@@ -288,8 +305,7 @@ export async function DELETE(
       { message: "Liability deleted successfully" },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Error deleting liability:", error);
+  } catch (_error) {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

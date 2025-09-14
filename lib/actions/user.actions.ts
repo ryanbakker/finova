@@ -29,19 +29,6 @@ export async function createUser(user: CreateUserParams) {
     const result = JSON.parse(JSON.stringify(newUser));
     return result;
   } catch (e) {
-    console.error("Error in createUser:", e);
-
-    // Check if it's a connection error
-    if (
-      e instanceof Error &&
-      (e.message.includes("SSL") || e.message.includes("TLS"))
-    ) {
-      console.error("SSL/TLS connection error detected. This might be due to:");
-      console.error("1. Network/firewall issues");
-      console.error("2. MongoDB Atlas SSL certificate issues");
-      console.error("3. Connection string format problems");
-    }
-
     handleError(e);
     throw e; // Re-throw to ensure the error is properly handled
   }

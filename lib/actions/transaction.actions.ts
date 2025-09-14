@@ -62,8 +62,7 @@ async function updateBudgetSpentAmount(
 
       await Budget.findByIdAndUpdate(budget._id, { spent: newSpent });
     }
-  } catch (error) {
-    console.error("Error updating budget spent amount:", error);
+  } catch (_error) {
     // Don't throw error here as it shouldn't break the transaction operation
   }
 }
@@ -108,10 +107,9 @@ export async function createTransaction(
     };
 
     return JSON.parse(JSON.stringify(transformedTransaction));
-  } catch (error) {
-    console.error("Error creating transaction:", error);
-    handleError(error);
-    throw error;
+  } catch (_error) {
+    handleError(_error);
+    throw _error;
   }
 }
 
@@ -138,10 +136,9 @@ export async function getUserTransactions() {
     }));
 
     return JSON.parse(JSON.stringify(transformedTransactions));
-  } catch (error) {
-    console.error("Error fetching user transactions:", error);
-    handleError(error);
-    throw error;
+  } catch (_error) {
+    handleError(_error);
+    throw _error;
   }
 }
 
@@ -173,10 +170,9 @@ export async function getTransactionById(transactionId: string) {
     };
 
     return JSON.parse(JSON.stringify(transformedTransaction));
-  } catch (error) {
-    console.error("Error fetching transaction:", error);
-    handleError(error);
-    throw error;
+  } catch (_error) {
+    handleError(_error);
+    throw _error;
   }
 }
 
@@ -247,10 +243,9 @@ export async function updateTransaction(
     };
 
     return JSON.parse(JSON.stringify(transformedTransaction));
-  } catch (error) {
-    console.error("Error updating transaction:", error);
-    handleError(error);
-    throw error;
+  } catch (_error) {
+    handleError(_error);
+    throw _error;
   }
 }
 
@@ -289,10 +284,9 @@ export async function deleteTransaction(transactionId: string) {
     revalidatePath("/budgeting");
 
     return JSON.parse(JSON.stringify(deletedTransaction));
-  } catch (error) {
-    console.error("Error deleting transaction:", error);
-    handleError(error);
-    throw error;
+  } catch (_error) {
+    handleError(_error);
+    throw _error;
   }
 }
 
@@ -336,9 +330,8 @@ export async function getTransactionStats() {
         averageAmount: 0,
       }
     );
-  } catch (error) {
-    console.error("Error fetching transaction stats:", error);
-    handleError(error);
-    throw error;
+  } catch (_error) {
+    handleError(_error);
+    throw _error;
   }
 }

@@ -1,4 +1,3 @@
-export { LiabilityDetailsDialog } from "./LiabilityDetailsDialog";
 export { LiabilityDetailsAndHistoryDialog } from "./LiabilityDetailsAndHistoryDialog";
 export { UpdateLiabilityAmountDialog } from "./UpdateLiabilityAmountDialog";
 export { EditLiabilityDialog } from "./EditLiabilityDialog";
@@ -8,4 +7,3 @@ export { LiabilityFilters } from "./LiabilityFilters";
 export { LiabilityInsights } from "./LiabilityInsights";
 export { LiabilityPageSkeleton } from "./LiabilityPageSkeleton";
 export { LiabilityTableSkeleton } from "./LiabilityTableSkeleton";
-export { sampleLiabilities } from "./sample-liabilities";

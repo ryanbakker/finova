@@ -3,7 +3,7 @@
 
 "use client";
 
-import React from "react";
+import React, { forwardRef } from "react";
 import {
   Pie,
   PieChart as ReChartsDonutChart,
@@ -263,7 +263,7 @@ interface DonutChartProps extends React.HTMLAttributes<HTMLDivElement> {
   customTooltip?: React.ComponentType<TooltipProps>;
 }
 
-const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
+const DonutChart = forwardRef<HTMLDivElement, DonutChartProps>(
   (
     {
       data = [],

@@ -89,8 +89,7 @@ export function EditBillDialog({
           dueDate: formData.dueDate,
           isRecurring: formData.isRecurring ?? bill.isRecurring,
         });
-      } catch (error) {
-        console.error("Error updating bill:", error);
+      } catch (_error) {
         toast({
           title: "Error",
           description: "Failed to update bill. Please try again.",

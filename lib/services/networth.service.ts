@@ -59,9 +59,8 @@ export async function getCurrentNetWorth(userId: string): Promise<{
       assets: totalAssets,
       liabilities: totalLiabilities,
     };
-  } catch (error) {
-    console.error("Error getting current net worth:", error);
-    throw error;
+  } catch (_error) {
+    throw _error;
   }
 }
 
@@ -127,9 +126,8 @@ export async function getMonthlyNetWorthHistory(
       currentLiabilities: current.liabilities,
       monthlyHistory,
     };
-  } catch (error) {
-    console.error("Error getting monthly net worth history:", error);
-    throw error;
+  } catch (_error) {
+    throw _error;
   }
 }
 
@@ -207,9 +205,8 @@ export async function updateItemValue(
     await recalculateCurrentMonthAverage(userId);
 
     return { success: true, message: "Value updated successfully" };
-  } catch (error) {
-    console.error("Error updating item value:", error);
-    return { success: false, message: `Failed to update value: ${error}` };
+  } catch (_error) {
+    return { success: false, message: `Failed to update value: ${_error}` };
   }
 }
 
@@ -285,8 +282,7 @@ export async function recalculateCurrentMonthAverage(
       },
       { upsert: true, new: true }
     );
-  } catch (error) {
-    console.error("Error recalculating current month average:", error);
+  } catch (_error) {
     // Don't throw - this is a background operation
   }
 }
@@ -367,11 +363,11 @@ export async function generateMonthlySummary(
       },
       { upsert: true, new: true }
     );
-  } catch (error) {
+  } catch (_error) {
     console.error(
       `Error generating monthly summary for ${year}-${month}:`,
-      error
+      _error
     );
-    throw error;
+    throw _error;
   }
 }

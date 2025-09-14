@@ -4,17 +4,28 @@ import { connectToDB } from "@/database/db";
 import Liability from "@/database/models/liability.model";
 
 // Enhanced validation function
-function validateLiabilityInput(body: Record<string, unknown>): { isValid: boolean; errors: string[] } {
+function validateLiabilityInput(body: Record<string, unknown>): {
+  isValid: boolean;
+  errors: string[];
+} {
   const errors: string[] = [];
 
   // Required field validation
-  if (!body.name || typeof body.name !== "string" || (body.name as string).trim().length === 0) {
+  if (
+    !body.name ||
+    typeof body.name !== "string" ||
+    (body.name as string).trim().length === 0
+  ) {
     errors.push("Liability name is required and must be a non-empty string");
   } else if ((body.name as string).trim().length > 100) {
     errors.push("Liability name cannot exceed 100 characters");
   }
 
-  if (!body.category || typeof body.category !== "string" || (body.category as string).trim().length === 0) {
+  if (
+    !body.category ||
+    typeof body.category !== "string" ||
+    (body.category as string).trim().length === 0
+  ) {
     errors.push("Category is required and must be a non-empty string");
   }
 
@@ -26,13 +37,21 @@ function validateLiabilityInput(body: Record<string, unknown>): { isValid: boole
     errors.push("Amount cannot exceed 999,999,999");
   }
 
-  if (!body.currency || typeof body.currency !== "string" || (body.currency as string).trim().length === 0) {
+  if (
+    !body.currency ||
+    typeof body.currency !== "string" ||
+    (body.currency as string).trim().length === 0
+  ) {
     errors.push("Currency is required and must be a non-empty string");
   }
 
   // Optional field validation
   if (body.interestRate !== undefined && body.interestRate !== null) {
-    if (typeof body.interestRate !== "number" || body.interestRate < 0 || body.interestRate > 100) {
+    if (
+      typeof body.interestRate !== "number" ||
+      body.interestRate < 0 ||
+      body.interestRate > 100
+    ) {
       errors.push("Interest rate must be between 0% and 100%");
     }
   }
@@ -44,7 +63,10 @@ function validateLiabilityInput(body: Record<string, unknown>): { isValid: boole
   }
 
   if (body.remainingBalance !== undefined && body.remainingBalance !== null) {
-    if (typeof body.remainingBalance !== "number" || body.remainingBalance < 0) {
+    if (
+      typeof body.remainingBalance !== "number" ||
+      body.remainingBalance < 0
+    ) {
       errors.push("Remaining balance must be a non-negative number");
     }
   }
@@ -92,7 +114,10 @@ export async function GET(request: NextRequest) {
     // Validate pagination parameters
     if (page < 1 || limit < 1 || limit > 100) {
       return NextResponse.json(
-        { error: "Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 100" },
+        {
+          error:
+            "Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 100",
+        },
         { status: 400 }
       );
     }
@@ -107,9 +132,9 @@ export async function GET(request: NextRequest) {
     }
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { institution: { $regex: search, $options: 'i' } },
-        { notes: { $regex: search, $options: 'i' } }
+        { name: { $regex: search, $options: "i" } },
+        { institution: { $regex: search, $options: "i" } },
+        { notes: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -135,8 +160,7 @@ export async function GET(request: NextRequest) {
         hasPrevPage: page > 1,
       },
     });
-  } catch (error) {
-    console.error("Error fetching liabilities:", error);
+  } catch (_error) {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -181,22 +205,22 @@ export async function POST(request: NextRequest) {
       dueDate: body.dueDate ? new Date(body.dueDate as string) : undefined,
       interestRate: body.interestRate as number,
       monthlyPayment: body.monthlyPayment as number,
-      remainingBalance: body.remainingBalance as number || body.amount as number,
-      originalAmount: body.originalAmount as number || body.amount as number,
+      remainingBalance:
+        (body.remainingBalance as number) || (body.amount as number),
+      originalAmount:
+        (body.originalAmount as number) || (body.amount as number),
       notes: (body.notes as string)?.trim(),
-      isActive: body.isActive !== undefined ? body.isActive as boolean : true,
+      isActive: body.isActive !== undefined ? (body.isActive as boolean) : true,
     };
 
     const newLiability = await Liability.create(sanitizedData);
 
     return NextResponse.json(newLiability, { status: 201 });
-  } catch (error) {
-    console.error("Error creating liability:", error);
-    
+  } catch (_error) {
     // Handle MongoDB validation errors
-    if (error instanceof Error && error.name === "ValidationError") {
+    if (_error instanceof Error && _error.name === "ValidationError") {
       return NextResponse.json(
-        { error: "Validation error", details: error.message },
+        { error: "Validation error", details: _error.message },
         { status: 400 }
       );
     }

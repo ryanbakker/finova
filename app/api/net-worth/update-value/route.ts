@@ -52,12 +52,10 @@ export async function POST(request: NextRequest) {
     } else {
       return NextResponse.json({ error: result.message }, { status: 400 });
     }
-  } catch (error) {
-    console.error("Error updating item value:", error);
+  } catch (_error) {
     return NextResponse.json(
       { error: "Failed to update item value" },
       { status: 500 }
     );
   }
 }
-

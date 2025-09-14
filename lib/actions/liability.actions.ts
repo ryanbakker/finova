@@ -38,9 +38,46 @@ async function getAuthenticatedUserId(): Promise<string> {
 }
 
 export async function createLiability(liability: CreateLiabilityParams) {
+  const startTime = Date.now();
+  let userId: string | null = null;
+
   try {
-    const userId = await getAuthenticatedUserId();
+    console.log(`[ACTION] createLiability - Starting liability creation`, {
+      liabilityName: liability.name,
+      category: liability.category,
+      currentValue: liability.currentValue,
+      timestamp: new Date().toISOString(),
+    });
+
+    userId = await getAuthenticatedUserId();
     await connectToDB();
+
+    // Additional validation
+    if (!liability.name || liability.name.trim().length === 0) {
+      console.error(`[ACTION] createLiability - Invalid liability name`, {
+        userId,
+        liabilityName: liability.name,
+        timestamp: new Date().toISOString(),
+      });
+      throw new Error("Liability name is required");
+    }
+
+    if (liability.currentValue <= 0) {
+      console.error(`[ACTION] createLiability - Invalid current value`, {
+        userId,
+        currentValue: liability.currentValue,
+        timestamp: new Date().toISOString(),
+      });
+      throw new Error("Current value must be greater than 0");
+    }
+
+    console.log(
+      `[ACTION] createLiability - Validation passed, creating liability`,
+      {
+        userId,
+        timestamp: new Date().toISOString(),
+      }
+    );
 
     // Sanitize and prepare data
     const sanitizedData = {
@@ -68,6 +105,14 @@ export async function createLiability(liability: CreateLiabilityParams) {
     revalidatePath("/liabilities");
     revalidatePath("/dashboard");
 
+    const responseTime = Date.now() - startTime;
+    console.log(`[ACTION] createLiability - Liability created successfully`, {
+      userId,
+      liabilityId: newLiability._id,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
+
     // Transform MongoDB _id to id for frontend compatibility
     const transformedLiability = {
       ...newLiability.toObject(),
@@ -77,6 +122,14 @@ export async function createLiability(liability: CreateLiabilityParams) {
 
     return JSON.parse(JSON.stringify(transformedLiability));
   } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(`[ACTION] createLiability - Error occurred`, {
+      userId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
     handleError(error);
     throw error;
   }
@@ -182,9 +235,31 @@ export async function updateLiability(
 }
 
 export async function deleteLiability(liabilityId: string) {
+  const startTime = Date.now();
+  let userId: string | null = null;
+
   try {
-    const userId = await getAuthenticatedUserId();
+    console.log(`[ACTION] deleteLiability - Starting liability deletion`, {
+      liabilityId,
+      timestamp: new Date().toISOString(),
+    });
+
+    userId = await getAuthenticatedUserId();
     await connectToDB();
+
+    // Validate liabilityId format (basic MongoDB ObjectId check)
+    if (
+      !liabilityId ||
+      liabilityId.length !== 24 ||
+      !/^[0-9a-fA-F]{24}$/.test(liabilityId)
+    ) {
+      console.error(`[ACTION] deleteLiability - Invalid liability ID format`, {
+        liabilityId,
+        userId,
+        timestamp: new Date().toISOString(),
+      });
+      throw new Error("Invalid liability ID format");
+    }
 
     // Ensure user can only delete their own liability
     const existingLiability = await Liability.findOne({
@@ -193,18 +268,62 @@ export async function deleteLiability(liabilityId: string) {
     });
 
     if (!existingLiability) {
+      console.warn(
+        `[ACTION] deleteLiability - Liability not found or access denied`,
+        {
+          liabilityId,
+          userId,
+          timestamp: new Date().toISOString(),
+        }
+      );
       throw new Error("Liability not found or access denied");
     }
+
+    console.log(
+      `[ACTION] deleteLiability - Liability ownership verified, proceeding with deletion`,
+      {
+        liabilityId,
+        userId,
+        liabilityName: existingLiability.name,
+        timestamp: new Date().toISOString(),
+      }
+    );
 
     const deletedLiability = await Liability.findByIdAndDelete(liabilityId);
 
     if (!deletedLiability) {
+      console.error(
+        `[ACTION] deleteLiability - Failed to delete liability from database`,
+        {
+          liabilityId,
+          userId,
+          timestamp: new Date().toISOString(),
+        }
+      );
       throw new Error("Failed to delete liability");
     }
 
     revalidatePath("/liabilities");
+
+    const responseTime = Date.now() - startTime;
+    console.log(`[ACTION] deleteLiability - Liability deleted successfully`, {
+      liabilityId,
+      userId,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
+
     return JSON.parse(JSON.stringify(deletedLiability));
   } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(`[ACTION] deleteLiability - Error occurred`, {
+      liabilityId,
+      userId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
     handleError(error);
     throw error;
   }
@@ -357,7 +476,6 @@ export async function updateLiabilityAmount(
 
     return { success: true, message: "Liability amount updated successfully" };
   } catch (error) {
-    console.error("Error updating liability amount:", error);
     handleError(error);
     throw error;
   }
@@ -409,7 +527,6 @@ export async function getLiabilityAmountHistory(
       createdAt: entry.timestamp.toISOString(),
     }));
   } catch (error) {
-    console.error("Error fetching liability amount history:", error);
     handleError(error);
     throw error;
   }

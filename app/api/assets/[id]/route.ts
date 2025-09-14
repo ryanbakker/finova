@@ -4,7 +4,10 @@ import { connectToDB } from "@/database/db";
 import { Asset } from "@/database/models/asset.model";
 
 // Enhanced validation function for updates
-function validateAssetUpdate(body: Record<string, unknown>): { isValid: boolean; errors: string[] } {
+function validateAssetUpdate(body: Record<string, unknown>): {
+  isValid: boolean;
+  errors: string[];
+} {
   const errors: string[] = [];
 
   // Validate name if provided
@@ -18,7 +21,10 @@ function validateAssetUpdate(body: Record<string, unknown>): { isValid: boolean;
 
   // Validate category if provided
   if (body.category !== undefined) {
-    if (typeof body.category !== "string" || body.category.trim().length === 0) {
+    if (
+      typeof body.category !== "string" ||
+      body.category.trim().length === 0
+    ) {
       errors.push("Category must be a non-empty string");
     }
   }
@@ -34,7 +40,10 @@ function validateAssetUpdate(body: Record<string, unknown>): { isValid: boolean;
 
   // Validate currency if provided
   if (body.currency !== undefined) {
-    if (typeof body.currency !== "string" || body.currency.trim().length === 0) {
+    if (
+      typeof body.currency !== "string" ||
+      body.currency.trim().length === 0
+    ) {
       errors.push("Currency must be a non-empty string");
     }
   }
@@ -48,14 +57,21 @@ function validateAssetUpdate(body: Record<string, unknown>): { isValid: boolean;
 
   // Validate changeAmount if provided
   if (body.changeAmount !== undefined && body.changeAmount !== null) {
-    if (typeof body.changeAmount !== "number" || body.changeAmount < -999999999) {
+    if (
+      typeof body.changeAmount !== "number" ||
+      body.changeAmount < -999999999
+    ) {
       errors.push("Change amount cannot be less than -999,999,999");
     }
   }
 
   // Validate changePercentage if provided
   if (body.changePercentage !== undefined && body.changePercentage !== null) {
-    if (typeof body.changePercentage !== "number" || body.changePercentage < -100 || body.changePercentage > 1000) {
+    if (
+      typeof body.changePercentage !== "number" ||
+      body.changePercentage < -100 ||
+      body.changePercentage > 1000
+    ) {
       errors.push("Change percentage must be between -100% and 1000%");
     }
   }
@@ -104,16 +120,11 @@ export async function GET(
     }).lean();
 
     if (!asset) {
-      return NextResponse.json(
-        { error: "Asset not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Asset not found" }, { status: 404 });
     }
 
     return NextResponse.json(asset);
   } catch (error) {
-    console.error("Error fetching asset:", error);
-    
     // Handle MongoDB ObjectId validation errors
     if (error instanceof Error && error.name === "CastError") {
       return NextResponse.json(
@@ -167,19 +178,32 @@ export async function PUT(
 
     // Sanitize update data
     const sanitizedUpdateData: Record<string, unknown> = {};
-    
-    if (body.name !== undefined) sanitizedUpdateData.name = (body.name as string).trim();
-    if (body.category !== undefined) sanitizedUpdateData.category = (body.category as string).trim();
+
+    if (body.name !== undefined)
+      sanitizedUpdateData.name = (body.name as string).trim();
+    if (body.category !== undefined)
+      sanitizedUpdateData.category = (body.category as string).trim();
     if (body.value !== undefined) sanitizedUpdateData.value = body.value;
-    if (body.currency !== undefined) sanitizedUpdateData.currency = (body.currency as string).trim();
-    if (body.institution !== undefined) sanitizedUpdateData.institution = (body.institution as string)?.trim();
-    if (body.accountNumber !== undefined) sanitizedUpdateData.accountNumber = (body.accountNumber as string)?.trim();
-    if (body.purchaseDate !== undefined) sanitizedUpdateData.purchaseDate = body.purchaseDate;
-    if (body.currentValue !== undefined) sanitizedUpdateData.currentValue = body.currentValue;
-    if (body.changeAmount !== undefined) sanitizedUpdateData.changeAmount = body.changeAmount;
-    if (body.changePercentage !== undefined) sanitizedUpdateData.changePercentage = body.changePercentage;
-    if (body.notes !== undefined) sanitizedUpdateData.notes = (body.notes as string)?.trim();
-    if (body.isActive !== undefined) sanitizedUpdateData.isActive = body.isActive;
+    if (body.currency !== undefined)
+      sanitizedUpdateData.currency = (body.currency as string).trim();
+    if (body.institution !== undefined)
+      sanitizedUpdateData.institution = (body.institution as string)?.trim();
+    if (body.accountNumber !== undefined)
+      sanitizedUpdateData.accountNumber = (
+        body.accountNumber as string
+      )?.trim();
+    if (body.purchaseDate !== undefined)
+      sanitizedUpdateData.purchaseDate = body.purchaseDate;
+    if (body.currentValue !== undefined)
+      sanitizedUpdateData.currentValue = body.currentValue;
+    if (body.changeAmount !== undefined)
+      sanitizedUpdateData.changeAmount = body.changeAmount;
+    if (body.changePercentage !== undefined)
+      sanitizedUpdateData.changePercentage = body.changePercentage;
+    if (body.notes !== undefined)
+      sanitizedUpdateData.notes = (body.notes as string)?.trim();
+    if (body.isActive !== undefined)
+      sanitizedUpdateData.isActive = body.isActive;
 
     // Ensure user can only update their own assets
     const updatedAsset = await Asset.findOneAndUpdate(
@@ -200,8 +224,6 @@ export async function PUT(
 
     return NextResponse.json(updatedAsset);
   } catch (error) {
-    console.error("Error updating asset:", error);
-    
     // Handle MongoDB validation errors
     if (error instanceof Error && error.name === "ValidationError") {
       return NextResponse.json(
@@ -263,19 +285,17 @@ export async function DELETE(
     }
 
     return NextResponse.json(
-      { 
+      {
         message: "Asset deleted successfully",
         deletedAsset: {
           id: deletedAsset._id,
           name: deletedAsset.name,
           category: deletedAsset.category,
-        }
+        },
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting asset:", error);
-    
     // Handle MongoDB ObjectId validation errors
     if (error instanceof Error && error.name === "CastError") {
       return NextResponse.json(
@@ -329,19 +349,32 @@ export async function PATCH(
 
     // Sanitize update data (same as PUT but only for provided fields)
     const sanitizedUpdateData: Record<string, unknown> = {};
-    
-    if (body.name !== undefined) sanitizedUpdateData.name = (body.name as string).trim();
-    if (body.category !== undefined) sanitizedUpdateData.category = (body.category as string).trim();
+
+    if (body.name !== undefined)
+      sanitizedUpdateData.name = (body.name as string).trim();
+    if (body.category !== undefined)
+      sanitizedUpdateData.category = (body.category as string).trim();
     if (body.value !== undefined) sanitizedUpdateData.value = body.value;
-    if (body.currency !== undefined) sanitizedUpdateData.currency = (body.currency as string).trim();
-    if (body.institution !== undefined) sanitizedUpdateData.institution = (body.institution as string)?.trim();
-    if (body.accountNumber !== undefined) sanitizedUpdateData.accountNumber = (body.accountNumber as string)?.trim();
-    if (body.purchaseDate !== undefined) sanitizedUpdateData.purchaseDate = body.purchaseDate;
-    if (body.currentValue !== undefined) sanitizedUpdateData.currentValue = body.currentValue;
-    if (body.changeAmount !== undefined) sanitizedUpdateData.changeAmount = body.changeAmount;
-    if (body.changePercentage !== undefined) sanitizedUpdateData.changePercentage = body.changePercentage;
-    if (body.notes !== undefined) sanitizedUpdateData.notes = (body.notes as string)?.trim();
-    if (body.isActive !== undefined) sanitizedUpdateData.isActive = body.isActive;
+    if (body.currency !== undefined)
+      sanitizedUpdateData.currency = (body.currency as string).trim();
+    if (body.institution !== undefined)
+      sanitizedUpdateData.institution = (body.institution as string)?.trim();
+    if (body.accountNumber !== undefined)
+      sanitizedUpdateData.accountNumber = (
+        body.accountNumber as string
+      )?.trim();
+    if (body.purchaseDate !== undefined)
+      sanitizedUpdateData.purchaseDate = body.purchaseDate;
+    if (body.currentValue !== undefined)
+      sanitizedUpdateData.currentValue = body.currentValue;
+    if (body.changeAmount !== undefined)
+      sanitizedUpdateData.changeAmount = body.changeAmount;
+    if (body.changePercentage !== undefined)
+      sanitizedUpdateData.changePercentage = body.changePercentage;
+    if (body.notes !== undefined)
+      sanitizedUpdateData.notes = (body.notes as string)?.trim();
+    if (body.isActive !== undefined)
+      sanitizedUpdateData.isActive = body.isActive;
 
     // Ensure user can only update their own assets
     const updatedAsset = await Asset.findOneAndUpdate(
@@ -362,8 +395,6 @@ export async function PATCH(
 
     return NextResponse.json(updatedAsset);
   } catch (error) {
-    console.error("Error updating asset:", error);
-    
     // Handle MongoDB validation errors
     if (error instanceof Error && error.name === "ValidationError") {
       return NextResponse.json(

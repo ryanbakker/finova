@@ -119,12 +119,23 @@ export function CreateAssetDialog({
     e.preventDefault();
 
     if (!validateForm()) {
+      console.warn(`[CREATE_ASSET_DIALOG] Form validation failed`, {
+        formData,
+        timestamp: new Date().toISOString(),
+      });
       return;
     }
 
     setIsSubmitting(true);
 
     try {
+      console.log(`[CREATE_ASSET_DIALOG] Starting asset creation`, {
+        assetName: formData.name,
+        category: formData.category,
+        value: formData.value,
+        timestamp: new Date().toISOString(),
+      });
+
       const assetData = {
         name: formData.name.trim(),
         category: formData.category,
@@ -145,6 +156,12 @@ export function CreateAssetDialog({
       };
 
       await createAsset(assetData);
+
+      console.log(`[CREATE_ASSET_DIALOG] Asset created successfully`, {
+        assetName: formData.name,
+        category: formData.category,
+        timestamp: new Date().toISOString(),
+      });
 
       toast({
         title: "Success",
@@ -170,10 +187,19 @@ export function CreateAssetDialog({
       onSuccess();
       onClose();
     } catch (error) {
-      console.error("Error creating asset:", error);
+      console.error(`[CREATE_ASSET_DIALOG] Error creating asset`, {
+        error: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+        formData,
+        timestamp: new Date().toISOString(),
+      });
+
       toast({
         title: "Error",
-        description: "Failed to create asset. Please try again.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to create asset. Please try again.",
         variant: "destructive",
       });
     } finally {

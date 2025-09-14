@@ -83,8 +83,7 @@ export async function createReport(
       updatedAt: report.updatedAt,
       metadata: report.metadata,
     };
-  } catch (error) {
-    console.error("Error creating report:", error);
+  } catch (_error) {
     throw new Error("Failed to create report");
   }
 }
@@ -133,8 +132,7 @@ export async function getReportsByUserId(
       total,
       hasMore: offset + limit < total,
     };
-  } catch (error) {
-    console.error("Error fetching reports:", error);
+  } catch (_error) {
     throw new Error("Failed to fetch reports");
   }
 }
@@ -171,8 +169,7 @@ export async function getReportById(
       insights: (report as unknown as IReport).insights,
       metadata: (report as unknown as IReport).metadata,
     };
-  } catch (error) {
-    console.error("Error fetching report:", error);
+  } catch (_error) {
     throw new Error("Failed to fetch report");
   }
 }
@@ -198,8 +195,7 @@ export async function deleteReport(reportId: string): Promise<void> {
 
     revalidatePath("/");
     revalidatePath("/reports");
-  } catch (error) {
-    console.error("Error deleting report:", error);
+  } catch (_error) {
     throw new Error("Failed to delete report");
   }
 }
@@ -237,11 +233,7 @@ async function generateReportInBackground(
 
     revalidatePath("/");
     revalidatePath("/reports");
-
-    console.log(`Report ${reportId} generated successfully`);
-  } catch (error) {
-    console.error(`Error generating report ${reportId}:`, error);
-
+  } catch (_error) {
     // Update report status to failed
     await Report.findByIdAndUpdate(reportId, {
       status: "failed",

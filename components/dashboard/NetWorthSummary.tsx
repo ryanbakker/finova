@@ -33,8 +33,7 @@ export function NetWorthSummary({ className }: NetWorthSummaryProps) {
         setError(null);
         const data = await getDashboardData();
         setDashboardData(data);
-      } catch (err) {
-        console.error("Error fetching dashboard data:", err);
+      } catch (_err) {
         setError("Failed to load net worth data");
       } finally {
         setIsLoading(false);

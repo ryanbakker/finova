@@ -74,7 +74,6 @@ export async function createBudget(budgetData: CreateBudgetParams) {
 
     return JSON.parse(JSON.stringify(transformedBudget));
   } catch (error) {
-    console.error("Error creating budget:", error);
     handleError(error);
     throw error;
   }
@@ -107,7 +106,6 @@ export async function getUserBudgets() {
 
     return JSON.parse(JSON.stringify(transformedBudgets));
   } catch (error) {
-    console.error("Error fetching user budgets:", error);
     handleError(error);
     throw error;
   }
@@ -145,7 +143,6 @@ export async function getBudgetById(budgetId: string) {
 
     return JSON.parse(JSON.stringify(transformedBudget));
   } catch (error) {
-    console.error("Error fetching budget:", error);
     handleError(error);
     throw error;
   }
@@ -231,7 +228,6 @@ export async function updateBudget(budgetData: UpdateBudgetParams) {
 
     return JSON.parse(JSON.stringify(transformedBudget));
   } catch (error) {
-    console.error("Error updating budget:", error);
     handleError(error);
     throw error;
   }
@@ -265,7 +261,6 @@ export async function deleteBudget(budgetId: string) {
 
     return JSON.parse(JSON.stringify(deletedBudget));
   } catch (error) {
-    console.error("Error deleting budget:", error);
     handleError(error);
     throw error;
   }
@@ -326,7 +321,6 @@ export async function getBudgetStats() {
       }
     );
   } catch (error) {
-    console.error("Error fetching budget stats:", error);
     handleError(error);
     throw error;
   }
@@ -358,7 +352,6 @@ export async function getBudgetsByPeriod(
 
     return JSON.parse(JSON.stringify(budgets));
   } catch (error) {
-    console.error("Error fetching budgets by period:", error);
     handleError(error);
     throw error;
   }
@@ -396,7 +389,6 @@ export async function updateBudgetSpent(budgetId: string, spentAmount: number) {
 
     return JSON.parse(JSON.stringify(updatedBudget));
   } catch (error) {
-    console.error("Error updating budget spent amount:", error);
     handleError(error);
     throw error;
   }

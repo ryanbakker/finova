@@ -84,8 +84,7 @@ function TransactionsPage() {
           extractAccountsAndCategories(data || []);
         setAccounts(extractedAccounts);
         setCategories(extractedCategories);
-      } catch (error) {
-        console.error("Error loading transactions:", error);
+      } catch (_error) {
         toast({
           title: "Error",
           description: "Failed to load transactions",
@@ -116,8 +115,7 @@ function TransactionsPage() {
           extractAccountsAndCategories(data || []);
         setAccounts(extractedAccounts);
         setCategories(extractedCategories);
-      } catch (error) {
-        console.error("Error reloading transactions:", error);
+      } catch (_error) {
         setTransactions([]);
         setAccounts([]);
         setCategories([]);
@@ -138,8 +136,7 @@ function TransactionsPage() {
           extractAccountsAndCategories(data || []);
         setAccounts(extractedAccounts);
         setCategories(extractedCategories);
-      } catch (error) {
-        console.error("Error reloading transactions:", error);
+      } catch (_error) {
         setTransactions([]);
         setAccounts([]);
         setCategories([]);
@@ -160,8 +157,7 @@ function TransactionsPage() {
           extractAccountsAndCategories(data || []);
         setAccounts(extractedAccounts);
         setCategories(extractedCategories);
-      } catch (error) {
-        console.error("Error reloading transactions:", error);
+      } catch (_error) {
         setTransactions([]);
         setAccounts([]);
         setCategories([]);

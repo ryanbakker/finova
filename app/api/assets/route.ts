@@ -4,17 +4,28 @@ import { connectToDB } from "@/database/db";
 import { Asset } from "@/database/models/asset.model";
 
 // Enhanced validation function
-function validateAssetInput(body: Record<string, unknown>): { isValid: boolean; errors: string[] } {
+function validateAssetInput(body: Record<string, unknown>): {
+  isValid: boolean;
+  errors: string[];
+} {
   const errors: string[] = [];
 
   // Required field validation
-  if (!body.name || typeof body.name !== "string" || (body.name as string).trim().length === 0) {
+  if (
+    !body.name ||
+    typeof body.name !== "string" ||
+    (body.name as string).trim().length === 0
+  ) {
     errors.push("Asset name is required and must be a non-empty string");
   } else if ((body.name as string).trim().length > 100) {
     errors.push("Asset name cannot exceed 100 characters");
   }
 
-  if (!body.category || typeof body.category !== "string" || (body.category as string).trim().length === 0) {
+  if (
+    !body.category ||
+    typeof body.category !== "string" ||
+    (body.category as string).trim().length === 0
+  ) {
     errors.push("Category is required and must be a non-empty string");
   }
 
@@ -26,7 +37,11 @@ function validateAssetInput(body: Record<string, unknown>): { isValid: boolean; 
     errors.push("Value cannot exceed 999,999,999");
   }
 
-  if (!body.currency || typeof body.currency !== "string" || (body.currency as string).trim().length === 0) {
+  if (
+    !body.currency ||
+    typeof body.currency !== "string" ||
+    (body.currency as string).trim().length === 0
+  ) {
     errors.push("Currency is required and must be a non-empty string");
   }
 
@@ -38,19 +53,29 @@ function validateAssetInput(body: Record<string, unknown>): { isValid: boolean; 
   }
 
   if (body.changeAmount !== undefined && body.changeAmount !== null) {
-    if (typeof body.changeAmount !== "number" || body.changeAmount < -999999999) {
+    if (
+      typeof body.changeAmount !== "number" ||
+      body.changeAmount < -999999999
+    ) {
       errors.push("Change amount cannot be less than -999,999,999");
     }
   }
 
   if (body.changePercentage !== undefined && body.changePercentage !== null) {
-    if (typeof body.changePercentage !== "number" || body.changePercentage < -100 || body.changePercentage > 1000) {
+    if (
+      typeof body.changePercentage !== "number" ||
+      body.changePercentage < -100 ||
+      body.changePercentage > 1000
+    ) {
       errors.push("Change percentage must be between -100% and 1000%");
     }
   }
 
   if (body.notes !== undefined && body.notes !== null) {
-    if (typeof body.notes !== "string" || (body.notes as string).length > 1000) {
+    if (
+      typeof body.notes !== "string" ||
+      (body.notes as string).length > 1000
+    ) {
       errors.push("Notes cannot exceed 1000 characters");
     }
   }
@@ -63,15 +88,39 @@ function validateAssetInput(body: Record<string, unknown>): { isValid: boolean; 
 
 // GET /api/assets - Get all assets for the authenticated user
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  let userId: string | null = null;
+
   try {
-    const { userId } = await auth();
+    console.log(`[API] GET /api/assets - Request started`, {
+      timestamp: new Date().toISOString(),
+      userAgent: request.headers.get("user-agent"),
+      ip:
+        request.headers.get("x-forwarded-for") ||
+        request.headers.get("x-real-ip"),
+    });
+
+    const authResult = await auth();
+    userId = authResult.userId;
 
     if (!userId) {
+      console.warn(`[API] GET /api/assets - Unauthorized access attempt`, {
+        timestamp: new Date().toISOString(),
+        userAgent: request.headers.get("user-agent"),
+        ip:
+          request.headers.get("x-forwarded-for") ||
+          request.headers.get("x-real-ip"),
+      });
       return NextResponse.json(
         { error: "Unauthorized: User not authenticated" },
         { status: 401 }
       );
     }
+
+    console.log(`[API] GET /api/assets - User authenticated`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
 
     await connectToDB();
 
@@ -82,10 +131,28 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category");
     const isActive = searchParams.get("isActive");
 
+    console.log(`[API] GET /api/assets - Query parameters parsed`, {
+      userId,
+      page,
+      limit,
+      category,
+      isActive,
+      timestamp: new Date().toISOString(),
+    });
+
     // Validate pagination parameters
     if (page < 1 || limit < 1 || limit > 100) {
+      console.warn(`[API] GET /api/assets - Invalid pagination parameters`, {
+        userId,
+        page,
+        limit,
+        timestamp: new Date().toISOString(),
+      });
       return NextResponse.json(
-        { error: "Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 100" },
+        {
+          error:
+            "Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 100",
+        },
         { status: 400 }
       );
     }
@@ -101,6 +168,14 @@ export async function GET(request: NextRequest) {
 
     // Execute query with pagination
     const skip = (page - 1) * limit;
+    console.log(`[API] GET /api/assets - Executing database query`, {
+      userId,
+      query,
+      skip,
+      limit,
+      timestamp: new Date().toISOString(),
+    });
+
     const assets = await Asset.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -109,6 +184,15 @@ export async function GET(request: NextRequest) {
 
     // Get total count for pagination
     const totalCount = await Asset.countDocuments(query);
+
+    const responseTime = Date.now() - startTime;
+    console.log(`[API] GET /api/assets - Query completed successfully`, {
+      userId,
+      assetsCount: assets.length,
+      totalCount,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
 
     return NextResponse.json({
       assets,
@@ -122,7 +206,14 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error fetching assets:", error);
+    const responseTime = Date.now() - startTime;
+    console.error(`[API] GET /api/assets - Error occurred`, {
+      userId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -132,26 +223,64 @@ export async function GET(request: NextRequest) {
 
 // POST /api/assets - Create a new asset for the authenticated user
 export async function POST(request: NextRequest) {
+  let userId: string | null = null;
+
   try {
-    const { userId } = await auth();
+    console.log(`[API] POST /api/assets - Request started`, {
+      timestamp: new Date().toISOString(),
+      userAgent: request.headers.get("user-agent"),
+      ip:
+        request.headers.get("x-forwarded-for") ||
+        request.headers.get("x-real-ip"),
+    });
+
+    const authResult = await auth();
+    userId = authResult.userId;
 
     if (!userId) {
+      console.warn(`[API] POST /api/assets - Unauthorized access attempt`, {
+        timestamp: new Date().toISOString(),
+        userAgent: request.headers.get("user-agent"),
+        ip:
+          request.headers.get("x-forwarded-for") ||
+          request.headers.get("x-real-ip"),
+      });
       return NextResponse.json(
         { error: "Unauthorized: User not authenticated" },
         { status: 401 }
       );
     }
 
+    console.log(`[API] POST /api/assets - User authenticated`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
     const body = await request.json();
+    console.log(`[API] POST /api/assets - Request body received`, {
+      userId,
+      bodyKeys: Object.keys(body),
+      timestamp: new Date().toISOString(),
+    });
 
     // Validate request body
     const validation = validateAssetInput(body);
     if (!validation.isValid) {
+      console.warn(`[API] POST /api/assets - Validation failed`, {
+        userId,
+        errors: validation.errors,
+        timestamp: new Date().toISOString(),
+      });
       return NextResponse.json(
         { error: "Validation failed", details: validation.errors },
         { status: 400 }
       );
     }
+
+    console.log(`[API] POST /api/assets - Validation passed`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
 
     await connectToDB();
 
@@ -164,20 +293,20 @@ export async function POST(request: NextRequest) {
       currency: (body.currency as string).trim(),
       institution: (body.institution as string)?.trim(),
       accountNumber: (body.accountNumber as string)?.trim(),
-      purchaseDate: body.purchaseDate ? new Date(body.purchaseDate as string) : undefined,
-      currentValue: body.currentValue as number || body.value as number,
+      purchaseDate: body.purchaseDate
+        ? new Date(body.purchaseDate as string)
+        : undefined,
+      currentValue: (body.currentValue as number) || (body.value as number),
       changeAmount: (body.changeAmount as number) || 0,
       changePercentage: (body.changePercentage as number) || 0,
       notes: (body.notes as string)?.trim(),
-      isActive: body.isActive !== undefined ? body.isActive as boolean : true,
+      isActive: body.isActive !== undefined ? (body.isActive as boolean) : true,
     };
 
     const newAsset = await Asset.create(sanitizedData);
 
     return NextResponse.json(newAsset, { status: 201 });
   } catch (error) {
-    console.error("Error creating asset:", error);
-    
     // Handle MongoDB validation errors
     if (error instanceof Error && error.name === "ValidationError") {
       return NextResponse.json(

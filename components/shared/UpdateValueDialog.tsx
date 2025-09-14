@@ -81,7 +81,6 @@ export function UpdateValueDialog({
         throw new Error(data.error || "Failed to update value");
       }
     } catch (error) {
-      console.error("Error updating value:", error);
       toast({
         title: "Update Failed",
         description:
@@ -150,4 +149,3 @@ export function UpdateValueDialog({
     </Dialog>
   );
 }
-

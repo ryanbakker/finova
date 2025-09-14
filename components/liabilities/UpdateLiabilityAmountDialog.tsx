@@ -125,8 +125,7 @@ export function UpdateLiabilityAmountDialog({
 
       onSuccess();
       onClose();
-    } catch (error) {
-      console.error("Error updating liability amount:", error);
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to update liability amount. Please try again.",

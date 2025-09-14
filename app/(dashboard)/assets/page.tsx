@@ -88,8 +88,7 @@ function AssetsPageContent() {
         setIsLoading(true);
         const userAssets = await getUserAssets();
         setAssets(userAssets);
-      } catch (error) {
-        console.error("Error loading assets:", error);
+      } catch (_error) {
         toast({
           title: "Error",
           description: "Failed to load assets. Please try again.",
@@ -140,8 +139,7 @@ function AssetsPageContent() {
       setIsLoading(true);
       const userAssets = await getUserAssets();
       setAssets(userAssets);
-    } catch (error) {
-      console.error("Error refreshing assets:", error);
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to refresh assets. Please try again.",

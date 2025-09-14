@@ -131,7 +131,6 @@ export function LiabilityDetailsAndHistoryDialog({
       const historyData = await getLiabilityAmountHistory(liability.id, 50);
       setHistory(historyData);
     } catch (error) {
-      console.error("Error loading liability amount history:", error);
       setHistoryError(
         error instanceof Error ? error.message : "Failed to load history"
       );

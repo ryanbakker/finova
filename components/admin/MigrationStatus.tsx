@@ -53,7 +53,6 @@ export function MigrationStatus({ className }: MigrationStatusProps) {
         throw new Error(data.message || `Failed to ${action}`);
       }
     } catch (error) {
-      console.error(`Error running ${action}:`, error);
       toast({
         title: `${action === "migrate" ? "Migration" : "Rollback"} Failed`,
         description:
@@ -160,4 +159,3 @@ export function MigrationStatus({ className }: MigrationStatusProps) {
     </Card>
   );
 }
-

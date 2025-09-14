@@ -39,8 +39,7 @@ export function DeleteBillDialog({
       });
 
       onConfirm(bill);
-    } catch (error) {
-      console.error("Error deleting bill:", error);
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to delete bill. Please try again.",

@@ -108,8 +108,7 @@ export function ContributionDialog({
       setErrors({});
       onSuccess();
       onClose();
-    } catch (error) {
-      console.error("Error creating contribution:", error);
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to add contribution. Please try again.",

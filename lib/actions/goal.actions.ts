@@ -33,16 +33,62 @@ declare type UpdateGoalParams = {
 
 // Create a new goal
 export async function createGoal(goal: CreateGoalParams) {
+  const startTime = Date.now();
+
   try {
+    console.log(`[ACTION] createGoal - Starting goal creation`, {
+      userId: goal.userId,
+      goalName: goal.name,
+      category: goal.category,
+      targetAmount: goal.targetAmount,
+      timestamp: new Date().toISOString(),
+    });
+
     await connectToDB();
 
     // Validate that the goal belongs to the authenticated user
     if (!goal.userId) {
+      console.error(`[ACTION] createGoal - Missing user ID`, {
+        goalData: goal,
+        timestamp: new Date().toISOString(),
+      });
       throw new Error("User ID is required");
     }
 
+    // Additional validation
+    if (!goal.name || goal.name.trim().length === 0) {
+      console.error(`[ACTION] createGoal - Invalid goal name`, {
+        userId: goal.userId,
+        goalName: goal.name,
+        timestamp: new Date().toISOString(),
+      });
+      throw new Error("Goal name is required");
+    }
+
+    if (goal.targetAmount <= 0) {
+      console.error(`[ACTION] createGoal - Invalid target amount`, {
+        userId: goal.userId,
+        targetAmount: goal.targetAmount,
+        timestamp: new Date().toISOString(),
+      });
+      throw new Error("Target amount must be greater than 0");
+    }
+
+    console.log(`[ACTION] createGoal - Validation passed, creating goal`, {
+      userId: goal.userId,
+      timestamp: new Date().toISOString(),
+    });
+
     const newGoal = await Goal.create(goal);
     revalidatePath("/goals");
+
+    const responseTime = Date.now() - startTime;
+    console.log(`[ACTION] createGoal - Goal created successfully`, {
+      userId: goal.userId,
+      goalId: newGoal._id,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
 
     // Transform MongoDB _id to id for frontend compatibility
     const transformedGoal = {
@@ -53,6 +99,14 @@ export async function createGoal(goal: CreateGoalParams) {
 
     return JSON.parse(JSON.stringify(transformedGoal));
   } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(`[ACTION] createGoal - Error occurred`, {
+      userId: goal.userId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
     handleError(error);
     throw error;
   }
@@ -161,24 +215,79 @@ export async function updateGoal(
 
 // Delete a goal (with user authentication)
 export async function deleteGoal(goalId: string, userId: string) {
+  const startTime = Date.now();
+
   try {
+    console.log(`[ACTION] deleteGoal - Starting goal deletion`, {
+      goalId,
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
     await connectToDB();
 
     if (!goalId || !userId) {
+      console.error(`[ACTION] deleteGoal - Missing required parameters`, {
+        goalId,
+        userId,
+        timestamp: new Date().toISOString(),
+      });
       throw new Error("Goal ID and User ID are required");
+    }
+
+    // Validate goalId format (basic MongoDB ObjectId check)
+    if (goalId.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(goalId)) {
+      console.error(`[ACTION] deleteGoal - Invalid goal ID format`, {
+        goalId,
+        userId,
+        timestamp: new Date().toISOString(),
+      });
+      throw new Error("Invalid goal ID format");
     }
 
     // First verify the goal belongs to the user
     const existingGoal = await Goal.findOne({ _id: goalId, userId });
     if (!existingGoal) {
+      console.warn(`[ACTION] deleteGoal - Goal not found or access denied`, {
+        goalId,
+        userId,
+        timestamp: new Date().toISOString(),
+      });
       throw new Error("Goal not found or access denied");
     }
+
+    console.log(
+      `[ACTION] deleteGoal - Goal ownership verified, proceeding with deletion`,
+      {
+        goalId,
+        userId,
+        goalName: existingGoal.name,
+        timestamp: new Date().toISOString(),
+      }
+    );
 
     const deletedGoal = await Goal.findByIdAndDelete(goalId);
     revalidatePath("/goals");
 
+    const responseTime = Date.now() - startTime;
+    console.log(`[ACTION] deleteGoal - Goal deleted successfully`, {
+      goalId,
+      userId,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
+
     return deletedGoal ? JSON.parse(JSON.stringify(deletedGoal)) : null;
   } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(`[ACTION] deleteGoal - Error occurred`, {
+      goalId,
+      userId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
     handleError(error);
     throw error;
   }

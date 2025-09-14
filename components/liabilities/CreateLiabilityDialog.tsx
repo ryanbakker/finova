@@ -173,8 +173,7 @@ export function CreateLiabilityDialog({
       if (onLiabilityCreated) {
         onLiabilityCreated();
       }
-    } catch (error) {
-      console.error("Error creating liability:", error);
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to create liability. Please try again.",

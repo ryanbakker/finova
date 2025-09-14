@@ -27,8 +27,6 @@ export async function GET() {
       environmentVariables: envCheck,
     });
   } catch (error) {
-    console.error("❌ Health check failed:", error);
-
     return NextResponse.json(
       {
         status: "unhealthy",

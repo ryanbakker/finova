@@ -28,8 +28,7 @@ export async function GET(
     }
 
     return NextResponse.json({ report });
-  } catch (error) {
-    console.error("Error fetching report:", error);
+  } catch (_error) {
     return NextResponse.json(
       { error: "Failed to fetch report" },
       { status: 500 }
@@ -62,8 +61,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ message: "Report deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting report:", error);
+  } catch (_error) {
     return NextResponse.json(
       { error: "Failed to delete report" },
       { status: 500 }

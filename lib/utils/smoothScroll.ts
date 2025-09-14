@@ -6,7 +6,6 @@
 export function smoothScrollTo(targetId: string, offset: number = 50) {
   const element = document.getElementById(targetId);
   if (!element) {
-    console.warn(`Element with ID "${targetId}" not found`);
     return;
   }
 

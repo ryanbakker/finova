@@ -111,7 +111,6 @@ export async function createAsset(assetData: CreateAssetParams) {
 
     return JSON.parse(JSON.stringify(transformedAsset));
   } catch (error) {
-    console.error("Error creating asset:", error);
     handleError(error);
     throw error;
   }
@@ -142,7 +141,6 @@ export async function getUserAssets() {
 
     return JSON.parse(JSON.stringify(transformedAssets));
   } catch (error) {
-    console.error("Error fetching user assets:", error);
     handleError(error);
     throw error;
   }
@@ -185,7 +183,6 @@ export async function getAssetById(assetId: string) {
 
     return JSON.parse(JSON.stringify(transformedAsset));
   } catch (error) {
-    console.error("Error fetching asset:", error);
     handleError(error);
     throw error;
   }
@@ -268,7 +265,6 @@ export async function updateAsset(assetData: UpdateAssetParams) {
 
     return JSON.parse(JSON.stringify(transformedAsset));
   } catch (error) {
-    console.error("Error updating asset:", error);
     handleError(error);
     throw error;
   }
@@ -276,10 +272,23 @@ export async function updateAsset(assetData: UpdateAssetParams) {
 
 // Delete an asset
 export async function deleteAsset(assetId: string) {
+  const startTime = Date.now();
+  let userId: string | null = null;
+
   try {
-    const { userId } = await auth();
+    console.log(`[ACTION] deleteAsset - Starting asset deletion`, {
+      assetId,
+      timestamp: new Date().toISOString(),
+    });
+
+    const authResult = await auth();
+    userId = authResult.userId;
 
     if (!userId) {
+      console.error(`[ACTION] deleteAsset - User not authenticated`, {
+        assetId,
+        timestamp: new Date().toISOString(),
+      });
       throw new Error("Unauthorized: User not authenticated");
     }
 
@@ -288,10 +297,50 @@ export async function deleteAsset(assetId: string) {
       typeof assetId !== "string" ||
       assetId.trim().length === 0
     ) {
+      console.error(`[ACTION] deleteAsset - Invalid asset ID provided`, {
+        assetId,
+        userId,
+        timestamp: new Date().toISOString(),
+      });
       throw new Error("Invalid asset ID provided");
     }
 
+    // Validate assetId format (basic MongoDB ObjectId check)
+    if (assetId.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(assetId)) {
+      console.error(`[ACTION] deleteAsset - Invalid asset ID format`, {
+        assetId,
+        userId,
+        timestamp: new Date().toISOString(),
+      });
+      throw new Error("Invalid asset ID format");
+    }
+
     await connectToDB();
+
+    // First check if the asset exists and belongs to the user
+    const existingAsset = await Asset.findOne({
+      _id: assetId.trim(),
+      userId,
+    });
+
+    if (!existingAsset) {
+      console.warn(`[ACTION] deleteAsset - Asset not found or access denied`, {
+        assetId,
+        userId,
+        timestamp: new Date().toISOString(),
+      });
+      throw new Error("Asset not found or unauthorized");
+    }
+
+    console.log(
+      `[ACTION] deleteAsset - Asset ownership verified, proceeding with deletion`,
+      {
+        assetId,
+        userId,
+        assetName: existingAsset.name,
+        timestamp: new Date().toISOString(),
+      }
+    );
 
     const deletedAsset = await Asset.findOneAndDelete({
       _id: assetId.trim(),
@@ -299,15 +348,39 @@ export async function deleteAsset(assetId: string) {
     });
 
     if (!deletedAsset) {
+      console.error(
+        `[ACTION] deleteAsset - Failed to delete asset from database`,
+        {
+          assetId,
+          userId,
+          timestamp: new Date().toISOString(),
+        }
+      );
       throw new Error("Asset not found or unauthorized");
     }
 
     revalidatePath("/assets");
     revalidatePath("/dashboard");
 
+    const responseTime = Date.now() - startTime;
+    console.log(`[ACTION] deleteAsset - Asset deleted successfully`, {
+      assetId,
+      userId,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
+
     return JSON.parse(JSON.stringify(deletedAsset));
   } catch (error) {
-    console.error("Error deleting asset:", error);
+    const responseTime = Date.now() - startTime;
+    console.error(`[ACTION] deleteAsset - Error occurred`, {
+      assetId,
+      userId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
     handleError(error);
     throw error;
   }
@@ -355,7 +428,6 @@ export async function getAssetStats() {
       }
     );
   } catch (error) {
-    console.error("Error fetching asset stats:", error);
     handleError(error);
     throw error;
   }
@@ -391,7 +463,6 @@ export async function getAssetsByCategory(category: string) {
 
     return JSON.parse(JSON.stringify(assets));
   } catch (error) {
-    console.error("Error fetching assets by category:", error);
     handleError(error);
     throw error;
   }
@@ -436,7 +507,6 @@ export async function toggleAssetStatus(assetId: string) {
 
     return JSON.parse(JSON.stringify(updatedAsset));
   } catch (error) {
-    console.error("Error toggling asset status:", error);
     handleError(error);
     throw error;
   }
@@ -520,7 +590,6 @@ export async function bulkUpdateAssets(
       matchedCount: result.matchedCount,
     };
   } catch (error) {
-    console.error("Error bulk updating assets:", error);
     handleError(error);
     throw error;
   }
@@ -570,7 +639,6 @@ export async function updateAssetValue(params: UpdateAssetValueParams) {
 
     return { success: true, message: "Asset value updated successfully" };
   } catch (error) {
-    console.error("Error updating asset value:", error);
     handleError(error);
     throw error;
   }
@@ -633,7 +701,6 @@ export async function getAssetValueHistory(
       updatedAt: entry.updatedAt.toISOString(),
     }));
   } catch (error) {
-    console.error("Error fetching asset value history:", error);
     handleError(error);
     throw error;
   }

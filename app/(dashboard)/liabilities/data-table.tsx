@@ -165,8 +165,7 @@ export function DataTable<TData extends Liability, TValue>({
       if (onDataChange) {
         onDataChange();
       }
-    } catch (error) {
-      console.error("Error updating liability:", error);
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to update liability. Please try again.",
@@ -201,8 +200,7 @@ export function DataTable<TData extends Liability, TValue>({
       if (onDataChange) {
         onDataChange();
       }
-    } catch (error) {
-      console.error("Error deleting liability:", error);
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to delete liability. Please try again.",

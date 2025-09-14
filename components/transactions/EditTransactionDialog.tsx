@@ -190,7 +190,6 @@ export function EditTransactionDialog({
       onSuccess();
       handleClose();
     } catch (error) {
-      console.error("Error updating transaction:", error);
       toast({
         title: "Error",
         description:

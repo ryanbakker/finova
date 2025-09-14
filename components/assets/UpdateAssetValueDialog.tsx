@@ -118,7 +118,6 @@ export function UpdateAssetValueDialog({
       onSuccess();
       onClose();
     } catch (error) {
-      console.error("Error updating asset value:", error);
       toast({
         title: "Error",
         description:

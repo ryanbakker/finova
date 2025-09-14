@@ -116,8 +116,6 @@ export async function PUT(
 
     return NextResponse.json(updatedLiability);
   } catch (error) {
-    console.error("Error updating liability amount:", error);
-
     // Handle MongoDB validation errors
     if (error instanceof Error && error.name === "ValidationError") {
       return NextResponse.json(
@@ -199,8 +197,6 @@ export async function GET(
 
     return NextResponse.json(history);
   } catch (error) {
-    console.error("Error fetching liability amount history:", error);
-
     // Handle MongoDB ObjectId validation errors
     if (error instanceof Error && error.name === "CastError") {
       return NextResponse.json(

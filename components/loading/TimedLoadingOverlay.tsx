@@ -27,9 +27,6 @@ export function TimedLoadingOverlay({
 
   // Smooth progress animation: starts slow and accelerates, completes at progressDurationMs
   useEffect(() => {
-    console.log(
-      `TimedLoadingOverlay: Starting progress animation for ${progressDurationMs}ms`
-    );
     let frameId: number | null = null;
     const startTime = performance.now();
     const durationMs = Math.max(0, progressDurationMs);
@@ -39,9 +36,6 @@ export function TimedLoadingOverlay({
       const t = Math.min(1, elapsed / durationMs);
       // Linear progress: constant speed
       if (t >= 1) {
-        console.log(
-          `TimedLoadingOverlay: Progress animation completed at 100%`
-        );
         setProgress(100);
         return; // stop without scheduling another frame
       }
@@ -77,9 +71,7 @@ export function TimedLoadingOverlay({
 
   // Auto-hide overlay after the specified duration
   useEffect(() => {
-    console.log(`TimedLoadingOverlay: Starting timer for ${duration}ms`);
     const timer = setTimeout(() => {
-      console.log(`TimedLoadingOverlay: Timer completed after ${duration}ms`);
       setIsVisible(false);
       onComplete?.();
     }, duration);

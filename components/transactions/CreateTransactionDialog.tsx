@@ -165,7 +165,6 @@ export function CreateTransactionDialog({
       onSuccess();
       handleClose();
     } catch (error) {
-      console.error("Error creating transaction:", error);
       toast({
         title: "Error",
         description:

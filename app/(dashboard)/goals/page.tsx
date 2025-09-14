@@ -32,8 +32,7 @@ function GoalsPage() {
         setIsLoading(true);
         const userGoals = await getGoalsByUserId(user.id);
         setGoals(userGoals || []);
-      } catch (error) {
-        console.error("Error loading goals:", error);
+      } catch (_error) {
         toast({
           title: "Error",
           description: "Failed to load goals. Please try again.",
@@ -88,8 +87,7 @@ function GoalsPage() {
       }
       setIsCreateDialogOpen(false);
       setEditingGoal(null);
-    } catch (error) {
-      console.error("Error refreshing goals:", error);
+    } catch (_error) {
       toast({
         title: "Error",
         description:
@@ -120,8 +118,7 @@ function GoalsPage() {
         title: "Goal Deleted",
         description: "Your goal has been deleted successfully.",
       });
-    } catch (error) {
-      console.error("Error deleting goal:", error);
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to delete goal. Please try again.",

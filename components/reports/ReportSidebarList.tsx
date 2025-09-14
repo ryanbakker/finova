@@ -49,8 +49,7 @@ export function ReportSidebarList({
       setError(null);
       const { reports: fetchedReports } = await getReportsByUserId(5, 0);
       setReports(fetchedReports);
-    } catch (err) {
-      console.error("Error fetching reports:", err);
+    } catch (_err) {
       setError("Failed to load reports");
     } finally {
       setIsLoading(false);

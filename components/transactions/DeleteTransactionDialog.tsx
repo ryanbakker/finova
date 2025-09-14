@@ -76,7 +76,6 @@ export function DeleteTransactionDialog({
       onSuccess();
       onClose();
     } catch (error) {
-      console.error("Error deleting transaction:", error);
       toast({
         title: "Error",
         description:

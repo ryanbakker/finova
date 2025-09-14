@@ -212,7 +212,6 @@ export function EditGoalDialog({
         }
       }
     } catch (error) {
-      console.error("Error saving goal:", error);
       toast({
         title: "Error",
         description:

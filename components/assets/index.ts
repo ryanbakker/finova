@@ -1,12 +1,9 @@
-export { AssetDetailsDialog } from "./AssetDetailsDialog";
 export { AssetDetailsAndHistoryDialog } from "./AssetDetailsAndHistoryDialog";
 export { CreateAssetDialog } from "./CreateAssetDialog";
 export { EditAssetDialog } from "./EditAssetDialog";
 export { DeleteAssetDialog } from "./DeleteAssetDialog";
 export { UpdateAssetValueDialog } from "./UpdateAssetValueDialog";
-export { AssetValueHistoryDialog } from "./AssetValueHistoryDialog";
 export { AssetFilters } from "./AssetFilters";
 export { AssetPageSkeleton } from "./AssetPageSkeleton";
 export { AssetTableSkeleton } from "./AssetTableSkeleton";
 export { AssetInsights } from "./AssetInsights";
-export { sampleAssets } from "./sample-assets";
