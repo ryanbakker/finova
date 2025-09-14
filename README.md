@@ -201,50 +201,6 @@ _Take control of your financial future with intelligent insights and beautiful d
 
 ---
 
-## 🔮 Roadmap
-
-### **Phase 1: Core Features** ✅
-
-- [x] User authentication and authorization
-- [x] Transaction management system
-- [x] Basic dashboard with key metrics
-- [x] Responsive design implementation
-- [x] Dark/light theme support
-
-### **Phase 2: Advanced Features** 🚧
-
-- [ ] AI-powered transaction categorization
-- [ ] Advanced budgeting tools
-- [ ] Financial goal tracking
-- [ ] Asset and liability management
-- [ ] Bill tracking and reminders
-
-### **Phase 3: Intelligence & Insights** 📋
-
-- [ ] AI-generated financial reports
-- [ ] Spending pattern analysis
-- [ ] Investment tracking
-- [ ] Tax preparation features
-- [ ] Export capabilities (PDF, CSV)
-
-### **Phase 4: Mobile & Integration** 📱
-
-- [ ] Mobile app development
-- [ ] Bank account integration
-- [ ] Credit score monitoring
-- [ ] Investment portfolio sync
-- [ ] Multi-currency support
-
-### **Phase 5: Advanced Analytics** 📊
-
-- [ ] Predictive analytics
-- [ ] Custom report builder
-- [ ] Financial forecasting
-- [ ] Risk assessment tools
-- [ ] Advanced data visualization
-
----
-
 ## 🤝 Contributing
 
 We welcome contributions! Here's how you can help:
@@ -269,7 +225,7 @@ We welcome contributions! Here's how you can help:
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License - see the [LICENSE.md](LICENSE.md) file for details.
 
 ---
 
