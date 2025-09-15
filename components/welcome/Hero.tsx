@@ -35,7 +35,7 @@ function WelcomeHero() {
             </FadeInUp>
 
             <FadeInUp delay={600} duration={800}>
-              <p className="font-medium text-sm text-white/70 pt-6">
+              <p className="font-medium text-sm text-white/70 pt-8">
                 Get started with Finova
               </p>
             </FadeInUp>
