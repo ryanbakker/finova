@@ -12,7 +12,7 @@
 
 _Take control of your financial future with intelligent insights and beautiful design_
 
-[🚀 Live Demo](#-live-demo) • [📋 Features](#-features) • [🛠️ Tech Stack](#️-tech-stack) • [📱 Screenshots](#-screenshots) • [🔮 Roadmap](#-roadmap)
+[🚀 Live Demo](#-live-demo) • [📋 Features](#-features) • [🛠️ Tech Stack](#️-tech-stack) • [📱 Screenshots](#-screenshots)
 
 </div>
 
