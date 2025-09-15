@@ -35,13 +35,13 @@ function WelcomeHero() {
             </FadeInUp>
 
             <FadeInUp delay={600} duration={800}>
-              <p className="font-medium text-sm text-white/70 pt-8">
+              <p className="font-medium text-sm text-white/70 pt-10">
                 Get started with Finova
               </p>
             </FadeInUp>
 
             <FadeInUp delay={800} duration={800}>
-              <div className="flex flex-col-reverse md:flex-row gap-3 lg:gap-6 pt-3">
+              <div className="flex flex-col-reverse md:flex-row gap-3 lg:gap-6 pt-1">
                 <Link href="/">
                   <Button
                     className="group relative overflow-hidden bg-white/90 dark:bg-white/90 border border-white/20 text-sky-900 hover:bg-white hover:border-white/30 transition-all duration-300 px-8 py-4 rounded-md font-semibold text-base shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 w-full md:w-auto"
