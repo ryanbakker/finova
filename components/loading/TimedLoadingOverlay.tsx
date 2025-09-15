@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import Image from "next/image";
+import FinovaLogo from "@/components/FinovaLogo";
 
 interface ProgressMilestone {
   at: number; // time in seconds
@@ -85,7 +85,7 @@ export function TimedLoadingOverlay({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-sky-100 dark:from-black via-white dark:via-gray-950 to-sky-100 dark:to-black/90">
       <div className="flex flex-col items-center gap-6 p-8 pb-16">
         {/* Finova Logo */}
-        <Image src="/finova-logo.svg" alt="Finova" width={150} height={30} />
+        <FinovaLogo />
 
         {/* Loading message */}
         <div className="text-center space-y-2">

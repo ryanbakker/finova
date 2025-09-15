@@ -13,6 +13,7 @@ import { ArrowLeft, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import FinovaLogo from "@/components/FinovaLogo";
 
 export default function NotFound() {
   const router = useRouter();
@@ -41,12 +42,7 @@ export default function NotFound() {
               />
               <DynamicBreadcrumb />
               <div className="ml-auto">
-                <Image
-                  src="/finova-logo.svg"
-                  alt="Finova"
-                  width={80}
-                  height={30}
-                />
+                <FinovaLogo />
               </div>
             </div>
           </header>

@@ -9,12 +9,13 @@ import { LogIn } from "lucide-react";
 import { navigationLinks } from "../../constants";
 import MobileNav from "./MobileNav";
 import { handleSmoothScrollClick } from "../../lib/utils/smoothScroll";
+import FinovaLogo from "../FinovaLogo";
 
 function WelcomeHeader() {
   return (
     <header className="w-full fixed left-0 right-0 top-0 z-[9999] backdrop-blur-xl bg-white/60 dark:bg-neutral-950/70 border-b border-white/20 dark:border-neutral-800/50 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
       <nav className="welcome-nav flex justify-between items-center px-4 py-2 lg:py-4 mx-auto max-w-7xl">
-        <Image src="/finova-logo.svg" alt="Finova" width={100} height={40} />
+        <FinovaLogo />
 
         <MobileNav />
 

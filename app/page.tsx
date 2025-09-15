@@ -38,7 +38,7 @@ import { CreateTransactionDialog } from "@/components/transactions/CreateTransac
 import { ContributionDialog } from "@/components/dashboard/ContributionDialog";
 import { Account, Category } from "@/lib/types";
 import { DashboardTimedLoadingPage } from "@/components/loading";
-import Image from "next/image";
+import FinovaLogo from "@/components/FinovaLogo";
 
 function DashboardContent({
   user,
@@ -231,12 +231,7 @@ function DashboardContent({
             />
             <DynamicBreadcrumb />
             <div className="ml-auto">
-              <Image
-                src="/finova-logo.svg"
-                alt="Finova"
-                width={80}
-                height={30}
-              />
+              <FinovaLogo />
             </div>
           </div>
         </div>

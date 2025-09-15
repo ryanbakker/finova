@@ -8,7 +8,7 @@ import {
 import { DynamicBreadcrumb } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SubPageTimedLoadingPage } from "@/components/loading";
-import Image from "next/image";
+import FinovaLogo from "@/components/FinovaLogo";
 
 export const metadata: Metadata = {
   title: {
@@ -104,12 +104,7 @@ export default function DashboardLayout({
                 />
                 <DynamicBreadcrumb />
                 <div className="ml-auto">
-                  <Image
-                    src="/finova-logo.svg"
-                    alt="Finova"
-                    width={80}
-                    height={30}
-                  />
+                  <FinovaLogo />
                 </div>
               </div>
             </div>

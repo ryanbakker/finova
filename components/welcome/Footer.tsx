@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import FinovaLogo from "@/components/FinovaLogo";
 import Link from "next/link";
 import Script from "next/script";
 import { handleSmoothScrollClick } from "../../lib/utils/smoothScroll";
@@ -67,13 +68,9 @@ function WelcomeFooter() {
 
           {/* Company Info & Bottom Section - Second on mobile, first on md+ */}
           <div className="flex-1 order-2 md:order-1">
-            <Image
-              src="/finova-logo.svg"
-              alt="Finova"
-              width={100}
-              height={40}
-              className="mb-4"
-            />
+            <div className="mb-4">
+              <FinovaLogo />
+            </div>
             <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
               Transform your financial life <br />
               with our powerful platform.
