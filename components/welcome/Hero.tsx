@@ -19,8 +19,8 @@ function WelcomeHero() {
             className="flex flex-col gap-3 flex-1"
           >
             <FadeInUp delay={200} duration={800}>
-              <h1 className="uppercase text-5xl md:text-6xl text-sky-50 font-extrabold tracking-tight">
-                Take Control, <br />
+              <h1 className="uppercase text-5xl md:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-tr from-sky-100 to-neutral-100 dark:from-sky-200 dark:to-neutral-100">
+                <span className="text-[31px]">Take Control,</span> <br />
                 Manage Your <br />
                 Finances
               </h1>
@@ -29,8 +29,10 @@ function WelcomeHero() {
             <FadeInUp delay={400} duration={800}>
               <h2 className="text-white max-w-[610px] text-sm md:text-base">
                 The first step is knowing your numbers. Our platform helps you
-                track and visualise your financial habits. Effectively save and
-                plan for your future.
+                track and visualise your financial habits.{" "}
+                <span className="hidden md:inline">
+                  Effectively save and plan for your future.{" "}
+                </span>
               </h2>
             </FadeInUp>
 
@@ -55,18 +57,20 @@ function WelcomeHero() {
                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
                   </Button>
                 </Link>
-                <SignUpButton mode="modal">
-                  <Button
-                    className="group relative overflow-hidden bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white border-0 transition-all duration-300 px-8 py-4 rounded-md font-semibold text-base shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
-                    size="lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <LogIn className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                      <span>Get Started</span>
+                <Button
+                  className="group relative overflow-hidden bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white border-0 transition-all duration-300 px-8 py-4 rounded-md font-semibold text-base shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                  size="lg"
+                >
+                  <SignUpButton mode="modal">
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <LogIn className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                        <span>Get Started</span>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
                     </div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
-                  </Button>
-                </SignUpButton>
+                  </SignUpButton>
+                </Button>
               </div>
             </FadeInUp>
           </FadeInLeft>
