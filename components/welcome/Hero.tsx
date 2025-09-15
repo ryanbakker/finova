@@ -29,10 +29,8 @@ function WelcomeHero() {
             <FadeInUp delay={400} duration={800}>
               <h2 className="text-white max-w-[610px] text-sm md:text-base">
                 The first step is knowing your numbers. Our platform helps you
-                track and visualise your financial habits.{" "}
-                <span className="hidden md:inline">
-                  Effectively save and plan for your future.{" "}
-                </span>
+                track and visualise your financial habits. Effectively save and
+                plan for your future.
               </h2>
             </FadeInUp>
 
