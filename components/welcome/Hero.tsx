@@ -35,7 +35,7 @@ function WelcomeHero() {
             </FadeInUp>
 
             <FadeInUp delay={600} duration={800}>
-              <p className="font-medium text-sm text-white/70 pt-6 hidden md:block">
+              <p className="font-medium text-sm text-white/70 pt-6">
                 Get started with Finova
               </p>
             </FadeInUp>
@@ -63,7 +63,7 @@ function WelcomeHero() {
                     <div>
                       <div className="flex items-center gap-3">
                         <LogIn className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                        <span>Get Started</span>
+                        <span>Sign Up</span>
                       </div>
                       <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
                     </div>
