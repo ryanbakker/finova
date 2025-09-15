@@ -136,7 +136,7 @@ export function FinancialAssets({
   return (
     <Card className="container-color h-full flex flex-col">
       <CardHeader className="flex-shrink-0">
-        <div className="flex items-end justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <CardTitle className="card-title">Financial Assets</CardTitle>
             <CardDescription>
@@ -144,7 +144,7 @@ export function FinancialAssets({
             </CardDescription>
           </div>
           <Link href="/assets">
-            <Button className="button-blue-bg">
+            <Button className="button-blue-bg w-full md:w-auto">
               Assets
               <MoveRight className="h-4 w-4" />
             </Button>

@@ -2,11 +2,11 @@ function ReportPage() {
   return (
     <div className="space-y-6 page-content">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight">Financial Report</h1>
-        <p className="text-muted-foreground">
+        <h1 className="page-title">Financial Report</h1>
+        <h2 className="page-sub-title">
           View detailed financial reports and insights for better decision
           making.
-        </p>
+        </h2>
       </header>
       <main>
         <p>Report content will be displayed here</p>

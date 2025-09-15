@@ -152,7 +152,7 @@ export function IncomeVsSpendingChart({
 
   return (
     <Card className="flex flex-col h-full container-color !w-full">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-2">
         <div>
           <CardTitle className="card-title pb-1">
             Income vs Spending Over Time
@@ -162,7 +162,7 @@ export function IncomeVsSpendingChart({
           </CardDescription>
         </div>
         <Link href="/transactions">
-          <Button className="button-blue-bg">
+          <Button className="button-blue-bg w-full md:w-auto">
             Transactions
             <MoveRight className="h-4 w-4" />
           </Button>
@@ -170,8 +170,8 @@ export function IncomeVsSpendingChart({
       </CardHeader>
       <CardContent className="flex flex-col">
         {/* Summary Metrics */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="text-center p-3 rounded-lg bg-green-50 dark:bg-pink-950/20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="text-center p-3 rounded-lg bg-green-100 dark:bg-pink-950/20">
             <div className="flex items-center justify-center mb-2">
               <TrendingUp className="h-4 w-4 text-green-600 dark:text-pink-500" />
             </div>
@@ -183,7 +183,7 @@ export function IncomeVsSpendingChart({
             </div>
           </div>
 
-          <div className="text-center p-3 rounded-lg bg-red-50 dark:bg-cyan-950/20">
+          <div className="text-center p-3 rounded-lg bg-red-100 dark:bg-cyan-950/20">
             <div className="flex items-center justify-center mb-2">
               <TrendingDown className="h-4 w-4 text-red-600 dark:text-cyan-700" />
             </div>
@@ -195,7 +195,7 @@ export function IncomeVsSpendingChart({
             </div>
           </div>
 
-          <div className="text-center p-3 rounded-lg bg-sky-50 dark:bg-amber-950/20">
+          <div className="text-center p-3 rounded-lg bg-sky-100 dark:bg-amber-950/20">
             <div className="flex items-center justify-center mb-2">
               <CircleDollarSign className="h-4 w-4 text-sky-600 dark:text-amber-600" />
             </div>
@@ -209,7 +209,7 @@ export function IncomeVsSpendingChart({
         </div>
 
         {/* Area Chart */}
-        <div className="p-6 bg-neutral-50 border border-gray-200 rounded-lg text-xs dark:invert dark:bg-neutral-100/40 flex-1">
+        <div className="p-3 pl-1 md:p-6! bg-neutral-50 border border-gray-200 rounded-lg text-xs dark:invert dark:bg-neutral-100/40 flex-1">
           <AreaChart
             data={transformedData}
             index="month"

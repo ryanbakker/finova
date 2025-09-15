@@ -202,7 +202,7 @@ export function FinancialGoals({
   return (
     <Card className="h-full container-color">
       <CardHeader>
-        <div className="flex items-end justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-2">
             <CardTitle className="card-title">Financial Goals</CardTitle>
             <CardDescription>
@@ -211,7 +211,7 @@ export function FinancialGoals({
           </div>
           <div className="text-right space-y-1">
             <Link href="/goals">
-              <Button className="button-blue-bg">
+              <Button className="button-blue-bg w-full md:w-auto">
                 Goals
                 <MoveRight />
               </Button>

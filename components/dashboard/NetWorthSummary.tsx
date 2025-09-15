@@ -206,7 +206,7 @@ export function NetWorthSummary({ className }: NetWorthSummaryProps) {
       }`}
     >
       <CardContent className="pt-6">
-        <div className="flex flex-row gap-8">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-8">
           <div className="space-y-6">
             <div className="space-y-1">
               <h3 className="card-title">Net Worth Summary</h3>
@@ -254,7 +254,7 @@ export function NetWorthSummary({ className }: NetWorthSummaryProps) {
             </div>
 
             {/* Custom Graph Key */}
-            <div className="flex flex-col items-start space-y-2 text-xs bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 w-fit">
+            <div className="flex flex-col items-start space-y-2 text-xs bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 md:w-fit">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-emerald-700 dark:invert rounded-full"></div>
                 <span className="text-muted-foreground">Total Assets</span>
@@ -270,7 +270,7 @@ export function NetWorthSummary({ className }: NetWorthSummaryProps) {
             </div>
           </div>
 
-          <div className="flex-1 flex items-center justify-center bg-neutral-50 p-4 rounded-lg border border-neutral-200 dark:invert dark:bg-neutral-100/40">
+          <div className="flex-1 flex items-center justify-center bg-neutral-50 p-2 md:p-4 rounded-lg border border-neutral-200 dark:invert dark:bg-neutral-100/40">
             {hasData && chartData.length > 0 ? (
               <AreaChart
                 data={chartData}

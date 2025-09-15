@@ -2,6 +2,7 @@ import { Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
+import { Button } from "./ui/button";
 
 export function DashboardFooter() {
   return (
@@ -19,7 +20,13 @@ export function DashboardFooter() {
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <ul className="flex items-center gap-4">
             <li>
-              <a href="#" id="shielded-logo">
+              <Button
+                id="shielded-logo"
+                type="button"
+                aria-label="Open Shielded Site"
+                className="p-0 bg-transparent border-0 rounded-full"
+                variant="ghost"
+              >
                 <Image
                   alt="shielded"
                   src="https://shielded.co.nz/img/custom-logo.png"
@@ -27,7 +34,7 @@ export function DashboardFooter() {
                   width="30"
                   className="opacity-70 hover:opacity-100 transition-opacity"
                 />
-              </a>
+              </Button>
             </li>
             <li>
               <Link
@@ -61,12 +68,25 @@ export function DashboardFooter() {
         dangerouslySetInnerHTML={{
           __html: `
             (function () {
-              window.onload = function(){
-                var frameName = new ds07o6pcmkorn({
-                  openElementId: "#shielded-logo",
-                  modalID: "modal",
-                });
-                frameName.init();
+              function initShielded() {
+                try {
+                  if (typeof ds07o6pcmkorn === 'function') {
+                    var frameName = new ds07o6pcmkorn({
+                      openElementId: "#shielded-logo",
+                      modalID: "modal",
+                    });
+                    frameName.init();
+                  }
+                } catch (e) {
+                  // swallow
+                }
+              }
+
+              if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                setTimeout(initShielded, 0);
+              } else {
+                window.addEventListener('DOMContentLoaded', initShielded);
+                window.addEventListener('load', initShielded);
               }
             })();
           `,

@@ -230,13 +230,13 @@ export function CategoryBreakdownChart({
   return (
     <Card className="h-full flex flex-col container-color">
       <CardHeader className="flex-shrink-0">
-        <div className="flex items-end justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <CardTitle className="card-title">Category Breakdown</CardTitle>
             <CardDescription>Spending breakdown by category</CardDescription>
           </div>
           <Link href="/transactions">
-            <Button className="button-blue-bg">
+            <Button className="button-blue-bg w-full md:w-auto">
               Categories
               <MoveRight className="h-4 w-4" />
             </Button>

@@ -82,7 +82,7 @@ export function TimedLoadingOverlay({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 dark:bg-gray-950">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-sky-100 dark:from-black via-white dark:via-gray-950 to-sky-100 dark:to-black/90">
       <div className="flex flex-col items-center gap-6 p-8 pb-16">
         {/* Finova Logo */}
         <Image src="/finova-logo.svg" alt="Finova" width={150} height={30} />

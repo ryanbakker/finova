@@ -122,11 +122,11 @@ function LiabilitiesPage() {
     <div className="space-y-6 page-content">
       <div className="flex gap-5 md:gap-0 justify-between flex-col md:flex-row md:items-end">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Liabilities</h1>
-          <p className="text-muted-foreground">
+          <h1 className="page-title">Liabilities</h1>
+          <h2 className="page-sub-title">
             Track and manage your financial liabilities, loans, and debt
             obligations.
-          </p>
+          </h2>
         </div>
         <CreateLiabilityDialog onLiabilityCreated={loadLiabilities} />
       </div>

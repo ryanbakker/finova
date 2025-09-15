@@ -199,7 +199,7 @@ function DashboardContent({
       description: "Use AI to create a report to get financial insights",
       icon: FileText,
       action: () => router.push("/report"),
-      disabled: true,
+      disabled: false,
     },
   ];
 
@@ -222,7 +222,7 @@ function DashboardContent({
   return (
     <DashboardTimedLoadingPage message="Loading your financial dashboard...">
       <header className="rounded-b-xl">
-        <div className="flex h-16 shrink-0 items-center gap-2 px-4 rounded-xl mb-1 dark:bg-[#0a0a0a] bg-white shadow-sm mt-1">
+        <div className="flex h-16 shrink-0 items-center gap-2 px-4 rounded-b-xl md:rounded-xl mb-1 dark:md:bg-[#0a0a0a] md:bg-white shadow-sm mt-1">
           <div className="mx-auto max-w-7xl flex items-center gap-2 justify-between w-full">
             <SidebarTrigger className="-ml-1 text-sky-600 cursor-pointer hover:text-sky-800" />
             <Separator
@@ -241,17 +241,17 @@ function DashboardContent({
           </div>
         </div>
       </header>
-      <main className="flex-1 overflow-auto w-full rounded-xl mt-2 dark:bg-[#0a0a0a] lg:bg-white shadow-sm">
+      <main className="flex-1 overflow-auto w-full rounded-xl mt-2 dark:md:bg-[#0a0a0a] md:bg-white md:shadow-sm">
         <div className="space-y-6 page-content">
           <div className="mx-auto">
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground">
+            <h1 className="page-title">Dashboard</h1>
+            <h2 className="page-sub-title">
               {isLoaded && user
                 ? `Welcome back ${
                     user.firstName || "there"
                   }! Here's an overview of your financial health.`
                 : "Welcome back! Here's an overview of your financial health."}
-            </p>
+            </h2>
           </div>
 
           {/* Get Started Notice - shown when no data */}
@@ -260,7 +260,7 @@ function DashboardContent({
           )}
 
           {/* Top Row - Key Metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mx-auto w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mx-auto w-full">
             <MetricCard
               title="Total Income"
               value={dashboardData?.metrics.totalIncome || 0}
@@ -534,7 +534,7 @@ export default function Home() {
     <SidebarProvider>
       <div className="flex h-full w-full">
         <AppSidebar />
-        <SidebarInset className="flex-1 shadow-none! w-full min-h-full min-w-0 dark:bg-[#171717] bg-[#fafafa]">
+        <SidebarInset className="flex-1 shadow-none! w-full min-h-full min-w-0 dark:md:bg-[#171717] md:bg-[#fafafa]">
           <DashboardContent user={user} isLoaded={isLoaded} />
         </SidebarInset>
       </div>

@@ -172,7 +172,7 @@ export function BudgetSnapshot({
   return (
     <Card className="h-full container-color">
       <CardHeader>
-        <div className="flex items-end justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-2">
             <CardTitle className="card-title">Budget Snapshot</CardTitle>
             <CardDescription>
@@ -180,7 +180,7 @@ export function BudgetSnapshot({
             </CardDescription>
           </div>
           <Link href="/budgeting">
-            <Button className="button-blue-bg">
+            <Button className="button-blue-bg w-full md:w-auto">
               Budgets
               <MoveRight className="h-4 w-4" />
             </Button>

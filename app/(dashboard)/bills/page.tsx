@@ -68,11 +68,11 @@ function BillsPage() {
     <div className="space-y-6 page-content">
       <div className="flex gap-5 md:gap-0 justify-between flex-col md:flex-row md:items-end">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bills</h1>
-          <p className="text-muted-foreground">
+          <h1 className="page-title">Bills</h1>
+          <h2 className="page-sub-title">
             Manage recurring bills, track due dates, and monitor your payment
             obligations to stay on top of your finances.
-          </p>
+          </h2>
         </div>
         <Button
           className="button-blue-bg hover:cursor-pointer"

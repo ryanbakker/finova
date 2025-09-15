@@ -654,7 +654,15 @@
 }
 
 .card-title {
-  @apply text-2xl font-semibold text-sky-900 dark:text-sky-50;
+  @apply text-2xl font-bold text-sky-900 dark:text-sky-50 tracking-tighter;
+}
+
+.page-title {
+  @apply text-3xl font-extrabold tracking-tighter text-sky-950 dark:text-sky-50;
+}
+
+.page-sub-title {
+  @apply text-slate-600 dark:text-slate-400 font-light text-sm! max-w-[260px];
 }
 
 .button-blue-bg {
@@ -663,4 +671,9 @@
 
 .mobile-nav-link {
   @apply flex items-center gap-2 px-3 py-2.5 rounded-md text-sky-700 dark:text-sky-100 hover:bg-sky-500/10 dark:hover:bg-sky-500/20 transition-all duration-200 bg-sky-100 dark:bg-sky-900;
+}
+
+/* Shielded modal: allow auto centering via margins */
+#modal {
+  @apply pt-[18vh];
 }
