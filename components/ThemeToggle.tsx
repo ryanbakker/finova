@@ -34,7 +34,7 @@ export function ThemeToggle() {
       variant="outline"
       size="icon"
       onClick={toggleTheme}
-      className="group relative overflow-hidden border-sky-500/20 dark:border-sky-400/20 bg-gradient-to-r from-sky-500/5 to-cyan-500/5 dark:from-sky-500/10 dark:to-cyan-500/10 hover:from-sky-500/15 hover:to-cyan-500/15 dark:hover:from-sky-500/20 dark:hover:to-cyan-500/20 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-sky-500/20 dark:hover:shadow-sky-400/20 hover:border-sky-500/40 dark:hover:border-sky-400/40"
+      className="group relative overflow-hidden border-sky-500/20 dark:border-sky-400/20 bg-gradient-to-r from-sky-500/5 to-cyan-500/5 dark:from-sky-500/10 dark:to-cyan-500/10 hover:from-sky-500/15 hover:to-cyan-500/15 dark:hover:from-sky-500/20 dark:hover:to-cyan-500/20 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-sky-500/20 dark:hover:shadow-sky-400/20 hover:border-sky-500/40 dark:hover:border-sky-400/40 cursor-pointer"
     >
       <div className="relative z-10 text-sky-600 dark:text-sky-300">
         {theme === "light" ? (

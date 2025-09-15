@@ -1,49 +1,94 @@
 import {
-  BarChart3,
   Shield,
-  CreditCard,
-  TrendingUp,
-  Zap,
-  Smartphone,
-  Check,
+  LayoutDashboard,
+  ChartPie,
+  ChartLine,
+  FileChartColumn,
+  MonitorSmartphone,
+  ShieldUser,
+  ArrowRightLeft,
 } from "lucide-react";
 
 export const features = [
   {
-    icon: BarChart3,
-    title: "Transaction Dashboard",
+    icon: LayoutDashboard,
+    title: "Financial Overview",
     description:
       "Get a comprehensive view of all your financial transactions with real-time updates and detailed analytics.",
+    images: {
+      light: {
+        desktop: "/features/dashboard-desktop-light.png",
+        mobile: "/features/dashboard-mobile-light.png",
+      },
+      dark: {
+        desktop: "/features/dashboard-desktop-dark.png",
+        mobile: "/features/dashboard-mobile-dark.png",
+      },
+    },
   },
   {
-    icon: TrendingUp,
+    icon: ChartPie,
     title: "Budgeting Tool",
     description:
       "Set budgets, track spending, and achieve your financial goals with our intuitive budgeting system.",
+    images: {
+      light: {
+        desktop: "/features/budgets-desktop-light.png",
+        mobile: "/features/budgets-mobile-light.png",
+      },
+      dark: {
+        desktop: "/features/budgets-desktop-dark.png",
+        mobile: "/features/budgets-mobile-dark.png",
+      },
+    },
   },
   {
-    icon: CreditCard,
-    title: "Secure Bank Connection",
+    icon: ChartLine,
+    title: "Net Worth Tracking",
     description:
-      "Connect your bank accounts securely using industry-standard encryption and bank-level security.",
+      "Track your net worth over time with real-time updates and detailed analytics.",
+    images: {
+      light: {
+        desktop: "/features/networth-desktop-light.png",
+        mobile: "/features/networth-mobile-light.png",
+      },
+      dark: {
+        desktop: "/features/networth-desktop-dark.png",
+        mobile: "/features/networth-mobile-dark.png",
+      },
+    },
   },
   {
-    icon: Zap,
-    title: "Automatic Categorization",
+    icon: ArrowRightLeft,
+    title: "Transaction Management",
     description:
-      "AI-powered categorization automatically organizes your transactions for better financial insights.",
+      "Manage your transactions with ease and get detailed insights to help you make better financial decisions.",
+    images: {
+      light: {
+        desktop: "/features/transactions-desktop-light.png",
+        mobile: "/features/transactions-mobile-light.png",
+      },
+      dark: {
+        desktop: "/features/transactions-desktop-dark.png",
+        mobile: "/features/transactions-mobile-dark.png",
+      },
+    },
   },
   {
-    icon: Shield,
-    title: "User Security",
+    icon: ShieldUser,
+    title: "Data & Privacy",
     description:
       "Your data stays private. We never sell or share your financial information with third parties.",
-  },
-  {
-    icon: Smartphone,
-    title: "Mobile Responsive",
-    description:
-      "Access your finances anywhere with our fully responsive design that works on all devices.",
+    images: {
+      light: {
+        desktop: "/features/assets-desktop-light.png",
+        mobile: "/features/assets-mobile-light.png",
+      },
+      dark: {
+        desktop: "/features/assets-desktop-dark.png",
+        mobile: "/features/assets-mobile-dark.png",
+      },
+    },
   },
 ];
 
