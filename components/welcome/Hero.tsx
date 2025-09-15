@@ -14,7 +14,7 @@ function WelcomeHero() {
       id="welcome-hero"
       className="relative bg-gradient-to-tr from-sky-900 dark:from-sky-950 via-sky-600 dark:via-sky-700 to-sky-200 dark:to-sky-400 pt-16"
     >
-      <div className="w-full px-4 py-8 lg:py-16 mx-auto max-w-7xl">
+      <div className="w-full px-4 py-10 lg:py-16 mx-auto max-w-7xl">
         <div className="flex flex-col md:flex-row gap-10 items-center">
           <FadeInLeft
             delay={0}
