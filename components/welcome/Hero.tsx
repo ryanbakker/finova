@@ -20,7 +20,7 @@ function WelcomeHero() {
           >
             <FadeInUp delay={200} duration={800}>
               <h1 className="uppercase text-5xl md:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-tr from-sky-100 to-neutral-100 dark:from-sky-200 dark:to-neutral-100">
-                <span className="text-[32px]">Take Control,</span> <br />
+                <span className="text-[35px]">Take Control,</span> <br />
                 Manage Your <br />
                 Finances
               </h1>
@@ -41,7 +41,7 @@ function WelcomeHero() {
             </FadeInUp>
 
             <FadeInUp delay={800} duration={800}>
-              <div className="flex flex-col-reverse md:flex-row gap-3 lg:gap-6 pt-2">
+              <div className="flex flex-col-reverse md:flex-row gap-3 lg:gap-6 pt-3">
                 <Link href="/">
                   <Button
                     className="group relative overflow-hidden bg-white/90 dark:bg-white/90 border border-white/20 text-sky-900 hover:bg-white hover:border-white/30 transition-all duration-300 px-8 py-4 rounded-md font-semibold text-base shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 w-full md:w-auto"
