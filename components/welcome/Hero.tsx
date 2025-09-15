@@ -1,6 +1,9 @@
+"use client";
+
 import { ChartNoAxesCombined, LogIn } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { handleSmoothScrollClick } from "../../lib/utils/smoothScroll";
 import { SignUpButton } from "@clerk/nextjs";
 import Image from "next/image";
 import { FadeInUp, FadeInLeft } from "../ui/animate-on-scroll";
@@ -42,9 +45,14 @@ function WelcomeHero() {
 
             <FadeInUp delay={800} duration={800}>
               <div className="flex flex-col-reverse md:flex-row gap-3 lg:gap-6 pt-1">
-                <Link href="/">
+                <Link
+                  href="/#welcome-features"
+                  onClick={(e) =>
+                    handleSmoothScrollClick(e, "welcome-features", 50)
+                  }
+                >
                   <Button
-                    className="group relative overflow-hidden bg-white/90 dark:bg-white/90 border border-white/20 text-sky-900 hover:bg-white hover:border-white/30 transition-all duration-300 px-8 py-4 rounded-md font-semibold text-base shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 w-full md:w-auto"
+                    className="group relative overflow-hidden bg-white/90 dark:bg-white/90 border border-white/20 text-sky-900 hover:bg-white hover:border-white/30 transition-all duration-300 px-8 py-4 rounded-md font-semibold text-base shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 w-full md:w-auto cursor-pointer"
                     size="lg"
                     variant="outline"
                   >
