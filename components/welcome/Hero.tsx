@@ -20,7 +20,7 @@ function WelcomeHero() {
           >
             <FadeInUp delay={200} duration={800}>
               <h1 className="uppercase text-5xl md:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-tr from-sky-100 to-neutral-100 dark:from-sky-200 dark:to-neutral-100">
-                <span className="text-[31px]">Take Control,</span> <br />
+                <span className="text-[32px]">Take Control,</span> <br />
                 Manage Your <br />
                 Finances
               </h1>
