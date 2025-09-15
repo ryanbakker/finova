@@ -22,12 +22,15 @@ import {
 import { Budget } from "@/lib/types";
 import { getCategoriesByType } from "@/constants";
 import { toast } from "@/components/ui/use-toast";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface BudgetDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   budget?: Budget;
-  onSave: (budget: Omit<Budget, "id" | "createdAt" | "updatedAt">) => Promise<void>;
+  onSave: (
+    budget: Omit<Budget, "id" | "createdAt" | "updatedAt">
+  ) => Promise<void>;
 }
 
 export function BudgetDialog({
@@ -51,14 +54,15 @@ export function BudgetDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       await onSave(formData);
       onOpenChange(false);
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to save budget",
+        description:
+          error instanceof Error ? error.message : "Failed to save budget",
         variant: "destructive",
       });
     }
@@ -174,25 +178,37 @@ export function BudgetDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="startDate">Start Date</Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={formData.startDate}
-                onChange={(e) => handleInputChange("startDate", e.target.value)}
+              <DatePicker
+                value={
+                  formData.startDate ? new Date(formData.startDate) : undefined
+                }
+                onChange={(date) =>
+                  handleInputChange(
+                    "startDate",
+                    date ? date.toISOString().split("T")[0] : ""
+                  )
+                }
+                placeholder="Select start date"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="endDate">End Date</Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={formData.endDate}
-                onChange={(e) => handleInputChange("endDate", e.target.value)}
+              <DatePicker
+                value={
+                  formData.endDate ? new Date(formData.endDate) : undefined
+                }
+                onChange={(date) =>
+                  handleInputChange(
+                    "endDate",
+                    date ? date.toISOString().split("T")[0] : ""
+                  )
+                }
+                placeholder="Select end date"
               />
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex flex-col-reverse md:flex-row gap-3">
             <Button
               type="button"
               variant="outline"

@@ -3,13 +3,7 @@
 import { DashboardFooter } from "@/components/DashboardFooter";
 import { Button } from "@/components/ui/button";
 import { Asset } from "@/lib/types";
-import {
-  Plus,
-  BarChart3,
-  Filter,
-  ChevronDown,
-  Table as TableIcon,
-} from "lucide-react";
+import { Plus, BarChart3, Table as TableIcon } from "lucide-react";
 
 import { DataTable } from "./data-table";
 import { createColumns } from "./columns";
@@ -19,7 +13,7 @@ import {
   AssetInsights,
   AssetFilters,
   CreateAssetDialog,
-  UpdateAssetValueDialog,
+  EditAssetDialog,
   AssetDetailsAndHistoryDialog,
 } from "@/components/assets";
 import { useSorting } from "@/hooks/use-sorting";
@@ -33,10 +27,10 @@ function AssetsPageContent() {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("table");
-  const [showFilters, setShowFilters] = useState(false);
+  // Filters are now controlled within AssetFilters component to align with other pages
   const [tableReady, setTableReady] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [showUpdateValueDialog, setShowUpdateValueDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const { sortStates, toggleSorting } = useSorting();
@@ -56,17 +50,12 @@ function AssetsPageContent() {
 
   const handleEditAsset = (asset: Asset) => {
     setSelectedAsset(asset);
-    // You can implement edit functionality here
+    setShowEditDialog(true);
   };
 
   const handleDeleteAsset = (asset: Asset) => {
     setSelectedAsset(asset);
     // You can implement delete functionality here
-  };
-
-  const handleUpdateValue = (asset: Asset) => {
-    setSelectedAsset(asset);
-    setShowUpdateValueDialog(true);
   };
 
   // Set global action handlers
@@ -76,7 +65,6 @@ function AssetsPageContent() {
         onView: handleViewAsset,
         onEdit: handleEditAsset,
         onDelete: handleDeleteAsset,
-        onUpdateValue: handleUpdateValue,
       });
     });
   }, []);
@@ -102,20 +90,7 @@ function AssetsPageContent() {
     loadAssets();
   }, [toast]);
 
-  // Check if there are active filters to determine initial filter visibility
-  useEffect(() => {
-    const hasActiveFilters = [
-      searchParams.get("name"),
-      searchParams.get("category"),
-      searchParams.get("status"),
-      searchParams.get("minValue"),
-      searchParams.get("maxValue"),
-    ].some(Boolean);
-
-    if (hasActiveFilters) {
-      setShowFilters(true);
-    }
-  }, [searchParams]);
+  // Filters expansion is managed within AssetFilters
 
   // Listen for create asset dialog events from empty state
   useEffect(() => {
@@ -187,7 +162,7 @@ function AssetsPageContent() {
 
       {/* View Toggle Tabs - Always visible */}
       <div className="w-full">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
@@ -196,14 +171,14 @@ function AssetsPageContent() {
             <TabsList className="grid w-auto grid-cols-2">
               <TabsTrigger
                 value="table"
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 cursor-pointer"
               >
                 <TableIcon className="h-4 w-4" />
                 <span>Asset List</span>
               </TabsTrigger>
               <TabsTrigger
                 value="insights"
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 cursor-pointer"
               >
                 <BarChart3 className="h-4 w-4" />
                 <span>Insights</span>
@@ -211,91 +186,21 @@ function AssetsPageContent() {
             </TabsList>
           </Tabs>
 
-          {/* Filter Toggle Button - Only show when table tab is active */}
-          {activeTab === "table" && (
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2"
-              >
-                <Filter className="h-4 w-4" />
-                <span>Filters</span>
-                {(() => {
-                  const activeFiltersCount = [
-                    searchParams.get("name"),
-                    searchParams.get("category"),
-                    searchParams.get("status"),
-                    searchParams.get("minValue"),
-                    searchParams.get("maxValue"),
-                  ].filter(Boolean).length;
-
-                  return activeFiltersCount > 0 ? (
-                    <span className="ml-2 rounded-full bg-blue-100 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-800 dark:text-blue-200 animate-pulse">
-                      {activeFiltersCount}
-                    </span>
-                  ) : null;
-                })()}
-                <div
-                  className={`transition-transform duration-200 ${
-                    showFilters ? "rotate-180" : ""
-                  }`}
-                >
-                  <ChevronDown className="h-4 w-4" />
-                </div>
-              </Button>
-
-              {(() => {
-                const activeFiltersCount = [
-                  searchParams.get("name"),
-                  searchParams.get("category"),
-                  searchParams.get("status"),
-                  searchParams.get("minValue"),
-                  searchParams.get("maxValue"),
-                ].filter(Boolean).length;
-
-                return activeFiltersCount > 0 ? (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      // Clear all filters by navigating to the base path
-                      window.location.href = window.location.pathname;
-                    }}
-                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                  >
-                    Clear All Filters
-                  </Button>
-                ) : null;
-              })()}
-            </div>
-          )}
+          {/* Filter controls moved into AssetFilters to standardize UX */}
         </div>
 
-        {/* Filters Section - Only show when table tab is active */}
-        {activeTab === "table" && (
-          <div
-            className={`transition-all duration-300 ease-in-out ${
-              showFilters
-                ? "opacity-100 max-h-[1000px]"
-                : "opacity-0 max-h-0 overflow-hidden"
-            }`}
-          >
-            {tableReady ? (
-              <div className="w-full p-3 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg shadow-sm">
-                <AssetFilters table={tableRef.current || undefined} />
+        {/* Filters Section - now self-managed within AssetFilters */}
+        {activeTab === "table" &&
+          (tableReady ? (
+            <AssetFilters table={tableRef.current || undefined} />
+          ) : (
+            <div className="w-full p-4 text-center text-muted-foreground bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-700 rounded-lg animate-in fade-in duration-300">
+              <div className="animate-pulse">
+                <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/4 mx-auto mb-2"></div>
+                <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 mx-auto"></div>
               </div>
-            ) : (
-              <div className="w-full p-4 text-center text-muted-foreground bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-700 rounded-lg animate-in fade-in duration-300">
-                <div className="animate-pulse">
-                  <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/4 mx-auto mb-2"></div>
-                  <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 mx-auto"></div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+            </div>
+          ))}
       </div>
 
       {/* Tabs Content */}
@@ -329,12 +234,12 @@ function AssetsPageContent() {
         onSuccess={() => refreshAssets()}
       />
 
-      {/* Update Asset Value Dialog */}
-      <UpdateAssetValueDialog
+      {/* Edit Asset Dialog */}
+      <EditAssetDialog
         asset={selectedAsset}
-        isOpen={showUpdateValueDialog}
+        isOpen={showEditDialog}
         onClose={() => {
-          setShowUpdateValueDialog(false);
+          setShowEditDialog(false);
           setSelectedAsset(null);
         }}
         onSuccess={refreshAssets}

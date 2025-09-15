@@ -1,9 +1,8 @@
 "use client";
 
 import { DashboardFooter } from "@/components/DashboardFooter";
-import { Button } from "@/components/ui/button";
 import { Liability } from "@/lib/types";
-import { BarChart3, Table, Filter, ChevronDown } from "lucide-react";
+import { BarChart3, Table as TableIcon } from "lucide-react";
 import { DataTable } from "./data-table";
 import { createColumns } from "./columns";
 import { Suspense, useState, useEffect, useRef, useCallback } from "react";
@@ -18,7 +17,6 @@ import {
 } from "@/components/liabilities";
 import { useSorting } from "@/hooks/use-sorting";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useSearchParams } from "next/navigation";
 import { getLiabilitiesByUserId } from "@/lib/actions/liability.actions";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -26,7 +24,6 @@ function LiabilitiesPage() {
   const [liabilities, setLiabilities] = useState<Liability[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("table");
-  const [showFilters, setShowFilters] = useState(false);
   const [tableReady, setTableReady] = useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [showUpdateAmountDialog, setShowUpdateAmountDialog] = useState(false);
@@ -34,7 +31,6 @@ function LiabilitiesPage() {
     null
   );
   const { sortStates, toggleSorting } = useSorting();
-  const searchParams = useSearchParams();
   const tableRef = useRef<ReturnType<typeof useReactTable<Liability>> | null>(
     null
   );
@@ -94,20 +90,7 @@ function LiabilitiesPage() {
     loadLiabilities();
   }, [loadLiabilities]);
 
-  // Check if there are active filters to determine initial filter visibility
-  useEffect(() => {
-    const hasActiveFilters = [
-      searchParams.get("name"),
-      searchParams.get("category"),
-      searchParams.get("status"),
-      searchParams.get("minAmount"),
-      searchParams.get("maxAmount"),
-    ].some(Boolean);
-
-    if (hasActiveFilters) {
-      setShowFilters(true);
-    }
-  }, [searchParams]);
+  // Filters are now controlled within LiabilityFilters component to align with other pages
 
   if (isLoading) {
     return (
@@ -133,7 +116,7 @@ function LiabilitiesPage() {
 
       {/* View Toggle Tabs - Always visible */}
       <div className="w-full">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
@@ -142,109 +125,36 @@ function LiabilitiesPage() {
             <TabsList className="grid w-auto grid-cols-2">
               <TabsTrigger
                 value="table"
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 cursor-pointer"
               >
-                <Table className="h-4 w-4" />
+                <TableIcon className="h-4 w-4" />
                 <span>Liability List</span>
               </TabsTrigger>
               <TabsTrigger
                 value="insights"
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 cursor-pointer"
               >
                 <BarChart3 className="h-4 w-4" />
-                <span>Insights & Analytics</span>
+                <span>Insights</span>
               </TabsTrigger>
             </TabsList>
           </Tabs>
 
-          {/* Filters Toggle and Clear Button - Only show when table tab is active */}
-          {activeTab === "table" && (
-            <div className="flex items-center space-x-4">
-              <Button
-                variant={showFilters ? "outline" : "secondary"}
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2 shadow-sm transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                aria-label={`${showFilters ? "Hide" : "Show"} filters`}
-                title={`${
-                  showFilters ? "Hide" : "Show"
-                } filters (Click to toggle)`}
-              >
-                <Filter className="h-4 w-4" />
-                <span>Filters</span>
-                {(() => {
-                  const activeFiltersCount = [
-                    searchParams.get("name"),
-                    searchParams.get("category"),
-                    searchParams.get("status"),
-                    searchParams.get("minAmount"),
-                    searchParams.get("maxAmount"),
-                  ].filter(Boolean).length;
-
-                  return activeFiltersCount > 0 ? (
-                    <span className="ml-2 rounded-full bg-blue-100 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-800 dark:text-blue-200 animate-pulse">
-                      {activeFiltersCount}
-                    </span>
-                  ) : null;
-                })()}
-                <div
-                  className={`transition-transform duration-200 ${
-                    showFilters ? "rotate-180" : ""
-                  }`}
-                >
-                  <ChevronDown className="h-4 w-4" />
-                </div>
-              </Button>
-
-              {(() => {
-                const activeFiltersCount = [
-                  searchParams.get("name"),
-                  searchParams.get("category"),
-                  searchParams.get("status"),
-                  searchParams.get("minAmount"),
-                  searchParams.get("maxAmount"),
-                ].filter(Boolean).length;
-
-                return activeFiltersCount > 0 ? (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      // Clear all filters by navigating to the base path
-                      window.location.href = window.location.pathname;
-                    }}
-                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                  >
-                    Clear All Filters
-                  </Button>
-                ) : null;
-              })()}
-            </div>
-          )}
+          {/* Filter controls moved into LiabilityFilters to standardize UX */}
         </div>
 
-        {/* Filters Section - Only show when table tab is active */}
-        {activeTab === "table" && (
-          <div
-            className={`transition-all duration-300 ease-in-out ${
-              showFilters
-                ? "opacity-100 max-h-[1000px]"
-                : "opacity-0 max-h-0 overflow-hidden"
-            }`}
-          >
-            {tableReady ? (
-              <div className="w-full p-3 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg shadow-sm">
-                <LiabilityFilters table={tableRef.current || undefined} />
+        {/* Filters Section - now self-managed within LiabilityFilters */}
+        {activeTab === "table" &&
+          (tableReady ? (
+            <LiabilityFilters table={tableRef.current || undefined} />
+          ) : (
+            <div className="w-full p-4 text-center text-muted-foreground bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-700 rounded-lg animate-in fade-in duration-300">
+              <div className="animate-pulse">
+                <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/4 mx-auto mb-2"></div>
+                <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 mx-auto"></div>
               </div>
-            ) : (
-              <div className="w-full p-4 text-center text-muted-foreground bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-700 rounded-lg animate-in fade-in duration-300">
-                <div className="animate-pulse">
-                  <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/4 mx-auto mb-2"></div>
-                  <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 mx-auto"></div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+            </div>
+          ))}
       </div>
 
       {/* Tabs Content */}

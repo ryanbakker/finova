@@ -3,11 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  DateRangePicker,
-  type DateRange,
-  type DateRangePreset,
-} from "@/components/ui/date-range-picker";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Search,
   Filter,
@@ -21,7 +17,6 @@ import {
   Tag,
 } from "lucide-react";
 import { Account, Category } from "@/lib/types";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -30,16 +25,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  subDays,
-  subMonths,
-  startOfMonth,
-  endOfMonth,
-  startOfYear,
-  endOfYear,
-} from "date-fns";
 
-interface TransactionFiltersProps {
+export interface TransactionFiltersProps {
   accounts: Account[];
   categories: Category[];
   table?: {
@@ -51,6 +38,24 @@ interface TransactionFiltersProps {
     }>;
   };
   isLoading?: boolean;
+  value?: {
+    description: string;
+    dateFrom?: string;
+    dateTo?: string;
+    account: string;
+    category: string;
+    type: string;
+  };
+  onChange?: (
+    next: Partial<{
+      description: string;
+      dateFrom?: string | undefined;
+      dateTo?: string | undefined;
+      account: string;
+      category: string;
+      type: string;
+    }>
+  ) => void;
 }
 
 export function TransactionFilters({
@@ -58,106 +63,45 @@ export function TransactionFilters({
   categories,
   table,
   isLoading = false,
+  value,
+  onChange,
 }: TransactionFiltersProps) {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Date range presets
-  const dateRangePresets: DateRangePreset[] = [
-    {
-      label: "Today",
-      dateRange: {
-        from: new Date(),
-        to: new Date(),
-      },
-    },
-    {
-      label: "Yesterday",
-      dateRange: {
-        from: subDays(new Date(), 1),
-        to: subDays(new Date(), 1),
-      },
-    },
-    {
-      label: "Last 7 days",
-      dateRange: {
-        from: subDays(new Date(), 7),
-        to: new Date(),
-      },
-    },
-    {
-      label: "Last 30 days",
-      dateRange: {
-        from: subDays(new Date(), 30),
-        to: new Date(),
-      },
-    },
-    {
-      label: "This month",
-      dateRange: {
-        from: startOfMonth(new Date()),
-        to: endOfMonth(new Date()),
-      },
-    },
-    {
-      label: "Last month",
-      dateRange: {
-        from: startOfMonth(subMonths(new Date(), 1)),
-        to: endOfMonth(subMonths(new Date(), 1)),
-      },
-    },
-    {
-      label: "This year",
-      dateRange: {
-        from: startOfYear(new Date()),
-        to: endOfYear(new Date()),
-      },
-    },
-  ];
+  // Using two single-date pickers (From/To) instead of a range with presets
 
   // Get current values from URL search params
-  const descriptionFilter = searchParams.get("description") || "";
-  const dateFrom = searchParams.get("dateFrom");
-  const dateTo = searchParams.get("dateTo");
-  const selectedAccount = searchParams.get("account") || "all";
-  const selectedCategory = searchParams.get("category") || "all";
-  const selectedType = searchParams.get("type") || "all";
+  const descriptionFilter = value?.description || "";
+  const dateFrom = value?.dateFrom;
+  const dateTo = value?.dateTo;
+  const selectedAccount = value?.account || "all";
+  const selectedCategory = value?.category || "all";
+  const selectedType = value?.type || "all";
 
   // Local state for debounced search
   const [localDescriptionFilter, setLocalDescriptionFilter] =
     useState(descriptionFilter);
 
-  // Parse date range from URL params
-  const dateRange: DateRange | undefined =
-    dateFrom && dateTo
-      ? { from: new Date(dateFrom), to: new Date(dateTo) }
-      : undefined;
+  // Parse From/To dates from URL params
+  const fromDate = dateFrom ? new Date(dateFrom) : undefined;
+  const toDate = dateTo ? new Date(dateTo) : undefined;
 
   const hasActiveFilters =
     descriptionFilter ||
-    dateRange ||
+    (fromDate && toDate) ||
     selectedAccount !== "all" ||
     selectedCategory !== "all" ||
     selectedType !== "all";
 
   // Debounced search function
   const debouncedSearch = useCallback(
-    (value: string) => {
+    (text: string) => {
       const timeoutId = setTimeout(() => {
-        const params = new URLSearchParams(searchParams);
-        if (value) {
-          params.set("description", value);
-        } else {
-          params.delete("description");
-        }
-        router.push(`${pathname}?${params.toString()}`);
+        onChange?.({ description: text });
       }, 800);
-
       return () => clearTimeout(timeoutId);
     },
-    [searchParams, router, pathname]
+    [onChange]
   );
 
   // Update local state when URL changes
@@ -172,20 +116,23 @@ export function TransactionFilters({
   };
 
   // Update URL with new filter values
-  const updateURL = (updates: Record<string, string | null>) => {
-    const params = new URLSearchParams(searchParams);
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value === null) {
-        params.delete(key);
-      } else {
-        params.set(key, value);
-      }
+  const updateFilters = (updates: Record<string, string | null>) => {
+    const next: Record<string, string | undefined> = {};
+    Object.entries(updates).forEach(([key, val]) => {
+      next[key] = val === null ? undefined : val;
     });
-    router.push(`${pathname}?${params.toString()}`);
+    onChange?.(next);
   };
 
   const clearAllFilters = () => {
-    router.push(pathname);
+    onChange?.({
+      description: "",
+      dateFrom: undefined,
+      dateTo: undefined,
+      account: "all",
+      category: "all",
+      type: "all",
+    });
   };
 
   // Helper function to get account type icon
@@ -237,7 +184,6 @@ export function TransactionFilters({
         </div>
         <Button
           variant="outline"
-          size="sm"
           onClick={() => setIsExpanded(!isExpanded)}
           className={`flex items-center space-x-2 ${
             isExpanded || hasActiveFilters
@@ -254,11 +200,7 @@ export function TransactionFilters({
         {table && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="cursor-pointer shadow-sm"
-              >
+              <Button variant="outline" className="cursor-pointer shadow-sm">
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -298,29 +240,36 @@ export function TransactionFilters({
       {/* Expanded Filters */}
       {isExpanded && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/50 rounded-lg border">
-          {/* Date Range */}
+          {/* Date From / Date To */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">
-              Date Range
+              From
             </label>
-            <DateRangePicker
-              presets={dateRangePresets}
-              value={dateRange}
-              onChange={(range) => {
-                // Update the URL with the new date range
-                if (range && range.from && range.to) {
-                  updateURL({
-                    dateFrom: range.from.toISOString().split("T")[0],
-                    dateTo: range.to.toISOString().split("T")[0],
-                  });
-                } else {
-                  updateURL({
-                    dateFrom: null,
-                    dateTo: null,
-                  });
-                }
+            <DatePicker
+              value={fromDate}
+              onChange={(newFrom) => {
+                updateFilters({
+                  dateFrom: newFrom
+                    ? newFrom.toISOString().split("T")[0]
+                    : null,
+                });
               }}
-              placeholder="Select date range"
+              placeholder="From date"
+              className="shadow-sm cursor-pointer"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">
+              To
+            </label>
+            <DatePicker
+              value={toDate}
+              onChange={(newTo) => {
+                updateFilters({
+                  dateTo: newTo ? newTo.toISOString().split("T")[0] : null,
+                });
+              }}
+              placeholder="To date"
               className="shadow-sm cursor-pointer"
             />
           </div>
@@ -361,7 +310,7 @@ export function TransactionFilters({
               <DropdownMenuContent className="w-full min-w-[200px]">
                 <DropdownMenuCheckboxItem
                   checked={selectedAccount === "all"}
-                  onCheckedChange={() => updateURL({ account: null })}
+                  onCheckedChange={() => updateFilters({ account: null })}
                   className="flex items-center gap-2 cursor-pointer"
                 >
                   All Accounts
@@ -370,7 +319,9 @@ export function TransactionFilters({
                   <DropdownMenuCheckboxItem
                     key={account.id}
                     checked={selectedAccount === account.id}
-                    onCheckedChange={() => updateURL({ account: account.id })}
+                    onCheckedChange={() =>
+                      updateFilters({ account: account.id })
+                    }
                     className="flex items-center gap-2 cursor-pointer"
                   >
                     {account.name}
@@ -418,7 +369,7 @@ export function TransactionFilters({
               <DropdownMenuContent className="w-full min-w-[200px]">
                 <DropdownMenuCheckboxItem
                   checked={selectedCategory === "all"}
-                  onCheckedChange={() => updateURL({ category: null })}
+                  onCheckedChange={() => updateFilters({ category: null })}
                   className="flex items-center gap-2 cursor-pointer"
                 >
                   All Categories
@@ -427,7 +378,9 @@ export function TransactionFilters({
                   <DropdownMenuCheckboxItem
                     key={category.id}
                     checked={selectedCategory === category.id}
-                    onCheckedChange={() => updateURL({ category: category.id })}
+                    onCheckedChange={() =>
+                      updateFilters({ category: category.id })
+                    }
                     className="flex items-center gap-2 cursor-pointer"
                   >
                     {category.name}
@@ -447,7 +400,7 @@ export function TransactionFilters({
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => updateURL({ type: null })}
+                onClick={() => updateFilters({ type: null })}
                 className={`transaction-type-button cursor-pointer ${
                   !selectedType || selectedType === "all"
                     ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white !shadow-sm"
@@ -460,7 +413,7 @@ export function TransactionFilters({
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => updateURL({ type: "income" })}
+                onClick={() => updateFilters({ type: "income" })}
                 className={`transaction-type-button cursor-pointer ${
                   selectedType === "income"
                     ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white !shadow-sm"
@@ -473,7 +426,7 @@ export function TransactionFilters({
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => updateURL({ type: "expense" })}
+                onClick={() => updateFilters({ type: "expense" })}
                 className={`transaction-type-button cursor-pointer ${
                   selectedType === "expense"
                     ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white !shadow-sm"
@@ -481,6 +434,19 @@ export function TransactionFilters({
                 }`}
               >
                 Expense
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => updateFilters({ type: "transfer" })}
+                className={`transaction-type-button cursor-pointer ${
+                  selectedType === "transfer"
+                    ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 hover:text-white !shadow-sm"
+                    : "hover:bg-sky-50 dark:hover:bg-sky-950 shadow-sm"
+                }`}
+              >
+                Transfer
               </Button>
             </div>
           </div>
@@ -492,38 +458,88 @@ export function TransactionFilters({
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <span className="text-muted-foreground">Active filters:</span>
           {descriptionFilter && (
-            <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 rounded-full">
-              Description: {descriptionFilter}
-            </span>
+            <button
+              type="button"
+              onClick={() => updateFilters({ description: null })}
+              className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 rounded-full flex items-center gap-1 group"
+            >
+              <span>Description: {descriptionFilter}</span>
+              <span className="ml-1 rounded-full h-4 w-4 flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-800">
+                ×
+              </span>
+            </button>
           )}
-          {dateRange && dateRange.from && dateRange.to && (
-            <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded-full">
-              Date: {dateRange.from.toLocaleDateString()} -{" "}
-              {dateRange.to.toLocaleDateString()}
-            </span>
+          {fromDate && toDate && (
+            <button
+              type="button"
+              onClick={() => updateFilters({ dateFrom: null, dateTo: null })}
+              className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded-full flex items-center gap-1 group"
+            >
+              <span>
+                Date: {fromDate.toLocaleDateString()} -{" "}
+                {toDate.toLocaleDateString()}
+              </span>
+              <span className="ml-1 rounded-full h-4 w-4 flex items-center justify-center group-hover:bg-green-200 dark:group-hover:bg-green-800">
+                ×
+              </span>
+            </button>
           )}
           {selectedAccount !== "all" && (
-            <span className="px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 rounded-full">
-              {getAccountIcon(
-                accounts.find((a) => a.id === selectedAccount)?.type ||
-                  "checking"
-              )}
-              Account: {accounts.find((a) => a.id === selectedAccount)?.name}
-            </span>
+            <button
+              type="button"
+              onClick={() => updateFilters({ account: null })}
+              className="px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 rounded-full flex items-center gap-1 group"
+            >
+              <span className="mr-1">
+                {getAccountIcon(
+                  accounts.find((a) => a.id === selectedAccount)?.type ||
+                    "checking"
+                )}
+              </span>
+              <span>
+                Account: {accounts.find((a) => a.id === selectedAccount)?.name}
+              </span>
+              <span className="ml-1 rounded-full h-4 w-4 flex items-center justify-center group-hover:bg-purple-200 dark:group-hover:bg-purple-800">
+                ×
+              </span>
+            </button>
           )}
           {selectedCategory !== "all" && (
-            <span className="px-2 py-1 bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 rounded-full">
-              <span className="text-sm">
+            <button
+              type="button"
+              onClick={() => updateFilters({ category: null })}
+              className="px-2 py-1 bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 rounded-full flex items-center gap-1 group"
+            >
+              <span className="text-sm mr-1">
                 {categories.find((c) => c.id === selectedCategory)?.icon}
               </span>
-              Category:{" "}
-              {categories.find((c) => c.id === selectedCategory)?.name}
-            </span>
+              <span>
+                Category:{" "}
+                {categories.find((c) => c.id === selectedCategory)?.name}
+              </span>
+              <span className="ml-1 rounded-full h-4 w-4 flex items-center justify-center group-hover:bg-orange-200 dark:group-hover:bg-orange-800">
+                ×
+              </span>
+            </button>
           )}
           {selectedType !== "all" && (
-            <span className="px-2 py-1 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-full">
-              Type: {selectedType === "income" ? "Income" : "Expense"}
-            </span>
+            <button
+              type="button"
+              onClick={() => updateFilters({ type: null })}
+              className="px-2 py-1 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-full flex items-center gap-1 group"
+            >
+              <span>
+                Type:{" "}
+                {selectedType === "income"
+                  ? "Income"
+                  : selectedType === "expense"
+                  ? "Expense"
+                  : "Transfer"}
+              </span>
+              <span className="ml-1 rounded-full h-4 w-4 flex items-center justify-center group-hover:bg-indigo-200 dark:group-hover:bg-indigo-800">
+                ×
+              </span>
+            </button>
           )}
         </div>
       )}

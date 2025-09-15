@@ -241,7 +241,7 @@ function DashboardContent({
           </div>
         </div>
       </header>
-      <main className="flex-1 overflow-auto w-full rounded-xl mt-2 dark:md:bg-[#0a0a0a] md:bg-white md:shadow-sm">
+      <main className="flex-1 overflow-auto w-full rounded-xl -mt-2 dark:md:bg-[#0a0a0a] md:bg-white md:shadow-sm">
         <div className="space-y-6 page-content">
           <div className="mx-auto">
             <h1 className="page-title">Dashboard</h1>
@@ -260,7 +260,7 @@ function DashboardContent({
           )}
 
           {/* Top Row - Key Metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mx-auto w-full">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mx-auto w-full">
             <MetricCard
               title="Total Income"
               value={dashboardData?.metrics.totalIncome || 0}

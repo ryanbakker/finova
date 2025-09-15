@@ -369,7 +369,7 @@ export function DataTable<TData extends Asset, TValue>({
   }
 
   return (
-    <div className="w-full space-y-4 -mt-4">
+    <div className="w-full space-y-4 -mt-2">
       {/* Asset Filters moved to main page level */}
 
       {/* Delete Selected Button */}
@@ -392,21 +392,23 @@ export function DataTable<TData extends Asset, TValue>({
         </div>
       )}
 
-      <div className="overflow-hidden rounded-md border w-full bg-neutral-50 dark:bg-neutral-900 shadow-sm">
-        <Table className={`w-full ${isMobile ? "text-sm" : ""}`}>
-          <TableHeader className="text-semibold !bg-white hover:!bg-white dark:!bg-neutral-950 dark:hover:!bg-neutral-950 rounded-t-lg">
+      <div className="dashboard-table-container">
+        <Table className="dashboard-table">
+          <TableHeader className="dashboard-table-header">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
                 key={headerGroup.id}
-                // className="hover:!bg-white dark:hover:!bg-white"
+                className="dashboard-table-header-row"
               >
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
                       key={header.id}
-                      className={`ml-0 ${
-                        header.id === "select" ? "pl-2" : "pl-0"
-                      } ${isMobile ? "py-1 px-2 text-sm" : "py-2 text-base"}`}
+                      className={`dashboard-table-head ${
+                        header.id === "select"
+                          ? "dashboard-table-head--select"
+                          : ""
+                      }`}
                     >
                       {header.isPlaceholder
                         ? null
@@ -426,7 +428,7 @@ export function DataTable<TData extends Asset, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group"
+                  className="dashboard-table-row group"
                   onClick={(e) => {
                     // Don't open details if clicking on action buttons or checkboxes
                     if (
@@ -442,9 +444,11 @@ export function DataTable<TData extends Asset, TValue>({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className={`text-left group-hover:bg-slate-50 dark:group-hover:bg-slate-800/30 ${
-                        isMobile ? "py-1" : "py-2"
-                      } ${cell.column.id !== "actions" ? "pl-2" : ""}`}
+                      className={`dashboard-table-cell ${
+                        cell.column.id !== "actions"
+                          ? "dashboard-table-cell--padded"
+                          : ""
+                      }`}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -458,7 +462,7 @@ export function DataTable<TData extends Asset, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-32 text-center"
+                  className="dashboard-table-empty"
                 >
                   {filteredAndSortedData.length === 0 && data.length > 0 ? (
                     <div className="flex flex-col items-center justify-center space-y-2">
@@ -511,42 +515,40 @@ export function DataTable<TData extends Asset, TValue>({
 
       {/* Pagination and Row Selection Info */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between space-x-2 py-0">
-          <div className="text-muted-foreground flex-1 text-sm">
+        <div className="dashboard-pagination">
+          <div className="selection">
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
-          <div className="flex items-center space-x-6">
-            <div className="text-sm text-muted-foreground whitespace-nowrap">
-              Showing {(currentPage - 1) * pageSize + 1} to{" "}
-              {Math.min(
-                currentPage * pageSize,
-                table.getFilteredRowModel().rows.length
-              )}{" "}
-              of {table.getFilteredRowModel().rows.length} results
-            </div>
-            <div className="space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="enabled:cursor-pointer"
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                className="enabled:cursor-pointer"
-                size="sm"
-                onClick={() =>
-                  handlePageChange(Math.min(totalPages, currentPage + 1))
-                }
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </Button>
-            </div>
+          <div className="meta">
+            Showing {(currentPage - 1) * pageSize + 1} to{" "}
+            {Math.min(
+              currentPage * pageSize,
+              table.getFilteredRowModel().rows.length
+            )}{" "}
+            of {table.getFilteredRowModel().rows.length} results
+          </div>
+          <div className="controls">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="enabled:cursor-pointer"
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="enabled:cursor-pointer"
+              onClick={() =>
+                handlePageChange(Math.min(totalPages, currentPage + 1))
+              }
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
           </div>
         </div>
       )}

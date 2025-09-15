@@ -143,7 +143,7 @@ export function AssetInsights({
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Assets */}
         <Card className="container-color">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -222,8 +222,10 @@ export function AssetInsights({
         {/* Category Breakdown Chart */}
         <Card className="container-color">
           <CardHeader>
-            <CardTitle>Asset Distribution by Category</CardTitle>
-            <CardDescription>
+            <CardTitle className="dashboard-page-card-title">
+              Asset Distribution by Category
+            </CardTitle>
+            <CardDescription className="dashboard-page-card-description">
               Breakdown of your assets by financial category
             </CardDescription>
           </CardHeader>
@@ -233,6 +235,8 @@ export function AssetInsights({
                 data={chartData}
                 category="name"
                 value="value"
+                showLabel
+                valueFormatter={formatCurrency}
                 colors={[
                   "sky",
                   "blue",
@@ -278,11 +282,13 @@ export function AssetInsights({
           {/* Top Performers */}
           <Card className="container-color flex-1">
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
+              <CardTitle className="flex items-center space-x-2 dashboard-page-card-title">
                 <TrendingUp className="h-5 w-5 text-green-600" />
                 <span>Top Performing Assets</span>
               </CardTitle>
-              <CardDescription>Assets with the highest gains</CardDescription>
+              <CardDescription className="dashboard-page-card-description">
+                Assets with the highest gains
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {topPerformers.length > 0 ? (
@@ -329,11 +335,11 @@ export function AssetInsights({
           {/* Assets with Losses */}
           <Card className="container-color flex-1">
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
+              <CardTitle className="flex items-center space-x-2 dashboard-page-card-title">
                 <TrendingDown className="h-5 w-5 text-red-600" />
                 <span>Assets with Losses</span>
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="dashboard-page-card-description">
                 Assets that have decreased in value
               </CardDescription>
             </CardHeader>
@@ -384,8 +390,12 @@ export function AssetInsights({
       {/* Asset Type Distribution - Full Width Below */}
       <Card className="container-color">
         <CardHeader>
-          <CardTitle>Asset Type Distribution</CardTitle>
-          <CardDescription>Count of assets by type</CardDescription>
+          <CardTitle className="dashboard-page-card-title">
+            Asset Type Distribution
+          </CardTitle>
+          <CardDescription className="dashboard-page-card-description">
+            Count of assets by type
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

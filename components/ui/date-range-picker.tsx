@@ -22,7 +22,8 @@ import { tv, type VariantProps } from "tailwind-variants";
 import { cn } from "@/lib/utils";
 
 import { Button } from "./button";
-import { Calendar, type Matcher } from "./calendar";
+import { Calendar } from "./calendar";
+import type { Matcher } from "react-day-picker";
 
 //#region TimeInput
 // ============================================================================
@@ -671,12 +672,12 @@ const RangeDatePicker = ({
         {displayRange}
       </Trigger>
       <CalendarPopover align={align}>
-        <div className="flex">
-          <div className="flex flex-col overflow-x-auto sm:flex-row sm:items-start">
+        <div className="w-full max-w-[95vw]">
+          <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr] sm:items-start overflow-hidden">
             {presets && presets.length > 0 && (
               <div
                 className={cn(
-                  "relative flex h-16 w-full items-center sm:h-full sm:w-40",
+                  "relative hidden sm:flex sm:h-full sm:w-40",
                   "border-b border-border sm:border-r sm:border-b-0",
                   "overflow-auto"
                 )}
@@ -690,21 +691,25 @@ const RangeDatePicker = ({
                 </div>
               </div>
             )}
-            <div className="overflow-x-auto">
+            <div className="w-full">
               <Calendar
                 mode="range"
                 selected={range}
                 onSelect={onRangeChange}
                 month={month}
                 onMonthChange={setMonth}
-                numberOfMonths={2}
+                numberOfMonths={
+                  typeof window !== "undefined" && window.innerWidth < 768
+                    ? 1
+                    : 2
+                }
                 disabled={disabledDays}
                 disableNavigation={disableNavigation}
                 locale={locale}
                 initialFocus
                 classNames={{
                   months:
-                    "flex flex-row divide-x divide-border overflow-x-auto",
+                    "grid grid-cols-1 sm:flex sm:flex-row sm:divide-x sm:divide-border",
                 }}
                 {...props}
               />
@@ -738,16 +743,16 @@ const RangeDatePicker = ({
                 </div>
               )}
               <div className="border-t border-border p-3 sm:flex sm:items-center sm:justify-between">
-                <p className="text-foreground tabular-nums">
+                <p className="text-foreground tabular-nums hidden sm:block">
                   <span className="text-muted-foreground">
                     {translations?.range ?? "Range"}:
                   </span>{" "}
                   <span className="font-medium">{displayRange}</span>
                 </p>
-                <div className="mt-2 flex items-center gap-x-2 sm:mt-0">
+                <div className="mt-2 grid grid-cols-2 gap-2 sm:mt-0 sm:flex sm:items-center sm:gap-x-2">
                   <Button
                     variant="secondary"
-                    className="h-8 w-full sm:w-fit"
+                    className="h-9 w-full"
                     type="button"
                     onClick={onCancel}
                   >
@@ -755,7 +760,7 @@ const RangeDatePicker = ({
                   </Button>
                   <Button
                     variant="default"
-                    className="h-8 w-full sm:w-fit"
+                    className="h-9 w-full"
                     type="button"
                     onClick={onApply}
                   >

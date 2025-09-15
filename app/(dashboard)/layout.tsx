@@ -93,7 +93,7 @@ export default function DashboardLayout({
         <AppSidebar />
 
         {/* BG transparent V */}
-        <SidebarInset className="flex-1 shadow-none! w-full min-w-0 dark:bg-[#171717] bg-[#fafafa]">
+        <SidebarInset className="flex-1 shadow-none! w-full min-w-0 dark:lg:bg-[#171717] lg:bg-[#fafafa]">
           <header className="rounded-b-xl">
             <div className="flex h-16 shrink-0 items-center gap-2 px-4 rounded-xl mb-1 dark:bg-[#0a0a0a] bg-white shadow-sm mt-1">
               <div className="mx-auto max-w-7xl flex items-center gap-2 justify-between w-full">
@@ -114,7 +114,7 @@ export default function DashboardLayout({
               </div>
             </div>
           </header>
-          <main className="flex-1 overflow-auto w-full rounded-xl mt-1 md:pt-4 dark:bg-[#0a0a0a] lg:bg-white shadow-sm">
+          <main className="flex-1 overflow-auto w-full md:rounded-xl mt-1 md:pt-4 dark:bg-[#0a0a0a] lg:bg-white lg:shadow-sm">
             <SubPageTimedLoadingPage message="Loading your data...">
               {children}
             </SubPageTimedLoadingPage>

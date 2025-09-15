@@ -28,6 +28,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
@@ -76,6 +77,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, isLoaded } = useUser();
   const { openUserProfile, signOut } = useClerk();
   const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  const handleNavClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   const handleUserClick = () => {
     openUserProfile();
@@ -152,6 +160,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         <Link
                           href={item.href}
                           className="flex items-center gap-3"
+                          onClick={handleNavClick}
                         >
                           {item.icon === "dashboard" && (
                             <LayoutDashboard className="w-6 h-6" />
@@ -211,7 +220,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <SidebarMenuSub>
                     <SidebarMenuSubItem>
                       <SidebarMenuSubButton asChild>
-                        <Link href="/" className="text-xs font-medium">
+                        <Link
+                          href="/"
+                          className="text-xs font-medium"
+                          onClick={handleNavClick}
+                        >
                           <Plus className="w-[5px] h-[5px] scale-90" />
                           Generate Report
                         </Link>
@@ -234,7 +247,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
                     <SidebarMenuSubItem>
                       <SidebarMenuSubButton asChild>
-                        <Link href="/" className="text-xs">
+                        <Link
+                          href="/"
+                          className="text-xs"
+                          onClick={handleNavClick}
+                        >
                           2024-06-31
                         </Link>
                       </SidebarMenuSubButton>

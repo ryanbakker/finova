@@ -21,7 +21,7 @@ import {
   Calendar,
   Building2,
   CreditCard,
-  TrendingDown,
+  Car,
   DollarSign,
   FileText,
   Percent,
@@ -101,35 +101,29 @@ const formatDate = (dateString: string): string => {
 
 // Helper function to get category icon
 const getCategoryIcon = (category: string) => {
-  switch (category.toLowerCase()) {
+  const normalized = category.toLowerCase();
+  switch (normalized) {
     case "mortgage":
-      return <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />;
+      return <Building2 className="w-4 h-4 text-sky-600 dark:text-sky-400" />;
     case "vehicle loan":
-      return (
-        <TrendingDown className="w-4 h-4 text-green-600 dark:text-green-400" />
-      );
+    case "car loan":
+      return <Car className="w-4 h-4 text-sky-600 dark:text-sky-400" />;
     case "credit card":
-      return (
-        <CreditCard className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-      );
+      return <CreditCard className="w-4 h-4 text-sky-600 dark:text-sky-400" />;
     case "personal loan":
-      return (
-        <DollarSign className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-      );
+      return <DollarSign className="w-4 h-4 text-sky-600 dark:text-sky-400" />;
     case "education loan":
-      return (
-        <FileText className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-      );
+    case "student loan":
+      return <FileText className="w-4 h-4 text-sky-600 dark:text-sky-400" />;
     case "business loan":
-      return <Building2 className="w-4 h-4 text-teal-600 dark:text-teal-400" />;
+      return <Building2 className="w-4 h-4 text-sky-600 dark:text-sky-400" />;
     case "line of credit":
-      return (
-        <CreditCard className="w-4 h-4 text-pink-600 dark:text-pink-400" />
-      );
+      return <CreditCard className="w-4 h-4 text-sky-600 dark:text-sky-400" />;
+    case "medical debt":
+    case "tax debt":
+      return <FileText className="w-4 h-4 text-sky-600 dark:text-sky-400" />;
     default:
-      return (
-        <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-      );
+      return <DollarSign className="w-4 h-4 text-sky-600 dark:text-sky-400" />;
   }
 };
 
@@ -208,11 +202,11 @@ export const createColumns = (
     ),
   },
   {
-    accessorKey: "amount",
+    accessorKey: "currentValue",
     header: () => (
       <SortableHeader
-        columnId="amount"
-        sortState={sortStates.amount || false}
+        columnId="currentValue"
+        sortState={sortStates.currentValue || false}
         onToggleSort={toggleSorting}
       >
         Current Amount
@@ -220,19 +214,23 @@ export const createColumns = (
     ),
     cell: ({ row }) => {
       const liability = row.original;
-      const currentAmount = liability.currentAmount || liability.amount || 0;
+      const currentAmount =
+        (liability.currentValue as number) ??
+        (liability.currentAmount as number) ??
+        (liability.amount as number) ??
+        0;
       return (
         <div className="text-left">
-          <div className="font-medium text-sm text-red-600 dark:text-red-400">
-            {formatCurrency(currentAmount, liability.currency)}
+          <div className="font-medium text-sm text-rose-500 dark:text-rose-300">
+            {formatCurrency(currentAmount, liability.currency || "AUD")}
           </div>
           {liability.changeAmount !== undefined &&
             liability.changeAmount !== 0 && (
               <div
                 className={`text-xs ${
                   liability.changeAmount >= 0
-                    ? "text-red-500"
-                    : "text-green-500"
+                    ? "text-rose-400"
+                    : "text-emerald-400"
                 }`}
               >
                 {liability.changeAmount >= 0 ? "+" : ""}

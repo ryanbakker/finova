@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DateRangePicker } from "@/components/ui/date-picker";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Search, Filter, X, ChevronDown } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getCategoriesByType } from "@/constants";
@@ -34,6 +34,14 @@ interface BillFiltersProps {
   };
 }
 
+type FiltersState = {
+  name: string;
+  dateRange?: { from?: Date; to?: Date };
+  category: string;
+  status: string;
+  recurring: string;
+};
+
 export function BillFilters({ table }: BillFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -51,20 +59,13 @@ export function BillFilters({ table }: BillFiltersProps) {
   const selectedStatus = searchParams.get("status") || "all";
   const selectedRecurring = searchParams.get("recurring") || "all";
 
-  // Convert string dates to Date objects for the date range picker
-  const getDateRange = useCallback(() => {
-    if (dateFrom && dateTo) {
-      return {
-        from: new Date(dateFrom),
-        to: new Date(dateTo),
-      };
-    }
-    return undefined;
-  }, [dateFrom, dateTo]);
+  // Parse From/To dates
+  const fromDate = dateFrom ? new Date(dateFrom) : undefined;
+  const toDate = dateTo ? new Date(dateTo) : undefined;
 
-  const [localFilters, setLocalFilters] = useState({
+  const [localFilters, setLocalFilters] = useState<FiltersState>({
     name: nameFilter,
-    dateRange: getDateRange(),
+    dateRange: fromDate || toDate ? { from: fromDate, to: toDate } : undefined,
     category: selectedCategory,
     status: selectedStatus,
     recurring: selectedRecurring,
@@ -74,7 +75,8 @@ export function BillFilters({ table }: BillFiltersProps) {
   useEffect(() => {
     setLocalFilters({
       name: nameFilter,
-      dateRange: getDateRange(),
+      dateRange:
+        fromDate || toDate ? { from: fromDate, to: toDate } : undefined,
       category: selectedCategory,
       status: selectedStatus,
       recurring: selectedRecurring,
@@ -86,10 +88,11 @@ export function BillFilters({ table }: BillFiltersProps) {
     selectedCategory,
     selectedStatus,
     selectedRecurring,
-    getDateRange,
+    fromDate,
+    toDate,
   ]);
 
-  const updateFilters = (newFilters: Partial<typeof localFilters>) => {
+  const updateFilters = (newFilters: Partial<FiltersState>) => {
     const updatedFilters = { ...localFilters, ...newFilters };
     setLocalFilters(updatedFilters);
 
@@ -103,18 +106,21 @@ export function BillFilters({ table }: BillFiltersProps) {
       params.delete("name");
     }
 
-    // Handle date range filter
-    if (updatedFilters.dateRange?.from && updatedFilters.dateRange?.to) {
+    // Handle date filters (From/To stored separately in URL)
+    if (updatedFilters.dateRange?.from) {
       params.set(
         "dateFrom",
         updatedFilters.dateRange.from.toISOString().split("T")[0]
       );
+    } else {
+      params.delete("dateFrom");
+    }
+    if (updatedFilters.dateRange?.to) {
       params.set(
         "dateTo",
         updatedFilters.dateRange.to.toISOString().split("T")[0]
       );
     } else {
-      params.delete("dateFrom");
       params.delete("dateTo");
     }
 
@@ -163,19 +169,18 @@ export function BillFilters({ table }: BillFiltersProps) {
   return (
     <div className="space-y-4">
       {/* Basic Search Bar */}
-      <div className="flex items-center space-x-2">
+      <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-2.5 md:top-3 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search bills by name..."
             value={localFilters.name}
             onChange={(e) => updateFilters({ name: e.target.value })}
-            className="pl-10"
+            className="pl-10 text-sm"
           />
         </div>
         <Button
           variant="outline"
-          size="sm"
           onClick={() => setIsExpanded(!isExpanded)}
           className={`flex items-center space-x-2 ${
             isExpanded || hasActiveFilters
@@ -192,11 +197,7 @@ export function BillFilters({ table }: BillFiltersProps) {
         {table && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="cursor-pointer shadow-sm"
-              >
+              <Button variant="outline" className="cursor-pointer shadow-sm">
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -236,13 +237,35 @@ export function BillFilters({ table }: BillFiltersProps) {
       {/* Expanded Filters */}
       {isExpanded && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/50 rounded-lg border">
-          {/* Date Range */}
+          {/* Date From / Date To */}
           <div className="space-y-2">
-            <Label htmlFor="dateRange">Date Range</Label>
-            <DateRangePicker
-              value={localFilters.dateRange}
-              onChange={(dateRange) => updateFilters({ dateRange })}
-              placeholder="Select date range"
+            <Label htmlFor="dateFrom">From</Label>
+            <DatePicker
+              value={localFilters.dateRange?.from}
+              onChange={(newFrom) =>
+                updateFilters({
+                  dateRange: {
+                    from: newFrom,
+                    to: localFilters.dateRange?.to,
+                  },
+                })
+              }
+              placeholder="From date"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="dateTo">To</Label>
+            <DatePicker
+              value={localFilters.dateRange?.to}
+              onChange={(newTo) =>
+                updateFilters({
+                  dateRange: {
+                    from: localFilters.dateRange?.from,
+                    to: newTo,
+                  },
+                })
+              }
+              placeholder="To date"
             />
           </div>
 

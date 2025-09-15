@@ -11,14 +11,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -30,6 +22,7 @@ import { Filter, Search, X, ChevronDown } from "lucide-react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { getCategoriesByType } from "@/constants";
+import { getAssetCategoryIcon } from "@/lib/utils/categoryUtils";
 
 interface AssetFiltersProps<TData extends Asset> {
   table?: Table<TData>;
@@ -41,7 +34,7 @@ export function AssetFilters<TData extends Asset>({
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Get current filter values from URL
   const nameFilter = searchParams.get("name") || "";
@@ -121,7 +114,6 @@ export function AssetFilters<TData extends Asset>({
   // Clear all filters
   const clearAllFilters = () => {
     router.push(pathname);
-    setIsOpen(false);
   };
 
   // Clear specific filter
@@ -155,121 +147,40 @@ export function AssetFilters<TData extends Asset>({
   }, [nameFilter, categoryFilter, statusFilter, table]);
 
   return (
-    <div className="flex flex-col">
-      {/* Desktop Filters */}
-      <div className="hidden md:flex items-center space-x-4 w-full">
-        {/* Search by name */}
-        <div className="flex-1 min-w-0 max-w-none">
+    <div className="space-y-4">
+      {/* Top bar with search, Filters toggle, Columns, Clear */}
+      <div className="flex gap-3 md:gap-0 md:items-center md:space-x-2 flex-col md:flex-row">
+        <div className="relative flex-1 w-full">
           <Label htmlFor="name-filter" className="sr-only">
             Search by name
           </Label>
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="name-filter"
-              placeholder="Search assets..."
-              value={nameFilter}
-              onChange={(e) => handleNameFilter(e.target.value)}
-              className="pl-10 w-full min-w-0"
-            />
-            {nameFilter && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
-                onClick={() => clearFilter("name")}
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            )}
-          </div>
+          <Search className="absolute left-3 top-2.5 md:top-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            id="name-filter"
+            placeholder="Search assets..."
+            value={nameFilter}
+            onChange={(e) => handleNameFilter(e.target.value)}
+            className="pl-10 w-full text-sm"
+          />
+          {nameFilter && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+              onClick={() => clearFilter("name")}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          )}
         </div>
-
-        {/* Category filter */}
-        <div className="w-48">
-          <Label htmlFor="category-filter" className="sr-only">
-            Filter by category
-          </Label>
-          <Select value={categoryFilter} onValueChange={handleCategoryFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="All Categories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {assetCategories.map((category) => (
-                <SelectItem key={category.name} value={category.name}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Status filter */}
-        <div className="w-32">
-          <Label htmlFor="status-filter" className="sr-only">
-            Filter by status
-          </Label>
-          <Select value={statusFilter} onValueChange={handleStatusFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="All Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Value range filters */}
-        <div className="flex items-center space-x-2">
-          <div className="w-24">
-            <Label htmlFor="min-value" className="sr-only">
-              Minimum value
-            </Label>
-            <Input
-              id="min-value"
-              placeholder="Min $"
-              value={minValueFilter}
-              onChange={(e) => handleMinValueFilter(e.target.value)}
-              className="text-sm"
-            />
-          </div>
-          <span className="text-muted-foreground">-</span>
-          <div className="w-24">
-            <Label htmlFor="max-value" className="sr-only">
-              Maximum value
-            </Label>
-            <Input
-              id="max-value"
-              placeholder="Max $"
-              value={maxValueFilter}
-              onChange={(e) => handleMaxValueFilter(e.target.value)}
-              className="text-sm"
-            />
-          </div>
-        </div>
-
-        {/* Column Visibility Dropdown */}
         {table && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="cursor-pointer shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                aria-label="Toggle column visibility"
-                title="Show/hide table columns"
-              >
-                Columns{" "}
-                <ChevronDown className="ml-2 h-4 w-4 transition-transform duration-200" />
+              <Button variant="outline" className="cursor-pointer shadow-sm">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="animate-in fade-in-0 zoom-in-95"
-            >
+            <DropdownMenuContent align="end">
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -277,7 +188,7 @@ export function AssetFilters<TData extends Asset>({
                   return (
                     <DropdownMenuCheckboxItem
                       key={column.id}
-                      className="capitalize cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                      className="capitalize cursor-pointer"
                       checked={column.getIsVisible()}
                       onCheckedChange={(value) =>
                         column.toggleVisibility(!!value)
@@ -290,135 +201,105 @@ export function AssetFilters<TData extends Asset>({
             </DropdownMenuContent>
           </DropdownMenu>
         )}
-
-        {/* Clear filters button */}
+        <Button
+          variant="outline"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className={`flex items-center space-x-1 cursor-pointer ${
+            isExpanded || activeFiltersCount > 0
+              ? "bg-gradient-to-r from-sky-500 via-sky-500 to-sky-600 text-white border-sky-600 hover:from-sky-600 hover:via-sky-600 hover:to-sky-700 hover:border-sky-700 hover:text-white"
+              : ""
+          }`}
+        >
+          <Filter className="h-4 w-4" />
+          <span>Filters</span>
+          {activeFiltersCount > 0 && (
+            <span className="ml-1 h-2 w-2 rounded-full bg-white"></span>
+          )}
+          <ChevronDown
+            className={`ml-2 h-4 w-4 transition-transform duration-200 ${
+              isExpanded ? "rotate-180" : ""
+            }`}
+          />
+        </Button>
         {activeFiltersCount > 0 && (
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={clearAllFilters}
             className="text-muted-foreground hover:text-foreground"
           >
-            <X className="h-4 w-4 mr-2" />
-            Clear ({activeFiltersCount})
+            <X className="h-4 w-4" />
           </Button>
         )}
       </div>
 
-      {/* Mobile Filters */}
-      <div className="md:hidden">
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild>
-            <Button variant="outline" className="w-full justify-start">
-              <Filter className="h-4 w-4 mr-2" />
-              Filters
-              {activeFiltersCount > 0 && (
-                <span className="ml-2 rounded-full bg-blue-100 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-800 dark:text-blue-200">
-                  {activeFiltersCount}
-                </span>
-              )}
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="bottom" className="h-[80vh]">
-            <SheetHeader>
-              <SheetTitle>Filter Assets</SheetTitle>
-              <SheetDescription>
-                Narrow down your assets by various criteria
-              </SheetDescription>
-            </SheetHeader>
-            <div className="space-y-6 py-4">
-              {/* Search by name */}
-              <div className="space-y-2">
-                <Label htmlFor="mobile-name-filter">Search by name</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="mobile-name-filter"
-                    placeholder="Search assets..."
-                    value={nameFilter}
-                    onChange={(e) => handleNameFilter(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
+      {/* Expanded Filters */}
+      {isExpanded && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/50 rounded-lg border">
+          {/* Category Filter */}
+          <div className="space-y-2">
+            <Label htmlFor="category-filter">Category</Label>
+            <Select value={categoryFilter} onValueChange={handleCategoryFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {assetCategories.map((category) => {
+                  const Icon = getAssetCategoryIcon(category.name);
+                  return (
+                    <SelectItem key={category.name} value={category.name}>
+                      <span className="flex items-center gap-2">
+                        {Icon && <Icon className="h-4 w-4" />}
+                        <span>{category.name}</span>
+                      </span>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </div>
 
-              {/* Category filter */}
-              <div className="space-y-2">
-                <Label htmlFor="mobile-category-filter">Category</Label>
-                <Select
-                  value={categoryFilter}
-                  onValueChange={handleCategoryFilter}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Categories" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {assetCategories.map((category) => (
-                      <SelectItem key={category.name} value={category.name}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+          {/* Status filter */}
+          <div className="space-y-2">
+            <Label htmlFor="status-filter">Status</Label>
+            <Select value={statusFilter} onValueChange={handleStatusFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-              {/* Status filter */}
-              <div className="space-y-2">
-                <Label htmlFor="mobile-status-filter">Status</Label>
-                <Select value={statusFilter} onValueChange={handleStatusFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          {/* Min value */}
+          <div className="space-y-2">
+            <Label htmlFor="min-value">Min Value</Label>
+            <Input
+              id="min-value"
+              placeholder="Min $"
+              value={minValueFilter}
+              onChange={(e) => handleMinValueFilter(e.target.value)}
+              className="text-sm"
+            />
+          </div>
 
-              {/* Value range filters */}
-              <div className="space-y-2">
-                <Label>Value Range</Label>
-                <div className="flex items-center space-x-2">
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Min $"
-                      value={minValueFilter}
-                      onChange={(e) => handleMinValueFilter(e.target.value)}
-                      className="text-sm"
-                    />
-                  </div>
-                  <span className="text-muted-foreground">-</span>
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Max $"
-                      value={maxValueFilter}
-                      onChange={(e) => handleMaxValueFilter(e.target.value)}
-                      className="text-sm"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Action buttons */}
-              <div className="flex space-x-2 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={clearAllFilters}
-                  className="flex-1"
-                >
-                  Clear All
-                </Button>
-                <Button onClick={() => setIsOpen(false)} className="flex-1">
-                  Apply Filters
-                </Button>
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
+          {/* Max value */}
+          <div className="space-y-2">
+            <Label htmlFor="max-value">Max Value</Label>
+            <Input
+              id="max-value"
+              placeholder="Max $"
+              value={maxValueFilter}
+              onChange={(e) => handleMaxValueFilter(e.target.value)}
+              className="text-sm"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Active filters display */}
       {activeFiltersCount > 0 && (

@@ -98,7 +98,7 @@ export function TimedLoadingOverlay({
         </div>
 
         {/* Progress indicator */}
-        <div className="relative w-[90vw] max-w-[650px] mt-5">
+        <div className="relative w-[85vw] max-w-[650px] mt-5">
           {/* Percentage display that follows progress */}
           <div
             className="absolute -top-6 text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -141,7 +141,7 @@ export function MinimalTimedLoadingOverlay({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-gray-900">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-sky-100 dark:from-black via-white dark:via-gray-950 to-sky-100 dark:to-black/90">
       <div className="flex items-center space-x-3 p-6 rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700">
         <Loader2 className="w-5 h-5 animate-spin text-sky-500" />
         <span className="text-sm font-medium text-gray-900 dark:text-white">

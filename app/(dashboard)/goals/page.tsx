@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { DashboardFooter } from "@/components/DashboardFooter";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { DataTable } from "./data-table";
-import { columns } from "./columns";
+import { GoalList } from "./goal-list";
 import { GoalPageSkeleton } from "@/components/goals";
 import { FinancialGoal } from "@/lib/types";
 import { EditGoalDialog } from "@/components/goals";
@@ -146,9 +145,8 @@ function GoalsPage() {
         </Button>
       </div>
 
-      {/* Goals Data Table */}
-      <DataTable
-        columns={columns}
+      {/* Goals List */}
+      <GoalList
         data={goals}
         isLoading={isLoading}
         onDelete={handleDeleteGoal}

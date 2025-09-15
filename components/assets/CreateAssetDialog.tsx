@@ -24,6 +24,8 @@ import { getCategoriesByType } from "@/constants";
 import { createAsset } from "@/lib/actions/asset.actions";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
+import { DatePicker } from "@/components/ui/date-picker";
+import { getAssetCategoryIcon } from "@/lib/utils/categoryUtils";
 
 interface CreateAssetDialogProps {
   isOpen: boolean;
@@ -271,11 +273,17 @@ export function CreateAssetDialog({
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {assetCategories.map((category) => (
-                    <SelectItem key={category.name} value={category.name}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
+                  {assetCategories.map((category) => {
+                    const Icon = getAssetCategoryIcon(category.name);
+                    return (
+                      <SelectItem key={category.name} value={category.name}>
+                        <span className="flex items-center gap-2">
+                          {Icon && <Icon className="h-4 w-4" />}
+                          <span>{category.name}</span>
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
               {errors.category && (
@@ -413,13 +421,19 @@ export function CreateAssetDialog({
 
           <div className="space-y-2">
             <Label htmlFor="purchaseDate">Purchase Date</Label>
-            <Input
-              id="purchaseDate"
-              type="date"
-              value={formData.purchaseDate}
-              onChange={(e) =>
-                handleInputChange("purchaseDate", e.target.value)
+            <DatePicker
+              value={
+                formData.purchaseDate
+                  ? new Date(formData.purchaseDate)
+                  : undefined
               }
+              onChange={(date) =>
+                handleInputChange(
+                  "purchaseDate",
+                  date ? date.toISOString().split("T")[0] : ""
+                )
+              }
+              placeholder="Select purchase date"
             />
           </div>
 
@@ -448,7 +462,7 @@ export function CreateAssetDialog({
           </div>
 
           {/* Form Actions */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex flex-col md:flex-row justify-end gap-3 md:pt-4">
             <Button
               type="button"
               variant="outline"

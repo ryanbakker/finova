@@ -25,6 +25,7 @@ import { getCategoriesByType } from "@/constants";
 import { useUser } from "@clerk/nextjs";
 import { createGoal, updateGoal } from "@/lib/actions/goal.actions";
 import { toast } from "@/components/ui/use-toast";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface EditGoalDialogProps {
   goal: FinancialGoal | null;
@@ -385,14 +386,19 @@ export function EditGoalDialog({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="targetDate">Target Date *</Label>
-                <Input
-                  id="targetDate"
-                  type="date"
-                  value={formData.targetDate || ""}
-                  onChange={(e) =>
-                    handleInputChange("targetDate", e.target.value)
+                <DatePicker
+                  value={
+                    formData.targetDate
+                      ? new Date(formData.targetDate)
+                      : undefined
                   }
-                  className={errors.targetDate ? "border-red-500" : ""}
+                  onChange={(date) =>
+                    handleInputChange(
+                      "targetDate",
+                      date ? date.toISOString().split("T")[0] : ""
+                    )
+                  }
+                  placeholder="Select target date"
                 />
                 {errors.targetDate && (
                   <p className="text-sm text-red-500">{errors.targetDate}</p>
@@ -464,7 +470,7 @@ export function EditGoalDialog({
           </div>
 
           {/* Form Actions */}
-          <div className="flex justify-end space-x-2 pt-4">
+          <div className="flex flex-col md:flex-row justify-end gap-3 md:pt-4">
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>

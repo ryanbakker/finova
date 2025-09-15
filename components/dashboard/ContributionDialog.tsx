@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { createAsset } from "@/lib/actions/asset.actions";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, PiggyBank, DollarSign, Calendar } from "lucide-react";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface ContributionDialogProps {
   isOpen: boolean;
@@ -174,12 +175,15 @@ export function ContributionDialog({
               <Calendar className="h-4 w-4" />
               Date *
             </Label>
-            <Input
-              id="date"
-              type="date"
-              value={formData.date}
-              onChange={(e) => handleInputChange("date", e.target.value)}
-              className={errors.date ? "border-red-500" : ""}
+            <DatePicker
+              value={formData.date ? new Date(formData.date) : undefined}
+              onChange={(date) =>
+                handleInputChange(
+                  "date",
+                  date ? date.toISOString().split("T")[0] : ""
+                )
+              }
+              placeholder="Select date"
             />
             {errors.date && (
               <p className="text-sm text-red-500">{errors.date}</p>

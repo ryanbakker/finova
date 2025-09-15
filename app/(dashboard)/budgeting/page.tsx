@@ -15,7 +15,7 @@ import {
   BudgetTable,
   BudgetPageSkeleton,
 } from "@/components/budgeting";
-import { Budget } from "@/lib/types";
+import { Budget, FinancialGoal } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -32,9 +32,13 @@ import {
   getUserBudgets,
   getBudgetStats,
 } from "@/lib/actions/budget.actions";
+import { getGoalsByUserId } from "@/lib/actions/goal.actions";
+import { useUser } from "@clerk/nextjs";
 
 export default function BudgetingPage() {
+  const { user, isLoaded } = useUser();
   const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [goals, setGoals] = useState<FinancialGoal[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<Budget | undefined>();
   const [isLoading, setIsLoading] = useState(true);
@@ -46,17 +50,24 @@ export default function BudgetingPage() {
     warningBudgetCount: 0,
   });
 
-  // Load budgets from database
+  // Load budgets and goals from database
   useEffect(() => {
-    const loadBudgets = async () => {
+    const loadData = async () => {
+      if (!isLoaded || !user?.id) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
         setIsLoading(true);
-        const [budgetsData, statsData] = await Promise.all([
+        const [budgetsData, statsData, goalsData] = await Promise.all([
           getUserBudgets(),
           getBudgetStats(),
+          getGoalsByUserId(user.id),
         ]);
 
         setBudgets(budgetsData);
+        setGoals(goalsData || []);
         setStats({
           totalBudget: statsData.totalBudgetAmount,
           totalSpent: statsData.totalSpent,
@@ -67,7 +78,7 @@ export default function BudgetingPage() {
       } catch (_error) {
         toast({
           title: "Error",
-          description: "Failed to load budgets",
+          description: "Failed to load data",
           variant: "destructive",
         });
       } finally {
@@ -75,8 +86,8 @@ export default function BudgetingPage() {
       }
     };
 
-    loadBudgets();
-  }, []);
+    loadData();
+  }, [isLoaded, user?.id]);
 
   // Calculate category data from budgets
   const categoryData = budgets.reduce((acc, budget) => {
@@ -248,65 +259,33 @@ export default function BudgetingPage() {
         </Button>
       </div>
 
-      {/* Budget Metrics */}
+      {/* Budget Metrics + Quick Insights (unified) */}
       <BudgetMetrics
         totalSpent={stats.totalSpent}
         totalBudget={stats.totalBudget}
+        totalBudgets={stats.totalBudgets}
+        overBudgetCount={stats.overBudgetCount}
+        warningBudgetCount={stats.warningBudgetCount}
       />
-
-      {/* Quick Insights */}
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
-        <Card className="border-l-4 border-l-green-500 bg-gradient-to-r from-green-50 to-white dark:from-green-950/30 dark:to-neutral-900/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">On Track</CardTitle>
-            <Target className="h-5 w-5 text-green-600 dark:text-green-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {insights.onTrack}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Categories within budget
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-amber-500 bg-gradient-to-r from-amber-50 to-white dark:from-amber-950/30 dark:to-neutral-900/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Warning</CardTitle>
-            <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-              {insights.warningBudget}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Categories near limit
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-red-500 bg-gradient-to-r from-red-50 to-white dark:from-red-950/30 dark:to-neutral-900/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Over Budget</CardTitle>
-            <TrendingUp className="h-5 w-5 text-red-600 dark:text-red-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-              {insights.overBudget}
-            </div>
-            <p className="text-xs text-muted-foreground">Categories exceeded</p>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="categories">Categories</TabsTrigger>
-          <TabsTrigger value="charts">Charts & Analysis</TabsTrigger>
-          <TabsTrigger value="goals">Financial Goals</TabsTrigger>
+        <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 gap-2 p-1 h-auto">
+          <TabsTrigger value="overview" className="budget-content-tabs-trigger">
+            Overview
+          </TabsTrigger>
+          <TabsTrigger
+            value="categories"
+            className="budget-content-tabs-trigger"
+          >
+            Categories
+          </TabsTrigger>
+          <TabsTrigger value="charts" className="budget-content-tabs-trigger">
+            Charts & Analysis
+          </TabsTrigger>
+          <TabsTrigger value="goals" className="budget-content-tabs-trigger">
+            Financial Goals
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -355,7 +334,7 @@ export default function BudgetingPage() {
 
         <TabsContent value="goals" className="space-y-6">
           {/* Financial Goals */}
-          <FinancialGoals />
+          <FinancialGoals goals={goals} isLoading={isLoading} />
         </TabsContent>
       </Tabs>
 

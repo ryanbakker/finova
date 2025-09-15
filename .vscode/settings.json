@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "app/globals.css": "tailwindcss"
+  },
+  "css.validate": false,
+  "tailwindCSS.emmetCompletions": true
+}

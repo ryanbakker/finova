@@ -22,9 +22,10 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Asset } from "@/lib/types";
 import { getCategoriesByType } from "@/constants";
-import { updateAsset } from "@/lib/actions/asset.actions";
+import { updateAsset, updateAssetValue } from "@/lib/actions/asset.actions";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, X } from "lucide-react";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface EditAssetDialogProps {
   asset: Asset | null;
@@ -132,12 +133,29 @@ export function EditAssetDialog({
     setIsSubmitting(true);
 
     try {
-      const updateData = {
-        id: asset.id,
-        ...formData,
-      };
+      // Prepare metadata update excluding value-tracked fields
+      const { currentValue, changeAmount, changePercentage, ...rest } =
+        formData;
 
-      await updateAsset(updateData);
+      const metadataUpdate = {
+        id: asset.id,
+        ...rest,
+      } as { id: string } & Partial<typeof rest>;
+
+      // Update non-value fields first
+      if (Object.keys(rest).length > 0) {
+        await updateAsset(metadataUpdate as never);
+      }
+
+      // If current value changed, record it via net worth service to keep history aligned
+      const originalCurrentValue = asset.currentValue ?? asset.value;
+      if (
+        typeof currentValue === "number" &&
+        currentValue >= 0 &&
+        currentValue !== originalCurrentValue
+      ) {
+        await updateAssetValue({ assetId: asset.id, newValue: currentValue });
+      }
 
       toast({
         title: "Success",
@@ -167,24 +185,19 @@ export function EditAssetDialog({
   if (!asset) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) handleClose();
+      }}
+    >
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <DialogTitle>Edit Asset</DialogTitle>
-              <DialogDescription>
-                Update the details for &ldquo;{asset.name}&rdquo;
-              </DialogDescription>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClose}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+          <div>
+            <DialogTitle className="pb-2">Edit Asset</DialogTitle>
+            <DialogDescription>
+              Update the details for &ldquo;{asset.name}&rdquo;
+            </DialogDescription>
           </div>
         </DialogHeader>
 
@@ -399,13 +412,19 @@ export function EditAssetDialog({
             {/* Purchase Date */}
             <div className="space-y-2">
               <Label htmlFor="purchaseDate">Purchase Date</Label>
-              <Input
-                id="purchaseDate"
-                type="date"
-                value={formData.purchaseDate || ""}
-                onChange={(e) =>
-                  handleInputChange("purchaseDate", e.target.value)
+              <DatePicker
+                value={
+                  formData.purchaseDate
+                    ? new Date(formData.purchaseDate)
+                    : undefined
                 }
+                onChange={(date) =>
+                  handleInputChange(
+                    "purchaseDate",
+                    date ? date.toISOString().split("T")[0] : ""
+                  )
+                }
+                placeholder="Select purchase date"
               />
             </div>
 
@@ -435,7 +454,7 @@ export function EditAssetDialog({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-2 pt-4 border-t">
+          <div className="flex flex-col md:flex-row justify-end gap-3">
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>

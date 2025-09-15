@@ -53,7 +53,7 @@ export function WeeklySpendingChart({
       <CardContent className="pl-2 pr-8 mb-2 flex-1 flex flex-col min-h-0 overflow-hidden">
         <div className="flex-1 w-full min-h-[250px] !max-h-[60vh] overflow-hidden">
           <AreaChart
-            className="h-full w-full"
+            className="h-full w-full dark:invert"
             data={dailySpending}
             index="day"
             categories={["amount"]}

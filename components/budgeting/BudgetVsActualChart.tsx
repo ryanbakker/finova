@@ -55,7 +55,7 @@ export function BudgetVsActualChart({
       <CardContent className="flex-1 flex flex-col min-h-0 overflow-hidden">
         <div className="flex-1 w-full min-h-[300px] !max-h-[60vh] overflow-hidden">
           <BarChart
-            className="h-full w-full [&_.recharts-rectangle]:opacity-80 [&_.recharts-xAxis]:text-xs [&_.recharts-xAxis_.recharts-cartesian-axis-tick]:mb-2 [&_.recharts-xAxis]:min-w-full [&_.recharts-xAxis_.recharts-cartesian-axis-tick]:text-center"
+            className="h-full w-full [&_.recharts-rectangle]:opacity-80 [&_.recharts-xAxis]:text-xs [&_.recharts-xAxis_.recharts-cartesian-axis-tick]:mb-2 [&_.recharts-xAxis]:min-w-full [&_.recharts-xAxis_.recharts-cartesian-axis-tick]:text-center dark:invert"
             data={budgetVsActual}
             index="category"
             categories={["budget", "actual"]}

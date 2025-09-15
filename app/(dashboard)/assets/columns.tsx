@@ -21,9 +21,11 @@ import {
   Calendar,
   TrendingUp,
   TrendingDown,
-  DollarSign,
 } from "lucide-react";
-import { getAssetCategoryIcon } from "@/lib/utils/categoryUtils";
+import {
+  getAssetCategoryIcon,
+  getDefaultIcon,
+} from "@/lib/utils/categoryUtils";
 import {
   calculateAssetChange,
   getCurrentAssetValue,
@@ -34,7 +36,7 @@ interface ActionHandlers {
   onView: (asset: Asset) => void;
   onEdit: (asset: Asset) => void;
   onDelete: (asset: Asset) => void;
-  onUpdateValue: (asset: Asset) => void;
+  // consolidated into Edit
 }
 
 // Global event system for actions
@@ -137,10 +139,9 @@ const getChangeBadge = (asset: Asset) => {
   );
 };
 
-// Helper function to get category icon
+// Helper function to get category icon (with fallback)
 const getCategoryIcon = (categoryName: string) => {
-  const IconComponent = getAssetCategoryIcon(categoryName);
-  if (!IconComponent) return null;
+  const IconComponent = getAssetCategoryIcon(categoryName) || getDefaultIcon();
 
   return (
     <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
@@ -333,16 +334,7 @@ export const createColumns = (
               <Eye className="mr-2 h-4 w-4" />
               View Details & History
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.stopPropagation();
-                globalActionHandlers?.onUpdateValue(asset);
-              }}
-              className="cursor-pointer"
-            >
-              <DollarSign className="mr-2 h-4 w-4" />
-              Update Value
-            </DropdownMenuItem>
+
             <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation();

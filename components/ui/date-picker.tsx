@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CalendarIcon } from "lucide-react";
+import { ChevronDownIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -12,6 +12,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
+import { Calendar as CalendarIcon } from "lucide-react";
 
 // Date picker components for single date and date range selection
 interface DatePickerProps {
@@ -37,20 +38,21 @@ export function DatePicker({
         <Button
           variant="outline"
           className={cn(
-            "w-full justify-start text-left font-normal",
+            "w-full justify-between font-normal",
             !value && "text-muted-foreground",
             className
           )}
           disabled={disabled}
         >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? format(value, "PPP") : <span>{placeholder}</span>}
+          {value ? value.toLocaleDateString() : <span>{placeholder}</span>}
+          <ChevronDownIcon className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent className="w-auto overflow-hidden p-0" align="start">
         <Calendar
           mode="single"
           selected={value}
+          captionLayout="dropdown"
           onSelect={(date: Date | undefined) => {
             onChange?.(date);
             setIsOpen(false);
@@ -142,6 +144,9 @@ export function DateRangePicker({
             selected={dateRange}
             onSelect={handleDateSelect}
             initialFocus
+            numberOfMonths={
+              typeof window !== "undefined" && window.innerWidth < 768 ? 1 : 2
+            }
           />
         </PopoverContent>
       </Popover>

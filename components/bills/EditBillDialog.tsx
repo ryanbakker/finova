@@ -26,6 +26,7 @@ import { updateBill } from "@/lib/actions/bill.actions";
 import { Calendar, DollarSign, Edit } from "lucide-react";
 import { getCategoriesByType } from "@/constants";
 import { toast } from "@/components/ui/use-toast";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface EditBillDialogProps {
   bill: Bill | null;
@@ -154,17 +155,16 @@ export function EditBillDialog({
           {/* Due Date */}
           <div className="space-y-2">
             <Label htmlFor="dueDate">Due Date</Label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="dueDate"
-                type="date"
-                value={formData.dueDate || ""}
-                onChange={(e) => handleInputChange("dueDate", e.target.value)}
-                className="pl-10"
-                required
-              />
-            </div>
+            <DatePicker
+              value={formData.dueDate ? new Date(formData.dueDate) : undefined}
+              onChange={(date) =>
+                handleInputChange(
+                  "dueDate",
+                  date ? date.toISOString().split("T")[0] : ""
+                )
+              }
+              placeholder="Select due date"
+            />
           </div>
 
           {/* Category */}

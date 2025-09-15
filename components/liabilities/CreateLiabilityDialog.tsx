@@ -24,16 +24,16 @@ import {
 import { Plus, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { createLiability } from "@/lib/actions/liability.actions";
+import { DatePicker } from "@/components/ui/date-picker";
 
 const LIABILITY_CATEGORIES = [
-  "Credit Card",
-  "Student Loan",
   "Mortgage",
-  "Car Loan",
+  "Vehicle Loan",
+  "Credit Card",
   "Personal Loan",
+  "Education Loan",
   "Business Loan",
-  "Medical Debt",
-  "Tax Debt",
+  "Line of Credit",
   "Other",
 ];
 
@@ -334,11 +334,17 @@ export function CreateLiabilityDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="dueDate">Due Date</Label>
-              <Input
-                id="dueDate"
-                type="date"
-                value={formData.dueDate}
-                onChange={(e) => handleInputChange("dueDate", e.target.value)}
+              <DatePicker
+                value={
+                  formData.dueDate ? new Date(formData.dueDate) : undefined
+                }
+                onChange={(date) =>
+                  handleInputChange(
+                    "dueDate",
+                    date ? date.toISOString().split("T")[0] : ""
+                  )
+                }
+                placeholder="Select due date"
               />
             </div>
 

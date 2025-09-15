@@ -34,6 +34,7 @@ import {
 import { useState, useEffect } from "react";
 import { updateTransaction } from "@/lib/actions/transaction.actions";
 import { toast } from "@/components/ui/use-toast";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface EditTransactionDialogProps {
   transaction: Transaction | null;
@@ -294,14 +295,15 @@ export function EditTransactionDialog({
                 <Calendar className="h-4 w-4" />
                 Date *
               </Label>
-              <Input
-                id="date"
-                type="date"
-                value={formData.date}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, date: e.target.value }))
+              <DatePicker
+                value={formData.date ? new Date(formData.date) : undefined}
+                onChange={(date) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    date: date ? date.toISOString().split("T")[0] : "",
+                  }))
                 }
-                className={errors.date ? "border-red-500" : ""}
+                placeholder="Select date"
               />
               {errors.date && (
                 <p className="text-sm text-red-500">{errors.date}</p>
