@@ -111,7 +111,7 @@ export function TimedLoadingOverlay({
           {/* Custom progress bar */}
           <div className="relative h-[6px] w-full overflow-hidden rounded-full bg-primary/20">
             <div
-              className="h-full w-full flex-1 bg-gradient-to-r from-[#196299] to-[#2AA3FF]"
+              className="h-full w-full flex-1 bg-gradient-to-r from-[#196299] via-teal-500 to-[#2AA3FF]"
               style={{ transform: `translateX(-${100 - progress}%)` }}
             />
           </div>

@@ -64,7 +64,7 @@ function WelcomeHero() {
                   </Button>
                 </Link>
                 <Button
-                  className="group relative overflow-hidden bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white border-0 transition-all duration-300 px-8 py-4 rounded-md font-semibold text-base shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                  className="group relative overflow-hidden bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white border-0 transition-all duration-300 px-8 py-4 rounded-md font-semibold text-base shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 cursor-pointer"
                   size="lg"
                 >
                   <SignUpButton mode="modal">

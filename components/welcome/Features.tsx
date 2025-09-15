@@ -126,7 +126,7 @@ function Features() {
                       className={`p-6 flex flex-col items-start cursor-pointer min-w-full transition-all duration-300 rounded-lg ${
                         isSelected
                           ? "dark:bg-gray-950/30 bg-gray-100 border-2 border-sky-400 dark:border-sky-500 shadow-xl shadow-sky-200/50 dark:shadow-sky-900/30 ring-2 ring-sky-200/50 dark:ring-sky-800/50"
-                          : "bg-transparent border-2 border-transparent hover:border-sky-200 dark:hover:border-sky-700 hover:bg-sky-50/30 dark:hover:bg-sky-950/20"
+                          : "bg-transparent border-2 border-transparent  hover:bg-sky-50/30 dark:hover:bg-sky-950/20"
                       }`}
                     >
                       <div className="flex flex-row items-center gap-2">

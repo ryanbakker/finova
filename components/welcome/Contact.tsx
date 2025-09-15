@@ -33,7 +33,7 @@ function Contact() {
           {/* Report Problems */}
           <FadeInUp delay={400} duration={800}>
             <div className="group">
-              <div className="relative p-8 rounded-3xl shadow-2xl border-2 border-red-300/30 bg-white/95 dark:bg-gray-800/95 hover:shadow-xl transition-all duration-300 hover:scale-105 backdrop-blur-sm">
+              <div className="relative p-8 rounded-3xl shadow-2xl border-2 border-red-300/30 bg-white/95 dark:bg-gray-800/95 hover:shadow-xl hover:shadow-red-500/25 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
                 <div className="text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300">
                     <Bug className="w-8 h-8 text-white" />
@@ -46,11 +46,14 @@ function Contact() {
                     reporting them.
                   </p>
                   <Button
-                    className="w-full bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                    className="w-full bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+                    style={{
+                      transition: "all 0.3s ease, background 0.3s ease",
+                    }}
                     size="lg"
                     onClick={() =>
                       window.open(
-                        "https://github.com/yourusername/finova/issues",
+                        "https://github.com/ryanbakker/finova/issues/new",
                         "_blank"
                       )
                     }
@@ -66,7 +69,7 @@ function Contact() {
           {/* Feature Suggestions */}
           <FadeInUp delay={600} duration={800}>
             <div className="group">
-              <div className="relative p-8 rounded-3xl shadow-2xl border-2 border-emerald-300/30 bg-white/95 dark:bg-gray-800/95 hover:shadow-xl transition-all duration-300 hover:scale-105 backdrop-blur-sm">
+              <div className="relative p-8 rounded-3xl shadow-2xl border-2 border-emerald-300/30 bg-white/95 dark:bg-gray-800/95 hover:shadow-xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
                 <div className="text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300">
                     <Lightbulb className="w-8 h-8 text-white" />
@@ -79,11 +82,14 @@ function Contact() {
                     suggestions!
                   </p>
                   <Button
-                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+                    style={{
+                      transition: "all 0.3s ease, background 0.3s ease",
+                    }}
                     size="lg"
                     onClick={() =>
                       window.open(
-                        "https://github.com/yourusername/finova/discussions",
+                        "https://github.com/ryanbakker/finova/issues/new",
                         "_blank"
                       )
                     }
@@ -99,7 +105,7 @@ function Contact() {
           {/* GitHub Repository */}
           <FadeInUp delay={800} duration={800}>
             <div className="group">
-              <div className="relative p-8 rounded-3xl shadow-2xl border-2 border-slate-300/30 bg-white/95 dark:bg-gray-800/95 hover:shadow-xl transition-all duration-300 hover:scale-105 backdrop-blur-sm">
+              <div className="relative p-8 rounded-3xl shadow-2xl border-2 border-slate-300/30 bg-white/95 dark:bg-gray-800/95 hover:shadow-xl hover:shadow-slate-500/25 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
                 <div className="text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-gradient-to-br from-slate-700 to-gray-900 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300">
                     <Github className="w-8 h-8 text-white" />
@@ -112,11 +118,14 @@ function Contact() {
                     be part of our community.
                   </p>
                   <Button
-                    className="w-full bg-gradient-to-r from-slate-700 to-gray-900 hover:from-slate-800 hover:to-gray-950 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                    className="w-full bg-gradient-to-r from-slate-700 to-gray-900 hover:from-slate-800 hover:to-gray-950 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+                    style={{
+                      transition: "all 0.3s ease, background 0.3s ease",
+                    }}
                     size="lg"
                     onClick={() =>
                       window.open(
-                        "https://github.com/yourusername/finova",
+                        "https://github.com/ryanbakker/finova",
                         "_blank"
                       )
                     }
