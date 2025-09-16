@@ -357,8 +357,8 @@ export function AIReportGenerator({
       {/* Report Generation Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-sky-800" />
+          <CardTitle className="flex items-center gap-2 dashboard-page-card-title">
+            <Sparkles className="h-5 w-5 text-sky-800 hidden md:block" />
             AI Financial Report Generator
           </CardTitle>
           <CardDescription>
@@ -454,7 +454,7 @@ export function AIReportGenerator({
             </Alert>
           )}
 
-          <div className="flex gap-4">
+          <div className="flex flex-col-reverse md:flex-row gap-4">
             <Button
               variant="outline"
               onClick={() => setShowContextForm(!showContextForm)}

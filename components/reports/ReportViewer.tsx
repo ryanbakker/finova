@@ -274,11 +274,11 @@ ${report.content}
           Back
         </Button>
       )}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center gap-4">
           <div>
             <h1
-              className="text-2xl font-bold text-sky-950 dark:text-sky-50 tracking-tight truncate max-w-2xl"
+              className="text-xl md:text-2xl font-bold text-sky-950 dark:text-sky-50 tracking-tight truncate max-w-{100vw} md:max-w-2xl whitespace-normal"
               title={report.title}
             >
               {report.title}
@@ -299,10 +299,9 @@ ${report.content}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-2">
           <Button
             variant="outline"
-            size="sm"
             onClick={handleDownload}
             disabled={isDownloading}
             className="cursor-pointer"
@@ -317,7 +316,6 @@ ${report.content}
           {onDelete && (
             <Button
               variant="outline"
-              size="sm"
               onClick={handleDeleteClick}
               disabled={isDeleting}
               className="cursor-pointer border-rose-300 text-rose-600 hover:bg-rose-50 hover:border-rose-400 hover:text-rose-700"
@@ -357,8 +355,8 @@ ${report.content}
         report.insights?.financialHealthScore && (
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 dashboard-page-card-title">
+                <TrendingUp className="h-5 w-5 hidden md:block" />
                 Financial Health Score
               </CardTitle>
             </CardHeader>
@@ -394,7 +392,7 @@ ${report.content}
             report.insights.keyFindings.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-green-700">
+                  <CardTitle className="flex items-center gap-2 text-emerald-700">
                     <CheckCircle className="h-5 w-5" />
                     Key Findings
                   </CardTitle>
@@ -406,7 +404,7 @@ ${report.content}
                         key={index}
                         className="flex items-start gap-2 text-sm"
                       >
-                        <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <CheckCircle className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
                         <span>{finding}</span>
                       </li>
                     ))}
@@ -419,7 +417,7 @@ ${report.content}
             report.insights.recommendations.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-blue-700">
+                  <CardTitle className="flex items-center gap-2 text-sky-700">
                     <TrendingUp className="h-5 w-5" />
                     Recommendations
                   </CardTitle>
@@ -431,7 +429,7 @@ ${report.content}
                         key={index}
                         className="flex items-start gap-2 text-sm"
                       >
-                        <TrendingUp className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                        <TrendingUp className="h-4 w-4 text-sky-500 mt-0.5 flex-shrink-0" />
                         <span>{rec}</span>
                       </li>
                     ))}
@@ -444,7 +442,7 @@ ${report.content}
             report.insights.riskFactors.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-red-700">
+                  <CardTitle className="flex items-center gap-2 text-rose-700">
                     <AlertTriangle className="h-5 w-5" />
                     Risk Factors
                   </CardTitle>
@@ -456,7 +454,7 @@ ${report.content}
                         key={index}
                         className="flex items-start gap-2 text-sm"
                       >
-                        <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                        <AlertTriangle className="h-4 w-4 text-rose-500 mt-0.5 flex-shrink-0" />
                         <span>{risk}</span>
                       </li>
                     ))}
@@ -471,8 +469,10 @@ ${report.content}
       {report.status === "completed" && (
         <Card>
           <CardHeader>
-            <CardTitle>Detailed Analysis</CardTitle>
-            <CardDescription>
+            <CardTitle className="dashboard-page-card-title">
+              Detailed Analysis
+            </CardTitle>
+            <CardDescription className="text-muted-foreground text-sm">
               Comprehensive AI-generated financial analysis and insights
             </CardDescription>
           </CardHeader>

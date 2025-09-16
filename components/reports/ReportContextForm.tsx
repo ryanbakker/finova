@@ -173,8 +173,8 @@ export function ReportContextForm({
     <Card className="bg-neutral-50 dark:bg-neutral-950">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 bg-sky-50 dark:bg-gray-900 rounded-lg p-3 w-full">
-            <Lightbulb className="h-4 w-4 text-sky-800 dark:text-gray-300" />
+          <div className="flex items-center gap-2 md:gap-1 bg-sky-50 dark:bg-gray-900 rounded-lg p-3 w-full">
+            <Lightbulb className="h-8 w-8 md:h-4 md:w-4 text-sky-800 dark:text-gray-300" />
             <p className="text-sm text-sky-800 dark:text-gray-300">
               Provide context to get more personalized and relevant financial
               insights.
@@ -203,7 +203,7 @@ export function ReportContextForm({
                   <div className="font-medium capitalize">
                     {presetName.replace("_", " ")}
                   </div>
-                  <div className="text-xs opacity-70">
+                  <div className="text-xs opacity-70 max-w-full whitespace-normal">
                     {getPresetDescription(presetName)}
                   </div>
                 </div>
@@ -214,13 +214,12 @@ export function ReportContextForm({
           <div className="flex gap-2">
             <Button
               variant="outline"
-              size="sm"
               onClick={clearContext}
-              className="text-xs cursor-pointer"
+              className="text-xs cursor-pointer w-full md:w-auto"
             >
               Clear All
             </Button>
-            <div className="text-xs text-gray-500 flex items-center">
+            <div className="text-xs text-gray-500 items-center hidden md:flex">
               Or customize manually below
             </div>
           </div>

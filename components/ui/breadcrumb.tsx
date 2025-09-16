@@ -139,8 +139,18 @@ const DynamicBreadcrumb = React.forwardRef<
     const breadcrumbs = [{ label: "Dashboard", href: "/" }];
 
     let currentPath = "";
-    segments.forEach((segment) => {
+    segments.forEach((segment, index) => {
       currentPath += `/${segment}`;
+
+      // Skip the last segment if we're on a reports detail page (reports/[reportId])
+      if (
+        segments[0] === "reports" &&
+        segments.length === 2 &&
+        index === segments.length - 1
+      ) {
+        return;
+      }
+
       const label = segment.charAt(0).toUpperCase() + segment.slice(1);
       breadcrumbs.push({ label, href: currentPath });
     });

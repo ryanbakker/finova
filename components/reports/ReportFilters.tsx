@@ -262,22 +262,22 @@ export function ReportFilters({
   return (
     <div className="space-y-4">
       {/* Filter Controls Row */}
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center flex-1">
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between w-full md:w-auto">
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center flex-1 w-full md:w-auto">
           {/* Search Input */}
-          <div className="relative flex-1 max-w-sm">
+          <div className="relative flex-1 md:max-w-sm w-full">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder="Search reports..."
               value={filters.title}
               onChange={(e) => handleFilterChange("title", e.target.value)}
-              className="pl-10"
+              className="pl-10 w-full"
               disabled={isLoading}
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col md:flex-row md:items-center gap-2 w-full md:w-auto">
           {/* Bulk Delete Button */}
           {hasSelectedReports && onBulkDelete && (
             <Button
