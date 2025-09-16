@@ -35,14 +35,33 @@ export async function getCurrentNetWorth(userId: string): Promise<{
   assets: number;
   liabilities: number;
 }> {
+  const startTime = Date.now();
+
   try {
+    console.log(`[NETWORTH_SERVICE] Starting get current net worth`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
     await connectToDB();
+
+    console.log(`[NETWORTH_SERVICE] Database connected`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
 
     // Get current values from assets and liabilities
     const [assets, liabilities] = await Promise.all([
       Asset.find({ userId }).lean(),
       Liability.find({ userId }).lean(),
     ]);
+
+    console.log(`[NETWORTH_SERVICE] Assets and liabilities fetched`, {
+      userId,
+      assetsCount: assets.length,
+      liabilitiesCount: liabilities.length,
+      timestamp: new Date().toISOString(),
+    });
 
     const totalAssets = assets.reduce(
       (sum, asset) => sum + asset.currentValue,
@@ -54,13 +73,31 @@ export async function getCurrentNetWorth(userId: string): Promise<{
     );
     const netWorth = totalAssets - totalLiabilities;
 
+    const responseTime = Date.now() - startTime;
+    console.log(`[NETWORTH_SERVICE] Current net worth calculated`, {
+      userId,
+      netWorth,
+      totalAssets,
+      totalLiabilities,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
+
     return {
       netWorth,
       assets: totalAssets,
       liabilities: totalLiabilities,
     };
-  } catch (_error) {
-    throw _error;
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(`[NETWORTH_SERVICE] Error getting current net worth`, {
+      userId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
+    throw error;
   }
 }
 
@@ -71,17 +108,45 @@ export async function getMonthlyNetWorthHistory(
   userId: string,
   months: number = 12
 ): Promise<NetWorthData> {
+  const startTime = Date.now();
+
   try {
+    console.log(`[NETWORTH_SERVICE] Starting get monthly net worth history`, {
+      userId,
+      months,
+      timestamp: new Date().toISOString(),
+    });
+
     await connectToDB();
+
+    console.log(`[NETWORTH_SERVICE] Database connected`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
 
     // Get current net worth
     const current = await getCurrentNetWorth(userId);
+
+    console.log(`[NETWORTH_SERVICE] Current net worth fetched`, {
+      userId,
+      currentNetWorth: current.netWorth,
+      currentAssets: current.assets,
+      currentLiabilities: current.liabilities,
+      timestamp: new Date().toISOString(),
+    });
 
     // Get monthly summaries (get most recent months, then sort chronologically)
     const monthlySummaries = await MonthlyNetWorthSummary.find({ userId })
       .sort({ year: -1, month: -1 })
       .limit(months)
       .lean({ virtuals: true });
+
+    console.log(`[NETWORTH_SERVICE] Monthly summaries fetched`, {
+      userId,
+      summariesCount: monthlySummaries.length,
+      requestedMonths: months,
+      timestamp: new Date().toISOString(),
+    });
 
     // Format monthly history with abbreviated months and proper ordering
     const monthlyHistory = monthlySummaries
@@ -120,14 +185,37 @@ export async function getMonthlyNetWorthHistory(
         return a.monthNumber - b.monthNumber;
       });
 
+    const responseTime = Date.now() - startTime;
+    console.log(`[NETWORTH_SERVICE] Monthly net worth history completed`, {
+      userId,
+      currentNetWorth: current.netWorth,
+      currentAssets: current.assets,
+      currentLiabilities: current.liabilities,
+      monthlyHistoryCount: monthlyHistory.length,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
+
     return {
       currentNetWorth: current.netWorth,
       currentAssets: current.assets,
       currentLiabilities: current.liabilities,
       monthlyHistory,
     };
-  } catch (_error) {
-    throw _error;
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(
+      `[NETWORTH_SERVICE] Error getting monthly net worth history`,
+      {
+        userId,
+        months,
+        error: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+        responseTime: `${responseTime}ms`,
+        timestamp: new Date().toISOString(),
+      }
+    );
+    throw error;
   }
 }
 
@@ -138,10 +226,26 @@ export async function updateItemValue(
   userId: string,
   data: ValueUpdateData
 ): Promise<{ success: boolean; message: string }> {
+  const startTime = Date.now();
+
   try {
+    console.log(`[NETWORTH_SERVICE] Starting update item value`, {
+      userId,
+      itemId: data.itemId,
+      itemType: data.itemType,
+      newValue: data.newValue,
+      timestamp: new Date().toISOString(),
+    });
+
     await connectToDB();
 
     const { itemId, itemType, newValue, timestamp = new Date() } = data;
+
+    console.log(`[NETWORTH_SERVICE] Database connected`, {
+      userId,
+      itemId,
+      timestamp: new Date().toISOString(),
+    });
 
     // Create new value history entry
     const valueHistoryEntry = new ValueHistory({
@@ -154,10 +258,29 @@ export async function updateItemValue(
 
     await valueHistoryEntry.save();
 
+    console.log(`[NETWORTH_SERVICE] Value history entry created`, {
+      userId,
+      itemId,
+      itemType,
+      newValue,
+      timestamp: new Date().toISOString(),
+    });
+
     // Update the current value in the asset/liability document
     if (itemType === "ASSET") {
+      console.log(`[NETWORTH_SERVICE] Updating asset value`, {
+        userId,
+        itemId,
+        timestamp: new Date().toISOString(),
+      });
+
       const asset = await Asset.findOne({ _id: itemId, userId });
       if (!asset) {
+        console.error(`[NETWORTH_SERVICE] Asset not found`, {
+          userId,
+          itemId,
+          timestamp: new Date().toISOString(),
+        });
         throw new Error("Asset not found");
       }
 
@@ -165,6 +288,16 @@ export async function updateItemValue(
       const changeAmount = newValue - previousValue;
       const changePercentage =
         previousValue > 0 ? (changeAmount / previousValue) * 100 : 0;
+
+      console.log(`[NETWORTH_SERVICE] Asset value change calculated`, {
+        userId,
+        itemId,
+        previousValue,
+        newValue,
+        changeAmount,
+        changePercentage: changePercentage.toFixed(2),
+        timestamp: new Date().toISOString(),
+      });
 
       await Asset.updateOne(
         { _id: itemId },
@@ -177,9 +310,26 @@ export async function updateItemValue(
           },
         }
       );
+
+      console.log(`[NETWORTH_SERVICE] Asset value updated successfully`, {
+        userId,
+        itemId,
+        timestamp: new Date().toISOString(),
+      });
     } else if (itemType === "LIABILITY") {
+      console.log(`[NETWORTH_SERVICE] Updating liability value`, {
+        userId,
+        itemId,
+        timestamp: new Date().toISOString(),
+      });
+
       const liability = await Liability.findOne({ _id: itemId, userId });
       if (!liability) {
+        console.error(`[NETWORTH_SERVICE] Liability not found`, {
+          userId,
+          itemId,
+          timestamp: new Date().toISOString(),
+        });
         throw new Error("Liability not found");
       }
 
@@ -187,6 +337,16 @@ export async function updateItemValue(
       const changeAmount = newValue - previousValue;
       const changePercentage =
         previousValue > 0 ? (changeAmount / previousValue) * 100 : 0;
+
+      console.log(`[NETWORTH_SERVICE] Liability value change calculated`, {
+        userId,
+        itemId,
+        previousValue,
+        newValue,
+        changeAmount,
+        changePercentage: changePercentage.toFixed(2),
+        timestamp: new Date().toISOString(),
+      });
 
       await Liability.updateOne(
         { _id: itemId },
@@ -199,14 +359,49 @@ export async function updateItemValue(
           },
         }
       );
+
+      console.log(`[NETWORTH_SERVICE] Liability value updated successfully`, {
+        userId,
+        itemId,
+        timestamp: new Date().toISOString(),
+      });
     }
+
+    console.log(
+      `[NETWORTH_SERVICE] Triggering current month average recalculation`,
+      {
+        userId,
+        itemId,
+        timestamp: new Date().toISOString(),
+      }
+    );
 
     // Trigger recalculation of current month's average (optional - for real-time updates)
     await recalculateCurrentMonthAverage(userId);
 
+    const responseTime = Date.now() - startTime;
+    console.log(`[NETWORTH_SERVICE] Item value update completed successfully`, {
+      userId,
+      itemId,
+      itemType,
+      newValue,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
+
     return { success: true, message: "Value updated successfully" };
-  } catch (_error) {
-    return { success: false, message: `Failed to update value: ${_error}` };
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(`[NETWORTH_SERVICE] Error updating item value`, {
+      userId,
+      itemId: data.itemId,
+      itemType: data.itemType,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
+    return { success: false, message: `Failed to update value: ${error}` };
   }
 }
 
@@ -216,19 +411,49 @@ export async function updateItemValue(
 export async function recalculateCurrentMonthAverage(
   userId: string
 ): Promise<void> {
+  const startTime = Date.now();
+
   try {
+    console.log(
+      `[NETWORTH_SERVICE] Starting current month average recalculation`,
+      {
+        userId,
+        timestamp: new Date().toISOString(),
+      }
+    );
+
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth() + 1;
+
+    console.log(`[NETWORTH_SERVICE] Current month context`, {
+      userId,
+      year,
+      month,
+      timestamp: new Date().toISOString(),
+    });
 
     // Get all value history entries for the current month
     const startOfMonth = new Date(year, month - 1, 1);
     const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
 
+    console.log(`[NETWORTH_SERVICE] Querying value history for current month`, {
+      userId,
+      startOfMonth: startOfMonth.toISOString(),
+      endOfMonth: endOfMonth.toISOString(),
+      timestamp: new Date().toISOString(),
+    });
+
     const valueHistory = await ValueHistory.find({
       userId,
       timestamp: { $gte: startOfMonth, $lte: endOfMonth },
     }).lean();
+
+    console.log(`[NETWORTH_SERVICE] Value history entries fetched`, {
+      userId,
+      entriesCount: valueHistory.length,
+      timestamp: new Date().toISOString(),
+    });
 
     // Group by itemId and calculate averages
     const itemAverages = new Map<string, number>();
@@ -269,6 +494,17 @@ export async function recalculateCurrentMonthAverage(
 
     const averageNetWorth = totalAssets - totalLiabilities;
 
+    console.log(`[NETWORTH_SERVICE] Calculated monthly averages`, {
+      userId,
+      year,
+      month,
+      averageNetWorth,
+      totalAssets,
+      totalLiabilities,
+      itemAveragesCount: itemAverages.size,
+      timestamp: new Date().toISOString(),
+    });
+
     // Update or create monthly summary
     await MonthlyNetWorthSummary.findOneAndUpdate(
       { userId, year, month },
@@ -282,7 +518,30 @@ export async function recalculateCurrentMonthAverage(
       },
       { upsert: true, new: true }
     );
-  } catch (_error) {
+
+    const responseTime = Date.now() - startTime;
+    console.log(
+      `[NETWORTH_SERVICE] Current month average recalculation completed`,
+      {
+        userId,
+        year,
+        month,
+        responseTime: `${responseTime}ms`,
+        timestamp: new Date().toISOString(),
+      }
+    );
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(
+      `[NETWORTH_SERVICE] Error in current month average recalculation`,
+      {
+        userId,
+        error: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+        responseTime: `${responseTime}ms`,
+        timestamp: new Date().toISOString(),
+      }
+    );
     // Don't throw - this is a background operation
   }
 }
@@ -295,19 +554,60 @@ export async function generateMonthlySummary(
   year: number,
   month: number
 ): Promise<void> {
+  const startTime = Date.now();
+
   try {
+    console.log(`[NETWORTH_SERVICE] Starting generate monthly summary`, {
+      userId,
+      year,
+      month,
+      timestamp: new Date().toISOString(),
+    });
+
     await connectToDB();
 
     // Get all value history entries for the specified month
     const startOfMonth = new Date(year, month - 1, 1);
     const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
 
+    console.log(
+      `[NETWORTH_SERVICE] Querying value history for specified month`,
+      {
+        userId,
+        year,
+        month,
+        startOfMonth: startOfMonth.toISOString(),
+        endOfMonth: endOfMonth.toISOString(),
+        timestamp: new Date().toISOString(),
+      }
+    );
+
     const valueHistory = await ValueHistory.find({
       userId,
       timestamp: { $gte: startOfMonth, $lte: endOfMonth },
     }).lean();
 
+    console.log(
+      `[NETWORTH_SERVICE] Value history entries fetched for specified month`,
+      {
+        userId,
+        year,
+        month,
+        entriesCount: valueHistory.length,
+        timestamp: new Date().toISOString(),
+      }
+    );
+
     if (valueHistory.length === 0) {
+      console.log(
+        `[NETWORTH_SERVICE] No value history entries found, skipping summary generation`,
+        {
+          userId,
+          year,
+          month,
+          timestamp: new Date().toISOString(),
+        }
+      );
       return;
     }
 
@@ -350,6 +650,17 @@ export async function generateMonthlySummary(
 
     const averageNetWorth = totalAssets - totalLiabilities;
 
+    console.log(`[NETWORTH_SERVICE] Calculated monthly summary averages`, {
+      userId,
+      year,
+      month,
+      averageNetWorth,
+      totalAssets,
+      totalLiabilities,
+      itemAveragesCount: itemAverages.size,
+      timestamp: new Date().toISOString(),
+    });
+
     // Save monthly summary
     await MonthlyNetWorthSummary.findOneAndUpdate(
       { userId, year, month },
@@ -363,11 +674,26 @@ export async function generateMonthlySummary(
       },
       { upsert: true, new: true }
     );
-  } catch (_error) {
-    console.error(
-      `Error generating monthly summary for ${year}-${month}:`,
-      _error
-    );
-    throw _error;
+
+    const responseTime = Date.now() - startTime;
+    console.log(`[NETWORTH_SERVICE] Monthly summary generation completed`, {
+      userId,
+      year,
+      month,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(`[NETWORTH_SERVICE] Error generating monthly summary`, {
+      userId,
+      year,
+      month,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
+    throw error;
   }
 }

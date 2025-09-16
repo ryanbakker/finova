@@ -4,7 +4,7 @@ export interface IReport extends Document {
   userId: string;
   title: string;
   content: string;
-  type: "financial_summary";
+  type: "summary" | "detailed" | "custom";
   status: "generating" | "completed" | "failed";
   metadata: {
     generatedAt: Date;
@@ -20,6 +20,15 @@ export interface IReport extends Document {
     keyFindings: string[];
     recommendations: string[];
     riskFactors: string[];
+    financialHealthScore?: number;
+    trends?: {
+      spending: string;
+      income: string;
+      savings: string;
+      netWorth: string;
+    };
+    opportunities?: string[];
+    warnings?: string[];
   };
   createdAt: Date;
   updatedAt: Date;
@@ -43,9 +52,9 @@ const reportSchema = new Schema<IReport>(
     },
     type: {
       type: String,
-      enum: ["financial_summary"],
+      enum: ["summary", "detailed", "custom"],
       required: true,
-      default: "financial_summary",
+      default: "summary",
     },
     status: {
       type: String,
@@ -94,6 +103,35 @@ const reportSchema = new Schema<IReport>(
         },
       ],
       riskFactors: [
+        {
+          type: String,
+        },
+      ],
+      financialHealthScore: {
+        type: Number,
+        min: 0,
+        max: 100,
+      },
+      trends: {
+        spending: {
+          type: String,
+        },
+        income: {
+          type: String,
+        },
+        savings: {
+          type: String,
+        },
+        netWorth: {
+          type: String,
+        },
+      },
+      opportunities: [
+        {
+          type: String,
+        },
+      ],
+      warnings: [
         {
           type: String,
         },

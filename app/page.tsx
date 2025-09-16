@@ -198,7 +198,7 @@ function DashboardContent({
       title: "Generate Report",
       description: "Use AI to create a report to get financial insights",
       icon: FileText,
-      action: () => router.push("/report"),
+      action: () => router.push("/reports"),
       disabled: false,
     },
   ];

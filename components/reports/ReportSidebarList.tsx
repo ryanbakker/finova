@@ -70,10 +70,11 @@ export function ReportSidebarList({
   };
 
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    });
+    const dateObj = new Date(date);
+    const day = dateObj.getDate().toString().padStart(2, "0");
+    const month = (dateObj.getMonth() + 1).toString().padStart(2, "0");
+    const year = dateObj.getFullYear().toString().slice(-2);
+    return `${day}/${month}/${year}`;
   };
 
   const getReportTypeLabel = (type: string) => {
@@ -97,7 +98,10 @@ export function ReportSidebarList({
     return (
       <>
         <SidebarMenuSubButton asChild>
-          <button onClick={onGenerateReport} className="text-xs font-medium">
+          <button
+            onClick={onGenerateReport}
+            className="text-xs font-medium cursor-pointer"
+          >
             Generate Report
             <Plus className="w-[5px] h-[5px] scale-90" />
           </button>
@@ -116,7 +120,10 @@ export function ReportSidebarList({
     return (
       <>
         <SidebarMenuSubButton asChild>
-          <button onClick={onGenerateReport} className="text-xs font-medium">
+          <button
+            onClick={onGenerateReport}
+            className="text-xs font-medium cursor-pointer"
+          >
             Generate Report
             <Plus className="w-[5px] h-[5px] scale-90" />
           </button>
@@ -157,7 +164,7 @@ export function ReportSidebarList({
         <SidebarMenuSubButton asChild>
           <button
             onClick={fetchReports}
-            className="text-xs text-muted-foreground hover:text-foreground"
+            className="text-xs text-muted-foreground hover:text-foreground cursor-pointer"
             disabled={isLoading}
           >
             <RefreshCw
@@ -175,7 +182,10 @@ export function ReportSidebarList({
       ) : (
         reports.map((report) => (
           <SidebarMenuSubButton key={report.id} asChild>
-            <Link href={`/report/${report.id}`} className="text-xs">
+            <Link
+              href={`/report/${report.id}`}
+              className="text-xs cursor-pointer"
+            >
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   {getStatusIcon(report.status)}

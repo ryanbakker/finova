@@ -42,14 +42,44 @@ export interface ReportResponse {
 export async function createReport(
   params: CreateReportParams
 ): Promise<ReportResponse> {
+  const startTime = Date.now();
+  let userId: string | null = null;
+
   try {
-    const { userId } = await auth();
+    console.log(`[REPORT_ACTIONS] Starting report creation`, {
+      params,
+      timestamp: new Date().toISOString(),
+    });
+
+    const { userId: authUserId } = await auth();
+    userId = authUserId;
 
     if (!userId) {
+      console.warn(`[REPORT_ACTIONS] Unauthorized access attempt`, {
+        timestamp: new Date().toISOString(),
+      });
       throw new Error("Unauthorized: User not authenticated");
     }
 
+    console.log(`[REPORT_ACTIONS] User authenticated`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
     await connectToDB();
+
+    console.log(`[REPORT_ACTIONS] Database connected`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
+    console.log(`[REPORT_ACTIONS] Creating report record`, {
+      userId,
+      type: params.type,
+      hasCustomPrompt: !!params.customPrompt,
+      hasDataRange: !!params.dataRange,
+      timestamp: new Date().toISOString(),
+    });
 
     const report = new Report({
       userId,
@@ -67,11 +97,38 @@ export async function createReport(
 
     await report.save();
 
+    console.log(`[REPORT_ACTIONS] Report record created`, {
+      userId,
+      reportId: report._id,
+      type: params.type,
+      timestamp: new Date().toISOString(),
+    });
+
+    console.log(`[REPORT_ACTIONS] Triggering background report generation`, {
+      userId,
+      reportId: report._id,
+      timestamp: new Date().toISOString(),
+    });
+
     // Trigger report generation in background
     generateReportInBackground(report._id.toString(), userId, params);
 
     revalidatePath("/");
     revalidatePath("/reports");
+
+    console.log(`[REPORT_ACTIONS] Cache revalidated`, {
+      userId,
+      reportId: report._id,
+      timestamp: new Date().toISOString(),
+    });
+
+    const responseTime = Date.now() - startTime;
+    console.log(`[REPORT_ACTIONS] Report creation completed successfully`, {
+      userId,
+      reportId: report._id,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
 
     return {
       id: report._id.toString(),
@@ -83,7 +140,15 @@ export async function createReport(
       updatedAt: report.updatedAt,
       metadata: report.metadata,
     };
-  } catch (_error) {
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(`[REPORT_ACTIONS] Error creating report`, {
+      userId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
     throw new Error("Failed to create report");
   }
 }
@@ -93,19 +158,51 @@ export async function getReportsByUserId(
   offset: number = 0,
   type?: string
 ): Promise<{ reports: ReportResponse[]; total: number; hasMore: boolean }> {
+  const startTime = Date.now();
+  let userId: string | null = null;
+
   try {
-    const { userId } = await auth();
+    console.log(`[REPORT_ACTIONS] Starting get reports by user ID`, {
+      limit,
+      offset,
+      type,
+      timestamp: new Date().toISOString(),
+    });
+
+    const { userId: authUserId } = await auth();
+    userId = authUserId;
 
     if (!userId) {
+      console.warn(`[REPORT_ACTIONS] Unauthorized access attempt`, {
+        timestamp: new Date().toISOString(),
+      });
       throw new Error("Unauthorized: User not authenticated");
     }
 
+    console.log(`[REPORT_ACTIONS] User authenticated`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
     await connectToDB();
+
+    console.log(`[REPORT_ACTIONS] Database connected`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
 
     const query: { userId: string; type?: string } = { userId };
     if (type) {
       query.type = type;
     }
+
+    console.log(`[REPORT_ACTIONS] Querying reports`, {
+      userId,
+      query,
+      limit,
+      offset,
+      timestamp: new Date().toISOString(),
+    });
 
     const reports = await Report.find(query)
       .sort({ createdAt: -1 })
@@ -114,6 +211,20 @@ export async function getReportsByUserId(
       .lean();
 
     const total = await Report.countDocuments(query);
+
+    console.log(`[REPORT_ACTIONS] Reports queried successfully`, {
+      userId,
+      reportsCount: reports.length,
+      total,
+      hasMore: offset + limit < total,
+      timestamp: new Date().toISOString(),
+    });
+
+    console.log(`[REPORT_ACTIONS] Formatting reports`, {
+      userId,
+      reportsCount: reports.length,
+      timestamp: new Date().toISOString(),
+    });
 
     const formattedReports: ReportResponse[] = reports.map((report) => ({
       id: String(report._id),
@@ -127,12 +238,33 @@ export async function getReportsByUserId(
       metadata: report.metadata,
     }));
 
+    const responseTime = Date.now() - startTime;
+    console.log(
+      `[REPORT_ACTIONS] Get reports by user ID completed successfully`,
+      {
+        userId,
+        reportsCount: formattedReports.length,
+        total,
+        hasMore: offset + limit < total,
+        responseTime: `${responseTime}ms`,
+        timestamp: new Date().toISOString(),
+      }
+    );
+
     return {
       reports: formattedReports,
       total,
       hasMore: offset + limit < total,
     };
-  } catch (_error) {
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(`[REPORT_ACTIONS] Error fetching reports by user ID`, {
+      userId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
     throw new Error("Failed to fetch reports");
   }
 }
@@ -140,14 +272,45 @@ export async function getReportsByUserId(
 export async function getReportById(
   reportId: string
 ): Promise<ReportResponse | null> {
+  const startTime = Date.now();
+  let userId: string | null = null;
+
   try {
-    const { userId } = await auth();
+    console.log(`[REPORT_ACTIONS] Starting get report by ID`, {
+      reportId,
+      timestamp: new Date().toISOString(),
+    });
+
+    const { userId: authUserId } = await auth();
+    userId = authUserId;
 
     if (!userId) {
+      console.warn(`[REPORT_ACTIONS] Unauthorized access attempt`, {
+        reportId,
+        timestamp: new Date().toISOString(),
+      });
       throw new Error("Unauthorized: User not authenticated");
     }
 
+    console.log(`[REPORT_ACTIONS] User authenticated`, {
+      userId,
+      reportId,
+      timestamp: new Date().toISOString(),
+    });
+
     await connectToDB();
+
+    console.log(`[REPORT_ACTIONS] Database connected`, {
+      userId,
+      reportId,
+      timestamp: new Date().toISOString(),
+    });
+
+    console.log(`[REPORT_ACTIONS] Querying report by ID`, {
+      userId,
+      reportId,
+      timestamp: new Date().toISOString(),
+    });
 
     const report = await Report.findOne({
       _id: reportId,
@@ -155,8 +318,28 @@ export async function getReportById(
     }).lean();
 
     if (!report) {
+      console.warn(`[REPORT_ACTIONS] Report not found`, {
+        userId,
+        reportId,
+        timestamp: new Date().toISOString(),
+      });
       return null;
     }
+
+    console.log(`[REPORT_ACTIONS] Report found`, {
+      userId,
+      reportId,
+      status: report.status,
+      timestamp: new Date().toISOString(),
+    });
+
+    const responseTime = Date.now() - startTime;
+    console.log(`[REPORT_ACTIONS] Get report by ID completed successfully`, {
+      userId,
+      reportId,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
 
     return {
       id: String((report as unknown as IReport)._id),
@@ -169,20 +352,60 @@ export async function getReportById(
       insights: (report as unknown as IReport).insights,
       metadata: (report as unknown as IReport).metadata,
     };
-  } catch (_error) {
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(`[REPORT_ACTIONS] Error fetching report by ID`, {
+      userId,
+      reportId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
     throw new Error("Failed to fetch report");
   }
 }
 
 export async function deleteReport(reportId: string): Promise<void> {
+  const startTime = Date.now();
+  let userId: string | null = null;
+
   try {
-    const { userId } = await auth();
+    console.log(`[REPORT_ACTIONS] Starting delete report`, {
+      reportId,
+      timestamp: new Date().toISOString(),
+    });
+
+    const { userId: authUserId } = await auth();
+    userId = authUserId;
 
     if (!userId) {
+      console.warn(`[REPORT_ACTIONS] Unauthorized access attempt`, {
+        reportId,
+        timestamp: new Date().toISOString(),
+      });
       throw new Error("Unauthorized: User not authenticated");
     }
 
+    console.log(`[REPORT_ACTIONS] User authenticated`, {
+      userId,
+      reportId,
+      timestamp: new Date().toISOString(),
+    });
+
     await connectToDB();
+
+    console.log(`[REPORT_ACTIONS] Database connected`, {
+      userId,
+      reportId,
+      timestamp: new Date().toISOString(),
+    });
+
+    console.log(`[REPORT_ACTIONS] Deleting report`, {
+      userId,
+      reportId,
+      timestamp: new Date().toISOString(),
+    });
 
     const report = await Report.findOneAndDelete({
       _id: reportId,
@@ -190,12 +413,46 @@ export async function deleteReport(reportId: string): Promise<void> {
     });
 
     if (!report) {
+      console.warn(`[REPORT_ACTIONS] Report not found for deletion`, {
+        userId,
+        reportId,
+        timestamp: new Date().toISOString(),
+      });
       throw new Error("Report not found");
     }
 
+    console.log(`[REPORT_ACTIONS] Report deleted successfully`, {
+      userId,
+      reportId,
+      timestamp: new Date().toISOString(),
+    });
+
     revalidatePath("/");
     revalidatePath("/reports");
-  } catch (_error) {
+
+    console.log(`[REPORT_ACTIONS] Cache revalidated after deletion`, {
+      userId,
+      reportId,
+      timestamp: new Date().toISOString(),
+    });
+
+    const responseTime = Date.now() - startTime;
+    console.log(`[REPORT_ACTIONS] Delete report completed successfully`, {
+      userId,
+      reportId,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(`[REPORT_ACTIONS] Error deleting report`, {
+      userId,
+      reportId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
     throw new Error("Failed to delete report");
   }
 }
@@ -206,14 +463,40 @@ async function generateReportInBackground(
   userId: string,
   params: CreateReportParams
 ) {
+  const startTime = Date.now();
+
   try {
+    console.log(`[REPORT_ACTIONS] Starting background report generation`, {
+      reportId,
+      userId,
+      type: params.type,
+      hasCustomPrompt: !!params.customPrompt,
+      timestamp: new Date().toISOString(),
+    });
+
     // Import here to avoid circular dependencies
     const { getDashboardData } = await import(
       "@/lib/services/dashboard.service"
     );
 
+    console.log(`[REPORT_ACTIONS] Dashboard service imported`, {
+      reportId,
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
     // Fetch financial data
     const dashboardData = await getDashboardData();
+
+    console.log(
+      `[REPORT_ACTIONS] Dashboard data fetched for background generation`,
+      {
+        reportId,
+        userId,
+        dataKeys: Object.keys(dashboardData),
+        timestamp: new Date().toISOString(),
+      }
+    );
 
     // Generate basic report content
     const reportContent = generateBasicReport(
@@ -221,6 +504,14 @@ async function generateReportInBackground(
       params.type,
       params.customPrompt
     );
+
+    console.log(`[REPORT_ACTIONS] Basic report content generated`, {
+      reportId,
+      userId,
+      contentLength: reportContent.content.length,
+      hasInsights: !!reportContent.insights,
+      timestamp: new Date().toISOString(),
+    });
 
     // Update report with generated content
     await Report.findByIdAndUpdate(reportId, {
@@ -231,14 +522,62 @@ async function generateReportInBackground(
       "metadata.tokensUsed": 0,
     });
 
+    console.log(`[REPORT_ACTIONS] Report updated with generated content`, {
+      reportId,
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
     revalidatePath("/");
     revalidatePath("/reports");
-  } catch (_error) {
-    // Update report status to failed
-    await Report.findByIdAndUpdate(reportId, {
-      status: "failed",
-      content: "Failed to generate report. Please try again.",
+
+    const responseTime = Date.now() - startTime;
+    console.log(
+      `[REPORT_ACTIONS] Background report generation completed successfully`,
+      {
+        reportId,
+        userId,
+        responseTime: `${responseTime}ms`,
+        timestamp: new Date().toISOString(),
+      }
+    );
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(`[REPORT_ACTIONS] Error in background report generation`, {
+      reportId,
+      userId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
     });
+
+    // Update report status to failed
+    try {
+      await Report.findByIdAndUpdate(reportId, {
+        status: "failed",
+        content: "Failed to generate report. Please try again.",
+      });
+
+      console.log(`[REPORT_ACTIONS] Report status updated to failed`, {
+        reportId,
+        userId,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (updateError) {
+      console.error(
+        `[REPORT_ACTIONS] Failed to update report status to failed`,
+        {
+          reportId,
+          userId,
+          updateError:
+            updateError instanceof Error
+              ? updateError.message
+              : "Unknown error",
+          timestamp: new Date().toISOString(),
+        }
+      );
+    }
 
     revalidatePath("/");
     revalidatePath("/reports");

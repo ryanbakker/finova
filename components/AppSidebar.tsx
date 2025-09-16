@@ -15,6 +15,7 @@ import {
   FileChartColumn,
   Plus,
 } from "lucide-react";
+import React, { useState, useEffect } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -43,6 +44,82 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
+import { useReports } from "@/hooks/use-reports";
+import { onReportsRefresh } from "@/lib/utils/reports-events";
+
+// Reports List Component
+function ReportsList() {
+  const { reports, loading, refetch } = useReports(5);
+  const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  // Listen for global report refresh events
+  useEffect(() => {
+    const cleanup = onReportsRefresh(() => {
+      refetch();
+    });
+    return cleanup;
+  }, [refetch]);
+
+  const handleNavClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
+  const formatReportDate = (date: Date) => {
+    const reportDate = new Date(date);
+    return reportDate.toLocaleDateString([], {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-1">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-8 px-3 rounded-md flex items-center gap-3"
+          >
+            <Skeleton className="w-6 h-6 rounded" />
+            <Skeleton className="h-3 flex-1" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (reports.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-1">
+      {reports.map((report) => {
+        const isActive = pathname === `/reports/${report.id}`;
+        return (
+          <SidebarMenuSubItem key={report.id}>
+            <SidebarMenuSubButton asChild>
+              <Link
+                href={`/reports/${report.id}`}
+                className={`text-xs ${
+                  isActive ? "bg-accent text-accent-foreground" : ""
+                }`}
+                onClick={handleNavClick}
+              >
+                {formatReportDate(report.createdAt)}
+              </Link>
+            </SidebarMenuSubButton>
+          </SidebarMenuSubItem>
+        );
+      })}
+    </div>
+  );
+}
 
 // Sidebar Theme Toggle Component
 function SidebarThemeToggle() {
@@ -78,6 +155,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { openUserProfile, signOut } = useClerk();
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
+  const [isReportsOpen, setIsReportsOpen] = useState(pathname === "/reports");
 
   const handleNavClick = () => {
     if (isMobile) {
@@ -94,6 +172,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       await signOut();
     } catch (_error) {}
   };
+
+  const handleReportsClick = () => {
+    setIsReportsOpen(!isReportsOpen);
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
+  // Update dropdown state when pathname changes
+  useEffect(() => {
+    setIsReportsOpen(pathname === "/reports");
+  }, [pathname]);
 
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
@@ -202,60 +292,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 ))}
           </SidebarMenu>
           <SidebarMenu>
-            <Collapsible className="group/collapsible" id="reports-collapsible">
+            <Collapsible
+              className="group/collapsible"
+              id="reports-collapsible"
+              open={isReportsOpen}
+              onOpenChange={setIsReportsOpen}
+            >
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild className="cursor-pointer mb-0.5">
                   <SidebarMenuButton
                     asChild
-                    className="h-9 px-3 rounded-md transition-colors"
+                    className={`h-9 px-3 rounded-md transition-colors ${
+                      pathname === "/reports"
+                        ? "button-blue-bg"
+                        : "hover:bg-accent hover:text-accent-foreground"
+                    }`}
                   >
-                    <button className="flex items-center gap-3">
+                    <Link
+                      href="/reports"
+                      className="flex items-center gap-3"
+                      onClick={handleReportsClick}
+                    >
                       <FileChartColumn className="w-6 h-6" />
                       <span className="text-sm font-medium">Reports</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                    </button>
+                    </Link>
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <SidebarMenuSub>
-                    <SidebarMenuSubItem>
-                      <SidebarMenuSubButton asChild>
-                        <Link
-                          href="/"
-                          className="text-xs font-medium"
-                          onClick={handleNavClick}
-                        >
-                          <Plus className="w-[5px] h-[5px] scale-90" />
-                          Generate Report
-                        </Link>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-
-                    <SidebarMenuSubItem>
-                      <SidebarMenuSubButton
-                        asChild
-                        className="text-neutral-500"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Spinner size="sm" className="text-neutral-500" />
-                          <span className="text-xs">Generating</span>
-
-                          {/* Add toast notification when report is generating, and then when it is completed or errored out */}
-                        </div>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-
-                    <SidebarMenuSubItem>
-                      <SidebarMenuSubButton asChild>
-                        <Link
-                          href="/"
-                          className="text-xs"
-                          onClick={handleNavClick}
-                        >
-                          2024-06-31
-                        </Link>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
+                    <ReportsList />
                   </SidebarMenuSub>
                 </CollapsibleContent>
               </SidebarMenuItem>

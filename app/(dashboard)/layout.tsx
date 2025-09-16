@@ -12,8 +12,8 @@ import FinovaLogo from "@/components/FinovaLogo";
 
 export const metadata: Metadata = {
   title: {
-    default: "Dashboard - Finova",
-    template: "%s | Finova",
+    default: "Dashboard",
+    template: "%s",
   },
   description:
     "Manage your personal finances with Finova's comprehensive dashboard. Track assets, monitor budgets, set financial goals, and gain insights into your spending patterns.",
@@ -93,9 +93,9 @@ export default function DashboardLayout({
         <AppSidebar />
 
         {/* BG transparent V */}
-        <SidebarInset className="flex-1 shadow-none! w-full min-w-0 dark:lg:bg-[#171717] lg:bg-[#fafafa]">
+        <SidebarInset className="flex-1 shadow-none! w-full min-w-0 dark:lg:bg-[#171717] lg:bg-[#fafafa] overflow-auto">
           <header className="rounded-b-xl">
-            <div className="flex h-16 shrink-0 items-center gap-2 px-4 rounded-xl mb-1 dark:bg-[#0a0a0a] bg-white shadow-sm mt-1">
+            <div className="flex h-16 shrink-0 items-center gap-2 px-4 rounded-b-xl md:rounded-xl mb-1 dark:md:bg-[#0a0a0a] md:bg-white shadow-sm mt-1">
               <div className="mx-auto max-w-7xl flex items-center gap-2 justify-between w-full">
                 <SidebarTrigger className="-ml-1 text-sky-600 cursor-pointer hover:text-sky-800" />
                 <Separator
@@ -109,7 +109,7 @@ export default function DashboardLayout({
               </div>
             </div>
           </header>
-          <main className="flex-1 overflow-auto w-full md:rounded-xl mt-1 md:pt-4 dark:bg-[#0a0a0a] lg:bg-white lg:shadow-sm">
+          <main className="flex-1 w-full rounded-xl mt-2 dark:md:bg-[#0a0a0a] md:bg-white md:shadow-sm">
             <SubPageTimedLoadingPage message="Loading your data...">
               {children}
             </SubPageTimedLoadingPage>

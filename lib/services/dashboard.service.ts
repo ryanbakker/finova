@@ -99,14 +99,35 @@ export interface DashboardData {
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
+  const startTime = Date.now();
+  let userId: string | null = null;
+
   try {
-    const { userId } = await auth();
+    console.log(`[DASHBOARD_SERVICE] Starting dashboard data fetch`, {
+      timestamp: new Date().toISOString(),
+    });
+
+    const { userId: authUserId } = await auth();
+    userId = authUserId;
 
     if (!userId) {
+      console.warn(`[DASHBOARD_SERVICE] Unauthorized access attempt`, {
+        timestamp: new Date().toISOString(),
+      });
       throw new Error("Unauthorized: User not authenticated");
     }
 
+    console.log(`[DASHBOARD_SERVICE] User authenticated`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
     await connectToDB();
+
+    console.log(`[DASHBOARD_SERVICE] Database connected`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
 
     // Helper function to serialize data for client components
     const serializeData = (data: unknown): unknown => {
@@ -135,6 +156,11 @@ export async function getDashboardData(): Promise<DashboardData> {
       return data;
     };
 
+    console.log(`[DASHBOARD_SERVICE] Loading database models`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
     // Use dynamic imports only for the models, not the actions
     const [
       { Transaction },
@@ -152,6 +178,16 @@ export async function getDashboardData(): Promise<DashboardData> {
       import("@/database/models/liability.model"),
     ]);
 
+    console.log(`[DASHBOARD_SERVICE] Database models loaded`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
+    console.log(`[DASHBOARD_SERVICE] Fetching data from database`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
     // Fetch all data in parallel using direct database queries
     const [transactions, assets, budgets, bills, goals] = await Promise.all([
       Transaction.find({ userId }).sort({ date: -1, createdAt: -1 }).lean(),
@@ -162,6 +198,21 @@ export async function getDashboardData(): Promise<DashboardData> {
       Liability.find({ userId }).lean(),
     ]);
 
+    console.log(`[DASHBOARD_SERVICE] Database queries completed`, {
+      userId,
+      transactionsCount: transactions.length,
+      assetsCount: assets.length,
+      budgetsCount: budgets.length,
+      billsCount: bills.length,
+      goalsCount: goals.length,
+      timestamp: new Date().toISOString(),
+    });
+
+    console.log(`[DASHBOARD_SERVICE] Serializing data`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
     // Serialize all fetched data
     const serializedTransactions = serializeData(transactions);
     const serializedAssets = serializeData(assets);
@@ -170,10 +221,27 @@ export async function getDashboardData(): Promise<DashboardData> {
     const serializedGoals = serializeData(goals);
     // Note: serializedLiabilities is not used in this function
 
+    console.log(`[DASHBOARD_SERVICE] Data serialization completed`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
+    console.log(`[DASHBOARD_SERVICE] Calculating current month metrics`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
     // Calculate current month metrics
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
+
+    console.log(`[DASHBOARD_SERVICE] Current month context`, {
+      userId,
+      currentMonth,
+      currentYear,
+      timestamp: new Date().toISOString(),
+    });
 
     const currentMonthTransactions = (
       serializedTransactions as Array<Record<string, unknown>>
@@ -183,6 +251,15 @@ export async function getDashboardData(): Promise<DashboardData> {
         transactionDate.getMonth() === currentMonth &&
         transactionDate.getFullYear() === currentYear
       );
+    });
+
+    console.log(`[DASHBOARD_SERVICE] Current month transactions filtered`, {
+      userId,
+      totalTransactions: (
+        serializedTransactions as Array<Record<string, unknown>>
+      ).length,
+      currentMonthTransactions: currentMonthTransactions.length,
+      timestamp: new Date().toISOString(),
     });
 
     const currentMonthIncome = currentMonthTransactions
@@ -199,11 +276,33 @@ export async function getDashboardData(): Promise<DashboardData> {
       .filter((t) => t.type === "transfer")
       .reduce((sum: number, t) => sum + ((t.amount as number) || 0), 0);
 
+    console.log(`[DASHBOARD_SERVICE] Current month calculations completed`, {
+      userId,
+      currentMonthIncome,
+      currentMonthExpenses,
+      currentMonthSavingsContributions,
+      incomeTransactions: currentMonthTransactions.filter(
+        (t) => t.type === "income"
+      ).length,
+      expenseTransactions: currentMonthTransactions.filter(
+        (t) => t.type === "expense"
+      ).length,
+      transferTransactions: currentMonthTransactions.filter(
+        (t) => t.type === "transfer"
+      ).length,
+      timestamp: new Date().toISOString(),
+    });
+
     // Net income (remaining) is income minus expenses minus savings contributions
     const currentMonthRemaining =
       currentMonthIncome -
       currentMonthExpenses -
       currentMonthSavingsContributions;
+
+    console.log(`[DASHBOARD_SERVICE] Fetching net worth data`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
 
     // Calculate net worth using the new service
     const {
@@ -211,6 +310,14 @@ export async function getDashboardData(): Promise<DashboardData> {
       assets: totalAssets,
       liabilities: totalLiabilities,
     } = await getCurrentNetWorth(userId);
+
+    console.log(`[DASHBOARD_SERVICE] Net worth data fetched`, {
+      userId,
+      netWorth,
+      totalAssets,
+      totalLiabilities,
+      timestamp: new Date().toISOString(),
+    });
 
     // Get recent transactions (last 5)
     const recentTransactions = (
@@ -409,7 +516,12 @@ export async function getDashboardData(): Promise<DashboardData> {
       totalLiabilities,
     };
 
-    return {
+    console.log(`[DASHBOARD_SERVICE] Building final dashboard data object`, {
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
+    const dashboardData = {
       metrics,
       recentTransactions,
       upcomingBills,
@@ -438,7 +550,29 @@ export async function getDashboardData(): Promise<DashboardData> {
       }>,
       netWorthHistory,
     };
+
+    const responseTime = Date.now() - startTime;
+    console.log(
+      `[DASHBOARD_SERVICE] Dashboard data fetch completed successfully`,
+      {
+        userId,
+        responseTime: `${responseTime}ms`,
+        dataSize: JSON.stringify(dashboardData).length,
+        metrics: dashboardData.metrics,
+        timestamp: new Date().toISOString(),
+      }
+    );
+
+    return dashboardData;
   } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(`[DASHBOARD_SERVICE] Error fetching dashboard data`, {
+      userId,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      responseTime: `${responseTime}ms`,
+      timestamp: new Date().toISOString(),
+    });
     throw error;
   }
 }

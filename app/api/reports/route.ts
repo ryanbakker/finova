@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { connectToDB } from "@/database/db";
 import { Report } from "@/database/models/report.model";
 import { getDashboardData } from "@/lib/services/dashboard.service";
+import { aiService } from "@/lib/services/ai.service";
 
 // GET /api/reports - Get all reports for the user
 export async function GET(request: NextRequest) {
@@ -79,8 +80,21 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
 
+    // Transform MongoDB documents to match frontend interface
+    const transformedReports = reports.map((report) => ({
+      id: report._id,
+      title: report.title,
+      content: report.content,
+      type: report.type,
+      status: report.status,
+      createdAt: report.createdAt,
+      updatedAt: report.updatedAt,
+      insights: report.insights,
+      metadata: report.metadata,
+    }));
+
     return NextResponse.json({
-      reports,
+      reports: transformedReports,
       total,
       hasMore: offset + limit < total,
     });
@@ -134,13 +148,14 @@ export async function POST(request: NextRequest) {
     });
 
     const body = await request.json();
-    const { type, customPrompt, dataRange } = body;
+    const { type, customPrompt, dataRange, context } = body;
 
     console.log(`[API] POST /api/reports - Request body received`, {
       userId,
       type,
       hasCustomPrompt: !!customPrompt,
-      dataRange,
+      hasDataRange: !!dataRange,
+      hasContext: !!context,
       timestamp: new Date().toISOString(),
     });
 
@@ -176,18 +191,40 @@ export async function POST(request: NextRequest) {
 
     await connectToDB();
 
-    // Create initial report record
+    // Generate AI-powered title first
+    console.log(`[API] POST /api/reports - Generating AI title`, {
+      userId,
+      type,
+      timestamp: new Date().toISOString(),
+    });
+
+    const dashboardData = await getDashboardData();
+    const aiTitle = await aiService.generateReportTitle(
+      dashboardData,
+      type as "summary" | "detailed" | "custom",
+      customPrompt,
+      context
+    );
+
+    console.log(`[API] POST /api/reports - AI title generated`, {
+      userId,
+      type,
+      generatedTitle: aiTitle,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Create initial report record with AI-generated title
     const report = new Report({
       userId,
-      title: "Generating report...",
-      content: "",
+      title: aiTitle,
+      content: "Report is being generated. Please wait...",
       type,
       status: "generating",
       metadata: {
         generatedAt: new Date(),
         dataRange,
         prompt: customPrompt,
-        model: "basic",
+        model: "gemini-2.5-pro",
       },
     });
 
@@ -200,8 +237,15 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
 
-    // Generate report in background
-    generateReportAsync(report._id.toString(), userId, type, customPrompt);
+    // Generate report in background with AI
+    generateAIReportAsync(
+      report._id.toString(),
+      userId,
+      type,
+      customPrompt,
+      dataRange,
+      context
+    );
 
     const responseTime = Date.now() - startTime;
     console.log(`[API] POST /api/reports - Report generation initiated`, {
@@ -236,63 +280,78 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Background function to generate report
-async function generateReportAsync(
+// Background function to generate AI-powered report
+async function generateAIReportAsync(
   reportId: string,
   userId: string,
   type: string,
-  customPrompt?: string
+  customPrompt?: string,
+  dataRange?: { startDate: Date; endDate: Date },
+  context?: any
 ) {
   const startTime = Date.now();
 
   try {
-    console.log(`[REPORT_GENERATION] Starting report generation`, {
+    console.log(`[AI_REPORT_GENERATION] Starting AI report generation`, {
       reportId,
       userId,
       type,
       hasCustomPrompt: !!customPrompt,
+      hasDataRange: !!dataRange,
+      hasContext: !!context,
       timestamp: new Date().toISOString(),
     });
 
-    // Fetch financial data
+    // Fetch comprehensive financial data
     const dashboardData = await getDashboardData();
 
-    console.log(`[REPORT_GENERATION] Dashboard data fetched`, {
+    console.log(`[AI_REPORT_GENERATION] Dashboard data fetched`, {
       reportId,
       userId,
       dataKeys: Object.keys(dashboardData),
       timestamp: new Date().toISOString(),
     });
 
-    // Generate basic report content
-    const reportContent = generateBasicReport(
+    // Generate AI-powered report content
+    const reportContent = await aiService.generateFinancialReport(
       dashboardData,
-      type,
-      customPrompt
+      type as "summary" | "detailed" | "custom",
+      customPrompt,
+      dataRange,
+      context
     );
 
-    console.log(`[REPORT_GENERATION] Report content generated`, {
+    console.log(`[AI_REPORT_GENERATION] AI report content generated`, {
       reportId,
       userId,
       contentLength: reportContent.content.length,
       insightsCount: reportContent.insights
         ? Object.keys(reportContent.insights).length
         : 0,
+      healthScore: reportContent.insights?.financialHealthScore,
       timestamp: new Date().toISOString(),
     });
 
-    // Update report with generated content
+    // Update report with AI-generated content (keep the original AI-generated title)
     await Report.findByIdAndUpdate(reportId, {
-      title: reportContent.title,
       content: reportContent.content,
       status: "completed",
-      insights: reportContent.insights,
-      "metadata.tokensUsed": 0,
+      insights: {
+        keyFindings: reportContent.insights.keyFindings,
+        recommendations: reportContent.insights.recommendations,
+        riskFactors: reportContent.insights.riskFactors,
+        financialHealthScore: reportContent.insights.financialHealthScore,
+        trends: reportContent.insights.trends,
+        opportunities: reportContent.insights.opportunities,
+        warnings: reportContent.insights.warnings,
+      },
+      "metadata.tokensUsed": 0, // We'll add token counting later
+      "metadata.model": "gemini-2.5-pro",
     });
 
     const responseTime = Date.now() - startTime;
     console.log(
-      `[REPORT_GENERATION] Report generation completed successfully`,
+      `[AI_REPORT_GENERATION] AI report generation completed successfully`,
       {
         reportId,
         userId,
@@ -302,7 +361,7 @@ async function generateReportAsync(
     );
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    console.error(`[REPORT_GENERATION] Report generation failed`, {
+    console.error(`[AI_REPORT_GENERATION] AI report generation failed`, {
       reportId,
       userId,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -315,13 +374,13 @@ async function generateReportAsync(
     try {
       await Report.findByIdAndUpdate(reportId, {
         status: "failed",
-        content: "Failed to generate report. Please try again.",
+        content: "Failed to generate AI-powered report. Please try again.",
         "metadata.error":
           error instanceof Error ? error.message : "Unknown error",
       });
     } catch (updateError) {
       console.error(
-        `[REPORT_GENERATION] Failed to update report status to failed`,
+        `[AI_REPORT_GENERATION] Failed to update report status to failed`,
         {
           reportId,
           userId,
