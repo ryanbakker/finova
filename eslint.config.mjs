@@ -16,7 +16,11 @@ const eslintConfig = [
       // Allow unused variables prefixed with underscore
       "@typescript-eslint/no-unused-vars": [
         "warn",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }
+        { 
+          argsIgnorePattern: "^_", 
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_"
+        }
       ],
       // Relax exhaustive-deps warnings for complex effect deps
       "react-hooks/exhaustive-deps": "warn",

@@ -1379,7 +1379,7 @@ Generate ONLY the title text, nothing else. No quotes, no additional text, just 
   private generateFallbackTitle(
     financialData: PreparedFinancialData,
     reportType: string,
-    dashboardData?: DashboardData
+    _dashboardData?: DashboardData
   ): string {
     const netWorth = financialData.netWorth || 0;
     const savingsRate = financialData.savingsRate || 0;
