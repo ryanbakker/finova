@@ -1,12 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  DollarSign,
-  TrendingUp,
-  Target,
-  PieChart,
-  AlertTriangle,
-} from "lucide-react";
+import { DollarSign, TrendingUp, Target, AlertTriangle } from "lucide-react";
 
 interface BudgetMetricsProps {
   totalSpent: number;
@@ -26,7 +20,7 @@ export function BudgetMetrics({
   warningBudgetCount = 0,
 }: BudgetMetricsProps) {
   const remainingBudget = totalBudget - totalSpent;
-  const utilizationPercentage = Math.round((totalSpent / totalBudget) * 100);
+  const _utilizationPercentage = Math.round((totalSpent / totalBudget) * 100);
   const onTrackCount = Math.max(
     totalBudgets - overBudgetCount - warningBudgetCount,
     0

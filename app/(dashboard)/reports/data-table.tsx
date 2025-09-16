@@ -18,6 +18,7 @@ import {
   RowSelectionState,
   ColumnFiltersState,
   getFilteredRowModel,
+  Table as ReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
@@ -72,7 +73,7 @@ interface DataTableProps<TData extends Report, TValue> {
   isLoading?: boolean;
   sortStates?: Record<string, "asc" | "desc" | false>;
   onRefresh?: () => void;
-  onTableReady?: (table: any) => void;
+  onTableReady?: (table: ReactTable<TData>) => void;
 }
 
 export function DataTable<TData extends Report, TValue>({
@@ -140,56 +141,36 @@ export function DataTable<TData extends Report, TValue>({
   );
 
   const handleDownloadReport = useCallback((report: Report) => {
-    // Create a formatted report content
+    // Create a formatted report content matching ReportViewer format
     const formatDate = (dateString: string): string => {
       const date = new Date(dateString);
       const day = date.getDate().toString().padStart(2, "0");
       const month = (date.getMonth() + 1).toString().padStart(2, "0");
       const year = date.getFullYear().toString().slice(-2);
-      return `${day}/${month}/${year}`;
+      const hours = date.getHours();
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+      const ampm = hours >= 12 ? "PM" : "AM";
+      const displayHours = hours % 12 || 12;
+      return `${day}/${month}/${year} ${displayHours}:${minutes} ${ampm}`;
     };
 
-    const formattedContent = `
-${report.title}
-Generated: ${formatDate(report.createdAt)}
-Type: ${report.type}
+    const content = `
+# ${report.title}
+
+Generated on: ${formatDate(report.metadata.generatedAt)}
+Model: ${report.metadata.model || "AI Generated"}
 
 ${report.content}
+    `.trim();
 
-${
-  report.insights
-    ? `
-INSIGHTS:
-${
-  report.insights.keyFindings?.length
-    ? `Key Findings: ${report.insights.keyFindings.join(", ")}`
-    : ""
-}
-${
-  report.insights.recommendations?.length
-    ? `Recommendations: ${report.insights.recommendations.join(", ")}`
-    : ""
-}
-${
-  report.insights.financialHealthScore
-    ? `Financial Health Score: ${report.insights.financialHealthScore}/100`
-    : ""
-}
-`
-    : ""
-}
-`;
-
-    // Create a blob with the formatted report content
-    const blob = new Blob([formattedContent], { type: "text/plain" });
+    // Create a blob with the markdown content
+    const blob = new Blob([content], { type: "text/markdown" });
     const url = window.URL.createObjectURL(blob);
 
     // Create a temporary anchor element and trigger download
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${report.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}_${
-      new Date(report.createdAt).toISOString().split("T")[0]
-    }.txt`;
+    a.download = `${report.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.md`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -351,8 +332,10 @@ ${
             return 0;
         }
 
-        if (aValue < bValue) return direction === "asc" ? -1 : 1;
-        if (aValue > bValue) return direction === "asc" ? 1 : -1;
+        if ((aValue as string | number) < (bValue as string | number))
+          return direction === "asc" ? -1 : 1;
+        if ((aValue as string | number) > (bValue as string | number))
+          return direction === "asc" ? 1 : -1;
         return 0;
       });
     });

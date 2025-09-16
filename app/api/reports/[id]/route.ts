@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { connectToDB } from "@/database/db";
-import { Report } from "@/database/models/report.model";
+import { Report, IReport } from "@/database/models/report.model";
 
 // GET /api/reports/[id] - Get a specific report by ID
 export async function GET(
@@ -58,10 +58,10 @@ export async function GET(
 
     await connectToDB();
 
-    const report = await Report.findOne({
+    const report = (await Report.findOne({
       _id: id,
       userId,
-    }).lean();
+    }).lean()) as IReport | null;
 
     if (!report) {
       console.warn(`[API] GET /api/reports/[id] - Report not found`, {

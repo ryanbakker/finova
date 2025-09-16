@@ -13,7 +13,6 @@ import {
   FileText,
   Sparkles,
   TrendingUp,
-  AlertTriangle,
   CheckCircle,
   Clock,
   Loader2,
@@ -154,7 +153,7 @@ const getStatusIcon = (status: string) => {
 };
 
 // Helper function to get status badge
-const getStatusBadge = (status: string) => {
+const _getStatusBadge = (status: string) => {
   switch (status) {
     case "generating":
       return (
@@ -344,7 +343,7 @@ export const createColumns = (
         return "text-red-600 dark:text-red-400";
       };
 
-      const getHealthScoreLabel = (score: number) => {
+      const _getHealthScoreLabel = (score: number) => {
         if (score >= 80) return "Excellent";
         if (score >= 60) return "Good";
         if (score >= 40) return "Fair";

@@ -16,14 +16,14 @@ export function ReportRowSkeleton({
     <tr className="dashboard-table-row">
       {/* Select checkbox */}
       <td className="dashboard-table-cell">
-        <Skeleton className="h-4 w-4 rounded" />
+        <Skeleton className="h-4 w-4 rounded ml-4" />
       </td>
 
       {/* Title */}
       <td className="dashboard-table-cell dashboard-table-cell--padded">
         <div className="min-w-0 flex-1">
-          <Skeleton className="h-4 w-3/4 mb-1" />
-          <Skeleton className="h-3 w-1/2" />
+          <Skeleton className="h-4 w-3/4 mb-1 ml-1" />
+          <Skeleton className="h-3 w-1/2 ml-1" />
         </div>
       </td>
 
@@ -58,11 +58,10 @@ export function ReportRowSkeleton({
       {/* Health Score */}
       {showHealthScore && (
         <td className="dashboard-table-cell dashboard-table-cell--padded">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-center space-x-2">
             <Skeleton className="h-4 w-4 rounded" />
             <div className="flex flex-col">
-              <Skeleton className="h-4 w-8 mb-1" />
-              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-4 w-8 mr-2" />
             </div>
           </div>
         </td>
@@ -70,12 +69,12 @@ export function ReportRowSkeleton({
 
       {/* Download */}
       <td className="dashboard-table-cell">
-        <Skeleton className="h-8 w-8 rounded" />
+        <Skeleton className="h-8 w-8 rounded mx-auto" />
       </td>
 
       {/* Delete */}
       <td className="dashboard-table-cell">
-        <Skeleton className="h-8 w-8 rounded" />
+        <Skeleton className="h-8 w-8 rounded mx-auto" />
       </td>
     </tr>
   );

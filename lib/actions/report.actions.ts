@@ -312,10 +312,10 @@ export async function getReportById(
       timestamp: new Date().toISOString(),
     });
 
-    const report = await Report.findOne({
+    const report = (await Report.findOne({
       _id: reportId,
       userId,
-    }).lean();
+    }).lean()) as IReport | null;
 
     if (!report) {
       console.warn(`[REPORT_ACTIONS] Report not found`, {

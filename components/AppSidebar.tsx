@@ -13,7 +13,6 @@ import {
   CreditCard,
   Target,
   FileChartColumn,
-  Plus,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import {
@@ -32,7 +31,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { menuItems } from "@/constants";

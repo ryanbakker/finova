@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,8 +60,14 @@ export function BillFilters({ table }: BillFiltersProps) {
   const selectedRecurring = searchParams.get("recurring") || "all";
 
   // Parse From/To dates
-  const fromDate = dateFrom ? new Date(dateFrom) : undefined;
-  const toDate = dateTo ? new Date(dateTo) : undefined;
+  const fromDate = useMemo(
+    () => (dateFrom ? new Date(dateFrom) : undefined),
+    [dateFrom]
+  );
+  const toDate = useMemo(
+    () => (dateTo ? new Date(dateTo) : undefined),
+    [dateTo]
+  );
 
   const [localFilters, setLocalFilters] = useState<FiltersState>({
     name: nameFilter,

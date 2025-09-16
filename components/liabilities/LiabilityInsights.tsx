@@ -18,7 +18,6 @@ import {
   TrendingDown,
   AlertTriangle,
   Target,
-  Clock,
   DollarSign,
   TrendingUp,
   CreditCard,
@@ -39,7 +38,7 @@ interface LiabilityInsightsProps {
   isLoading?: boolean;
 }
 
-interface LiabilityAmountChartData {
+interface _LiabilityAmountChartData {
   date: string;
   amount: number;
   quarter: number;

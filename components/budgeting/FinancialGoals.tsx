@@ -9,7 +9,6 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Target,
-  TrendingUp,
   Home,
   Car,
   Plane,

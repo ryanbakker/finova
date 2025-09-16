@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { Table as ReactTable } from "@tanstack/react-table";
 import {
   Card,
   CardContent,
@@ -75,10 +76,10 @@ function ReportsList({
   onRefresh: () => void;
 }) {
   const [tableReady, setTableReady] = useState(false);
-  const [tableRef, setTableRef] = useState<any>(null);
+  const [tableRef, setTableRef] = useState<ReactTable<Report> | null>(null);
   const columns = createColumns({}, () => {});
 
-  const handleTableReady = useCallback((table: any) => {
+  const handleTableReady = useCallback((table: ReactTable<Report>) => {
     setTableRef(table);
     setTableReady(true);
   }, []);
@@ -596,7 +597,7 @@ export default function ReportsPage() {
       <Card className="dashboard-table-container">
         <CardHeader>
           <CardTitle className="dashboard-page-card-title">
-            Recent Reports
+            Financial Reports
           </CardTitle>
           <CardDescription className="dashboard-page-card-description">
             Your AI-generated financial reports and analysis

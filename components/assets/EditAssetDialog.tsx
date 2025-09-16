@@ -24,7 +24,7 @@ import { Asset } from "@/lib/types";
 import { getCategoriesByType } from "@/constants";
 import { updateAsset, updateAssetValue } from "@/lib/actions/asset.actions";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { DatePicker } from "@/components/ui/date-picker";
 
 interface EditAssetDialogProps {
@@ -134,8 +134,12 @@ export function EditAssetDialog({
 
     try {
       // Prepare metadata update excluding value-tracked fields
-      const { currentValue, changeAmount, changePercentage, ...rest } =
-        formData;
+      const {
+        currentValue,
+        changeAmount: _changeAmount,
+        changePercentage: _changePercentage,
+        ...rest
+      } = formData;
 
       const metadataUpdate = {
         id: asset.id,

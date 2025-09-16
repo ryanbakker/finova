@@ -1,13 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import {
   X,
   Plus,
@@ -45,7 +38,7 @@ interface ReportContextFormProps {
 export function ReportContextForm({
   context,
   onChange,
-  onClose,
+  onClose: _onClose,
 }: ReportContextFormProps) {
   const [localContext, setLocalContext] = useState<ReportContext>(context);
   const [selectedPreset, setSelectedPreset] = useState<string>("");
@@ -261,7 +254,14 @@ export function ReportContextForm({
               <Select
                 value={localContext.userProfile?.lifeStage || ""}
                 onValueChange={(value) =>
-                  updateUserProfile({ lifeStage: value as any })
+                  updateUserProfile({
+                    lifeStage: value as
+                      | "student"
+                      | "young_professional"
+                      | "established"
+                      | "pre_retirement"
+                      | "retired",
+                  })
                 }
               >
                 <SelectTrigger className="cursor-pointer">
@@ -286,7 +286,9 @@ export function ReportContextForm({
               <Select
                 value={localContext.userProfile?.incomeLevel || ""}
                 onValueChange={(value) =>
-                  updateUserProfile({ incomeLevel: value as any })
+                  updateUserProfile({
+                    incomeLevel: value as "low" | "medium" | "high",
+                  })
                 }
               >
                 <SelectTrigger className="cursor-pointer">
@@ -305,7 +307,12 @@ export function ReportContextForm({
               <Select
                 value={localContext.userProfile?.riskTolerance || ""}
                 onValueChange={(value) =>
-                  updateUserProfile({ riskTolerance: value as any })
+                  updateUserProfile({
+                    riskTolerance: value as
+                      | "conservative"
+                      | "moderate"
+                      | "aggressive",
+                  })
                 }
               >
                 <SelectTrigger className="cursor-pointer">
@@ -406,7 +413,12 @@ export function ReportContextForm({
               <Select
                 value={localContext.reportFocus?.timeHorizon || ""}
                 onValueChange={(value) =>
-                  updateReportFocus({ timeHorizon: value as any })
+                  updateReportFocus({
+                    timeHorizon: value as
+                      | "short_term"
+                      | "medium_term"
+                      | "long_term",
+                  })
                 }
               >
                 <SelectTrigger className="cursor-pointer">
@@ -431,7 +443,9 @@ export function ReportContextForm({
               <Select
                 value={localContext.reportFocus?.urgency || ""}
                 onValueChange={(value) =>
-                  updateReportFocus({ urgency: value as any })
+                  updateReportFocus({
+                    urgency: value as "low" | "medium" | "high",
+                  })
                 }
               >
                 <SelectTrigger className="cursor-pointer">
@@ -539,7 +553,9 @@ export function ReportContextForm({
               <Select
                 value={localContext.marketContext?.interestRates || ""}
                 onValueChange={(value) =>
-                  updateMarketContext({ interestRates: value as any })
+                  updateMarketContext({
+                    interestRates: value as "low" | "medium" | "high",
+                  })
                 }
               >
                 <SelectTrigger className="cursor-pointer">
@@ -562,7 +578,9 @@ export function ReportContextForm({
               <Select
                 value={localContext.marketContext?.marketVolatility || ""}
                 onValueChange={(value) =>
-                  updateMarketContext({ marketVolatility: value as any })
+                  updateMarketContext({
+                    marketVolatility: value as "low" | "medium" | "high",
+                  })
                 }
               >
                 <SelectTrigger className="cursor-pointer">

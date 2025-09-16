@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, TrendingUp, Target, AlertTriangle } from "lucide-react";
+import { Plus } from "lucide-react";
 import { DashboardFooter } from "@/components/DashboardFooter";
 import {
   BudgetMetrics,
@@ -227,7 +227,7 @@ export default function BudgetingPage() {
   };
 
   // Calculate insights from stats
-  const insights = {
+  const _insights = {
     overBudget: stats.overBudgetCount,
     warningBudget: stats.warningBudgetCount,
     onTrack:

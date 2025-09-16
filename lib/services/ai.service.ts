@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 import { DashboardData } from "./dashboard.service";
 
 export interface AIReportInsights {
@@ -23,6 +23,71 @@ export interface AIReportContent {
   executiveSummary: string;
   detailedAnalysis: string;
   actionItems: string[];
+}
+
+export interface PreparedFinancialData {
+  netWorth: number;
+  totalAssets: number;
+  totalLiabilities: number;
+  monthlyIncome: number;
+  monthlyExpenses: number;
+  savings: number;
+  netIncome: number;
+  savingsRate: number;
+  debtToIncomeRatio: number;
+  assets: {
+    total: number;
+    byCategory: Record<string, { count: number; totalValue: number }>;
+    totalValue: number;
+    topAssets: Array<{
+      name: string;
+      value: number;
+      category: string;
+      changePercentage: number;
+    }>;
+  };
+  spending: {
+    totalMonthly: number;
+    topCategories: Array<{ category: string; amount: number }>;
+    averageMonthly: number;
+    trends: {
+      spending: string;
+      income: string;
+      savings: string;
+      netWorth: string;
+    };
+  };
+  income: {
+    totalMonthly: number;
+    trends: {
+      spending: string;
+      income: string;
+      savings: string;
+      netWorth: string;
+    };
+    netIncome: number;
+  };
+  goals: {
+    total: number;
+    completed: number;
+    averageProgress: number;
+  };
+  budgets: {
+    total: number;
+    onTrack: number;
+    overBudget: number;
+    averageUtilization: number;
+  };
+  netWorthHistory: Array<{
+    month: string;
+    netWorth: number;
+    totalAssets: number;
+    totalLiabilities: number;
+  }>;
+  dataRange: {
+    startDate: string;
+    endDate: string;
+  } | null;
 }
 
 export interface ReportContext {
@@ -54,7 +119,7 @@ export interface ReportContext {
 
 export class AIService {
   private genAI: GoogleGenerativeAI;
-  private model: any;
+  private model: GenerativeModel;
 
   constructor() {
     if (!process.env.GEMINI_API_KEY) {
@@ -118,7 +183,11 @@ export class AIService {
       });
 
       // Clean and validate the title
-      const title = this.cleanAndValidateTitle(text, financialData);
+      const title = this.cleanAndValidateTitle(
+        text,
+        financialData,
+        dashboardData
+      );
 
       const responseTime = Date.now() - startTime;
       console.log(`[AI_SERVICE] Report title generation completed`, {
@@ -142,7 +211,11 @@ export class AIService {
       // Fallback to a descriptive title based on data
       try {
         const fallbackData = this.prepareFinancialData(dashboardData);
-        return this.generateFallbackTitle(fallbackData, reportType);
+        return this.generateFallbackTitle(
+          fallbackData,
+          reportType,
+          dashboardData
+        );
       } catch (fallbackError) {
         console.error(`[AI_SERVICE] Error in fallback title generation`, {
           error:
@@ -191,7 +264,7 @@ export class AIService {
       });
 
       const prompt = this.buildPrompt(
-        financialData,
+        dashboardData,
         reportType,
         customPrompt,
         context
@@ -215,7 +288,11 @@ export class AIService {
       });
 
       // Parse the AI response into structured content
-      const parsedContent = this.parseAIResponse(text, financialData);
+      const parsedContent = this.parseAIResponse(
+        text,
+        financialData,
+        dashboardData
+      );
 
       const responseTime = Date.now() - startTime;
       console.log(`[AI_SERVICE] Financial report generation completed`, {
@@ -357,13 +434,13 @@ export class AIService {
           averageMonthly:
             monthlySpending.reduce((sum, month) => sum + month.expenses, 0) /
             Math.max(monthlySpending.length, 1),
-          trends: monthlyTrends.spending,
+          trends: monthlyTrends,
         },
 
         // Income analysis
         income: {
           totalMonthly: metrics.totalIncome,
-          trends: monthlyTrends.income,
+          trends: monthlyTrends,
           netIncome: metrics.netIncome,
         },
 
@@ -409,7 +486,7 @@ export class AIService {
   }
 
   private buildPrompt(
-    financialData: any,
+    financialData: DashboardData,
     reportType: string,
     customPrompt?: string,
     context?: ReportContext
@@ -535,7 +612,11 @@ Please format your response as a JSON object with the following structure:
     }
   }
 
-  private parseAIResponse(text: string, financialData: any): AIReportContent {
+  private parseAIResponse(
+    text: string,
+    financialData: PreparedFinancialData,
+    dashboardData: DashboardData
+  ): AIReportContent {
     try {
       console.log(`[AI_SERVICE] Parsing AI response`, {
         responseLength: text.length,
@@ -564,7 +645,8 @@ Please format your response as a JSON object with the following structure:
 
         // Ensure health score is calculated if not provided by AI
         const insights =
-          parsed.insights || this.generateFallbackInsights(financialData);
+          parsed.insights ||
+          this.generateFallbackInsights(financialData, dashboardData);
         if (!insights.financialHealthScore) {
           insights.financialHealthScore = this.calculateFinancialHealthScore({
             savingsRate: financialData.savingsRate || 0,
@@ -574,8 +656,8 @@ Please format your response as a JSON object with the following structure:
             totalLiabilities: financialData.totalLiabilities || 0,
             monthlyIncome: financialData.monthlyIncome || 0,
             monthlyExpenses: financialData.monthlyExpenses || 0,
-            goals: financialData.goals || {},
-            budgets: financialData.budgets || {},
+            goals: dashboardData.financialGoals || [],
+            budgets: dashboardData.budgetProgress || [],
           });
         }
 
@@ -617,7 +699,10 @@ Please format your response as a JSON object with the following structure:
       timestamp: new Date().toISOString(),
     });
 
-    const fallbackInsights = this.generateFallbackInsights(financialData);
+    const fallbackInsights = this.generateFallbackInsights(
+      financialData,
+      dashboardData
+    );
 
     return {
       title: `Financial Report - ${new Date().toLocaleDateString()}`,
@@ -629,7 +714,10 @@ Please format your response as a JSON object with the following structure:
     };
   }
 
-  private generateFallbackInsights(financialData: any): AIReportInsights {
+  private generateFallbackInsights(
+    financialData: PreparedFinancialData,
+    dashboardData: DashboardData
+  ): AIReportInsights {
     const savingsRate = financialData.savingsRate || 0;
     const debtToIncomeRatio = financialData.debtToIncomeRatio || 0;
     const netWorth = financialData.netWorth || 0;
@@ -639,7 +727,7 @@ Please format your response as a JSON object with the following structure:
     const monthlyExpenses = financialData.monthlyExpenses || 0;
 
     // Calculate comprehensive financial health score
-    let healthScore = this.calculateFinancialHealthScore({
+    const healthScore = this.calculateFinancialHealthScore({
       savingsRate,
       debtToIncomeRatio,
       netWorth,
@@ -647,8 +735,8 @@ Please format your response as a JSON object with the following structure:
       totalLiabilities,
       monthlyIncome,
       monthlyExpenses,
-      goals: financialData.goals || {},
-      budgets: financialData.budgets || {},
+      goals: dashboardData.financialGoals || [],
+      budgets: dashboardData.budgetProgress || [],
     });
 
     return {
@@ -694,7 +782,7 @@ Please format your response as a JSON object with the following structure:
   }
 
   private groupAssetsByCategory(
-    assets: any[]
+    assets: DashboardData["assets"]
   ): Record<string, { count: number; totalValue: number }> {
     return assets.reduce((acc, asset) => {
       const category = asset.category || "Other";
@@ -707,7 +795,10 @@ Please format your response as a JSON object with the following structure:
     }, {} as Record<string, { count: number; totalValue: number }>);
   }
 
-  private calculateTrends(monthlySpending: any[], netWorthHistory: any[]) {
+  private calculateTrends(
+    monthlySpending: DashboardData["monthlySpending"],
+    netWorthHistory: DashboardData["netWorthHistory"]
+  ) {
     try {
       console.log(`[AI_SERVICE] Calculating trends`, {
         monthlySpendingDataPoints: monthlySpending.length,
@@ -801,7 +892,7 @@ Please format your response as a JSON object with the following structure:
     }
   }
 
-  private analyzeGoals(goals: any[]) {
+  private analyzeGoals(goals: DashboardData["financialGoals"]) {
     try {
       console.log(`[AI_SERVICE] Analyzing goals`, {
         totalGoals: goals.length,
@@ -843,7 +934,7 @@ Please format your response as a JSON object with the following structure:
     }
   }
 
-  private analyzeBudgets(budgets: any[]) {
+  private analyzeBudgets(budgets: DashboardData["budgetProgress"]) {
     try {
       console.log(`[AI_SERVICE] Analyzing budgets`, {
         totalBudgets: budgets.length,
@@ -1073,7 +1164,7 @@ Please format your response as a JSON object with the following structure:
   }
 
   private buildTitlePrompt(
-    financialData: any,
+    financialData: PreparedFinancialData,
     reportType: string,
     customPrompt?: string,
     context?: ReportContext
@@ -1115,7 +1206,11 @@ Generate ONLY the title text, nothing else. No quotes, no additional text, just 
     return basePrompt;
   }
 
-  private cleanAndValidateTitle(text: string, financialData: any): string {
+  private cleanAndValidateTitle(
+    text: string,
+    financialData: PreparedFinancialData,
+    dashboardData: DashboardData
+  ): string {
     try {
       // Remove quotes, extra whitespace, and common prefixes
       let title = text
@@ -1131,7 +1226,11 @@ Generate ONLY the title text, nothing else. No quotes, no additional text, just 
 
       if (title.length < 10) {
         // Fallback if title is too short
-        return this.generateFallbackTitle(financialData, "summary");
+        return this.generateFallbackTitle(
+          financialData,
+          "summary",
+          dashboardData
+        );
       }
 
       // Ensure it starts with a capital letter
@@ -1144,7 +1243,11 @@ Generate ONLY the title text, nothing else. No quotes, no additional text, just 
         error: error instanceof Error ? error.message : "Unknown error",
         timestamp: new Date().toISOString(),
       });
-      return this.generateFallbackTitle(financialData, "summary");
+      return this.generateFallbackTitle(
+        financialData,
+        "summary",
+        dashboardData
+      );
     }
   }
 
@@ -1156,8 +1259,8 @@ Generate ONLY the title text, nothing else. No quotes, no additional text, just 
     totalLiabilities: number;
     monthlyIncome: number;
     monthlyExpenses: number;
-    goals: any;
-    budgets: any;
+    goals: DashboardData["financialGoals"];
+    budgets: DashboardData["budgetProgress"];
   }): number {
     let score = 0;
     const maxScore = 100;
@@ -1228,15 +1331,17 @@ Generate ONLY the title text, nothing else. No quotes, no additional text, just 
     }
 
     // Goal Progress Component (10 points max)
-    if (data.goals && data.goals.total > 0) {
-      const goalProgress = data.goals.averageProgress || 0;
-      if (goalProgress >= 80) {
+    if (data.goals && data.goals.length > 0) {
+      const averageProgress =
+        data.goals.reduce((sum, goal) => sum + goal.progress, 0) /
+        data.goals.length;
+      if (averageProgress >= 80) {
         score += 10; // Excellent goal progress
-      } else if (goalProgress >= 60) {
+      } else if (averageProgress >= 60) {
         score += 8; // Very good progress
-      } else if (goalProgress >= 40) {
+      } else if (averageProgress >= 40) {
         score += 6; // Good progress
-      } else if (goalProgress >= 20) {
+      } else if (averageProgress >= 20) {
         score += 4; // Fair progress
       } else {
         score += 2; // Poor progress
@@ -1246,15 +1351,19 @@ Generate ONLY the title text, nothing else. No quotes, no additional text, just 
     }
 
     // Budget Management Component (5 points max)
-    if (data.budgets && data.budgets.total > 0) {
-      const budgetUtilization = data.budgets.averageUtilization || 0;
-      if (budgetUtilization <= 80) {
+    if (data.budgets && data.budgets.length > 0) {
+      const averageUtilization =
+        data.budgets.reduce(
+          (sum, budget) => sum + (budget.spent / budget.budgeted) * 100,
+          0
+        ) / data.budgets.length;
+      if (averageUtilization <= 80) {
         score += 5; // Excellent budget management
-      } else if (budgetUtilization <= 90) {
+      } else if (averageUtilization <= 90) {
         score += 4; // Very good budget management
-      } else if (budgetUtilization <= 100) {
+      } else if (averageUtilization <= 100) {
         score += 3; // Good budget management
-      } else if (budgetUtilization <= 110) {
+      } else if (averageUtilization <= 110) {
         score += 2; // Fair budget management
       } else {
         score += 1; // Poor budget management
@@ -1268,8 +1377,9 @@ Generate ONLY the title text, nothing else. No quotes, no additional text, just 
   }
 
   private generateFallbackTitle(
-    financialData: any,
-    reportType: string
+    financialData: PreparedFinancialData,
+    reportType: string,
+    dashboardData?: DashboardData
   ): string {
     const netWorth = financialData.netWorth || 0;
     const savingsRate = financialData.savingsRate || 0;

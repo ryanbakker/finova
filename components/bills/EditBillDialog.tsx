@@ -23,7 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Bill, Account } from "@/lib/types";
 import { updateBill } from "@/lib/actions/bill.actions";
-import { Calendar, DollarSign, Edit } from "lucide-react";
+import { DollarSign, Edit } from "lucide-react";
 import { getCategoriesByType } from "@/constants";
 import { toast } from "@/components/ui/use-toast";
 import { DatePicker } from "@/components/ui/date-picker";

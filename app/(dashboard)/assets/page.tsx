@@ -34,7 +34,7 @@ function AssetsPageContent() {
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const { sortStates, toggleSorting } = useSorting();
-  const searchParams = useSearchParams();
+  const _searchParams = useSearchParams();
   const { toast } = useToast();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tableRef = useRef<any>(null);

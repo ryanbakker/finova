@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
@@ -21,10 +21,8 @@ import {
   TrendingUp,
   AlertTriangle,
   CheckCircle,
-  Clock,
   Loader2,
   Download,
-  Share2,
   Trash2,
   ArrowLeft,
   Sparkles,
@@ -91,11 +89,7 @@ export function ReportViewer({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  useEffect(() => {
-    fetchReport();
-  }, [reportId]);
-
-  const fetchReport = async () => {
+  const fetchReport = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -112,7 +106,11 @@ export function ReportViewer({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [reportId]);
+
+  useEffect(() => {
+    fetchReport();
+  }, [fetchReport]);
 
   const handleDeleteClick = () => {
     setIsDeleteDialogOpen(true);
@@ -640,8 +638,8 @@ ${report.content}
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Report</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{report?.title}"? This action
-              cannot be undone.
+              Are you sure you want to delete &quot;{report?.title}&quot;? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

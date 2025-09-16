@@ -90,7 +90,7 @@ function Features() {
         {/* Mobile/Tablet Layout - 2 columns, no images */}
         <div className="lg:hidden">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {features.map((feature, index) => (
+            {features.map((feature, _index) => (
               <div
                 key={feature.title}
                 className="group p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:bg-gradient-to-br hover:from-sky-50 hover:to-blue-50 dark:hover:from-sky-950/20 dark:hover:to-blue-950/20 hover:border-sky-300 dark:hover:border-sky-600 hover:shadow-lg hover:shadow-sky-100/50 dark:hover:shadow-sky-900/20 hover:-translate-y-1 cursor-pointer"

@@ -57,7 +57,10 @@ export function onReportsRefresh(callback: () => void) {
 export function onReportDeleted(callback: (reportId: string) => void) {
   if (typeof window === "undefined") return () => {};
 
-  const handler = (event: CustomEvent) => callback(event.detail.reportId);
+  const handler = (event: Event) => {
+    const customEvent = event as CustomEvent;
+    callback(customEvent.detail.reportId);
+  };
   window.addEventListener(REPORT_EVENTS.DELETE, handler);
 
   return () => window.removeEventListener(REPORT_EVENTS.DELETE, handler);
@@ -69,7 +72,10 @@ export function onReportDeleted(callback: (reportId: string) => void) {
 export function onReportCreated(callback: (reportId: string) => void) {
   if (typeof window === "undefined") return () => {};
 
-  const handler = (event: CustomEvent) => callback(event.detail.reportId);
+  const handler = (event: Event) => {
+    const customEvent = event as CustomEvent;
+    callback(customEvent.detail.reportId);
+  };
   window.addEventListener(REPORT_EVENTS.CREATE, handler);
 
   return () => window.removeEventListener(REPORT_EVENTS.CREATE, handler);

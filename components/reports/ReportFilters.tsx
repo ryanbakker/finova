@@ -1,6 +1,36 @@
 "use client";
 
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+// Report interface matching the one used in the data table
+interface Report {
+  id: string;
+  title: string;
+  content: string;
+  type: string;
+  status: "generating" | "completed" | "failed";
+  createdAt: string;
+  updatedAt: string;
+  insights?: {
+    keyFindings: string[];
+    recommendations: string[];
+    riskFactors: string[];
+    financialHealthScore?: number;
+    trends?: {
+      spending: string;
+      income: string;
+      savings: string;
+      netWorth: string;
+    };
+    opportunities?: string[];
+    warnings?: string[];
+  };
+  metadata: {
+    generatedAt: string;
+    model?: string;
+    tokensUsed?: number;
+  };
+}
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -154,7 +184,7 @@ export function ReportFilters({
   }, [updateURL, onChange]);
 
   // Track selected reports with state
-  const [selectedReports, setSelectedReports] = useState<any[]>([]);
+  const [selectedReports, setSelectedReports] = useState<Report[]>([]);
   const selectedCount = selectedReports.length;
   const hasSelectedReports = selectedCount > 0;
 
@@ -163,8 +193,12 @@ export function ReportFilters({
     if (table) {
       const updateSelection = () => {
         const rows = table.getSelectedRowModel().rows || [];
-        console.log("ReportFilters - selectedReports updated:", rows);
-        setSelectedReports(rows);
+        const selectedReports = rows.map((row) => row.original as Report);
+        console.log(
+          "ReportFilters - selectedReports updated:",
+          selectedReports
+        );
+        setSelectedReports(selectedReports);
       };
 
       // Initial update
@@ -185,7 +219,7 @@ export function ReportFilters({
     if (!onBulkDelete || selectedCount === 0) return;
 
     try {
-      const reportIds = selectedReports.map((row) => row.original.id);
+      const reportIds = selectedReports.map((report) => report.id);
       await onBulkDelete(reportIds);
       setIsBulkDeleteDialogOpen(false);
       toast.success("Reports Deleted", {
@@ -245,11 +279,6 @@ export function ReportFilters({
 
         <div className="flex items-center gap-2">
           {/* Bulk Delete Button */}
-          {console.log("Rendering bulk delete button check:", {
-            hasSelectedReports,
-            onBulkDelete: !!onBulkDelete,
-            selectedCount,
-          })}
           {hasSelectedReports && onBulkDelete && (
             <Button
               variant="destructive"
@@ -447,10 +476,10 @@ export function ReportFilters({
               <div className="flex items-center space-x-2">
                 <div className="flex-1">
                   <DatePicker
-                    date={
+                    value={
                       filters.dateFrom ? new Date(filters.dateFrom) : undefined
                     }
-                    onDateChange={(date) =>
+                    onChange={(date) =>
                       handleFilterChange(
                         "dateFrom",
                         date?.toISOString().split("T")[0]
@@ -463,8 +492,10 @@ export function ReportFilters({
                 <span className="text-muted-foreground">to</span>
                 <div className="flex-1">
                   <DatePicker
-                    date={filters.dateTo ? new Date(filters.dateTo) : undefined}
-                    onDateChange={(date) =>
+                    value={
+                      filters.dateTo ? new Date(filters.dateTo) : undefined
+                    }
+                    onChange={(date) =>
                       handleFilterChange(
                         "dateTo",
                         date?.toISOString().split("T")[0]
@@ -512,9 +543,9 @@ export function ReportFilters({
                   Selected reports:
                 </div>
                 <ul className="list-disc list-inside text-sm max-h-32 overflow-y-auto space-y-1">
-                  {selectedReports.slice(0, 10).map((row) => (
-                    <li key={row.original.id} className="text-xs">
-                      {row.original.title}
+                  {selectedReports.slice(0, 10).map((report) => (
+                    <li key={report.id} className="text-xs">
+                      {report.title}
                     </li>
                   ))}
                   {selectedCount > 10 && (

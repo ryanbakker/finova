@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { connectToDB } from "@/database/db";
 import { Report } from "@/database/models/report.model";
 import { getDashboardData } from "@/lib/services/dashboard.service";
-import { aiService } from "@/lib/services/ai.service";
+import { aiService, ReportContext } from "@/lib/services/ai.service";
 
 // GET /api/reports - Get all reports for the user
 export async function GET(request: NextRequest) {
@@ -287,7 +287,7 @@ async function generateAIReportAsync(
   type: string,
   customPrompt?: string,
   dataRange?: { startDate: Date; endDate: Date },
-  context?: any
+  context?: ReportContext
 ) {
   const startTime = Date.now();
 
@@ -396,7 +396,7 @@ async function generateAIReportAsync(
 }
 
 // Generate basic report content without AI
-function generateBasicReport(
+function _generateBasicReport(
   dashboardData: {
     metrics?: {
       netWorth?: number;

@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import FinovaLogo from "@/components/FinovaLogo";
 
 export default function NotFound() {
