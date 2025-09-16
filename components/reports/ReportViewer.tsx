@@ -283,7 +283,7 @@ ${report.content}
             >
               {report.title}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-sm">
               Generated on{" "}
               {(() => {
                 const date = new Date(report.metadata.generatedAt);

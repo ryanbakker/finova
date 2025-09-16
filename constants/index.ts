@@ -136,14 +136,14 @@ export const footerLinks = [
 
 export const pricingPlans = [
   {
-    name: "Free Trial",
+    name: "Free",
     price: {
       monthly: "",
       annual: "",
     },
     period: {
-      monthly: "14 days",
-      annual: "14 days",
+      monthly: "",
+      annual: "",
     },
     description: "Perfect for getting started with managing your finances.",
     features: [
@@ -155,7 +155,7 @@ export const pricingPlans = [
       "Data Protection",
       "Mobile Responsive",
     ],
-    buttonText: "Start Free Trial",
+    buttonText: "Get Started",
     isPopular: false,
     gradient: "from-gray-100 to-gray-200",
     borderColor: "border-gray-200",

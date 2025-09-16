@@ -13,6 +13,7 @@ import {
   CreditCard,
   Target,
   FileChartColumn,
+  WalletCards,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import {
@@ -139,7 +140,7 @@ function SidebarThemeToggle() {
   return (
     <SidebarMenuButton
       onClick={toggleTheme}
-      className="flex items-center gap-3 p-2 rounded-md transition-colors cursor-pointer w-fit"
+      className="flex items-center gap-3 p-2 rounded-md transition-colors cursor-pointer w-fit hover:bg-slate-100 dark:hover:bg-neutral-800"
       title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
     >
       {isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
@@ -153,7 +154,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { openUserProfile, signOut } = useClerk();
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
-  const [isReportsOpen, setIsReportsOpen] = useState(pathname === "/reports");
+  const [isReportsOpen, setIsReportsOpen] = useState(
+    pathname === "/reports" || pathname.startsWith("/reports/")
+  );
+  // Feature access control removed - all features are now available to all users
 
   const handleNavClick = () => {
     if (isMobile) {
@@ -180,7 +184,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // Update dropdown state when pathname changes
   useEffect(() => {
-    setIsReportsOpen(pathname === "/reports");
+    setIsReportsOpen(
+      pathname === "/reports" || pathname.startsWith("/reports/")
+    );
   }, [pathname]);
 
   return (
@@ -234,6 +240,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {isLoaded
               ? menuItems.map((item, index) => {
                   const isActive = pathname === item.href;
+
+                  // All features are now available to all users
+
                   return (
                     <SidebarMenuItem key={index}>
                       <SidebarMenuButton
@@ -301,7 +310,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <SidebarMenuButton
                     asChild
                     className={`h-9 px-3 rounded-md transition-colors ${
-                      pathname === "/reports"
+                      pathname === "/reports" ||
+                      pathname.startsWith("/reports/")
                         ? "button-blue-bg"
                         : "hover:bg-accent hover:text-accent-foreground"
                     }`}
@@ -310,6 +320,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       href="/reports"
                       className="flex items-center gap-3"
                       onClick={handleReportsClick}
+                      title="Reports"
                     >
                       <FileChartColumn className="w-6 h-6" />
                       <span className="text-sm font-medium">Reports</span>
@@ -331,6 +342,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           {isLoaded && user ? (
             <>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  title="Manage Plan"
+                  className={`h-8 px-2 rounded-md transition-all w-fit ${
+                    pathname === "/manage-plan"
+                      ? "bg-neutral-200 dark:bg-neutral-800 hover:bg-slate-100 dark:hover:bg-neutral-800"
+                      : "hover:bg-slate-100 hover:text-accent-foreground dark:hover:bg-neutral-800"
+                  }`}
+                >
+                  <Link
+                    href="/manage-plan"
+                    className="flex items-center gap-3"
+                    onClick={handleNavClick}
+                  >
+                    <WalletCards className="w-5 h-5" />
+                    <span className="text-sm">Manage Plan</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarThemeToggle />
               </SidebarMenuItem>

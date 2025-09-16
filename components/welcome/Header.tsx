@@ -12,7 +12,7 @@ import FinovaLogo from "../FinovaLogo";
 
 function WelcomeHeader() {
   return (
-    <header className="w-full fixed left-0 right-0 top-0 z-[9999] backdrop-blur-xl bg-white/60 dark:bg-neutral-950/70 border-b border-white/20 dark:border-neutral-800/50 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
+    <header className="w-full fixed left-0 right-0 top-0 z-[9999] backdrop-blur-xl bg-white/80 dark:bg-neutral-950/70 border-b border-white/20 dark:border-neutral-800/50 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
       <nav className="welcome-nav flex justify-between items-center px-4 py-2 lg:py-4 mx-auto max-w-7xl">
         <FinovaLogo />
 
@@ -55,6 +55,14 @@ function WelcomeHeader() {
                 <Link href="/">
                   <Button className="group relative overflow-hidden bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white border-0 transition-all duration-300 px-6 py-2.5 rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl hover:scale-105 active:scale-95">
                     <span className="relative z-10">Dashboard</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
+                  </Button>
+                </Link>
+              </li>
+              <li>
+                <Link href="/manage-plan">
+                  <Button className="group relative overflow-hidden bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white border-0 transition-all duration-300 px-6 py-2.5 rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl hover:scale-105 active:scale-95">
+                    <span className="relative z-10">Manage Plan</span>
                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
                   </Button>
                 </Link>

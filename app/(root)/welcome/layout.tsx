@@ -83,5 +83,7 @@ export default function WelcomeLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <main className={notoSans.className}>{children}</main>;
+  return (
+    <main className={`${notoSans.className} overflow-hidden`}>{children}</main>
+  );
 }

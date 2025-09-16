@@ -94,6 +94,7 @@ export function AIReportGenerator({
   const [recentReports, setRecentReports] = useState<Report[]>([]);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Feature access control removed - AI reports are now available to all users
 
   const generateReport = async () => {
     console.log(`[FRONTEND] Starting report generation`, {
@@ -474,7 +475,7 @@ export function AIReportGenerator({
             <Button
               onClick={generateReport}
               disabled={isGenerating}
-              className="flex-1 cursor-pointer bg-gradient-to-tr from-sky-500 via-sky-600 to-indigo-600 hover:via-indigo-600 hover:from-indigo-600 transition-colors dark:text-white"
+              className="flex-1 cursor-pointer bg-gradient-to-tr from-sky-500 via-sky-600 to-indigo-600 hover:via-indigo-600 hover:from-indigo-600 transition-colors dark:text-white disabled:opacity-60"
             >
               {isGenerating ? (
                 <>

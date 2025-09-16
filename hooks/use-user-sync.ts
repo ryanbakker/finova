@@ -20,26 +20,7 @@ export function useUserSync() {
             timestamp: new Date().toISOString(),
           });
 
-          // Sync user data with your backend or perform any necessary user synchronization
-          // This is a placeholder implementation - customize based on your needs
-
-          // Example: You could call an API endpoint to sync user data
-          // const response = await fetch('/api/users/sync', {
-          //   method: 'POST',
-          //   headers: { 'Content-Type': 'application/json' },
-          //   body: JSON.stringify({
-          //     clerkId: user.id,
-          //     email: user.emailAddresses[0]?.emailAddress,
-          //     firstName: user.firstName,
-          //     lastName: user.lastName,
-          //     imageUrl: user.imageUrl,
-          //   }),
-          // });
-
-          // if (!response.ok) {
-          //   throw new Error('Failed to sync user data');
-          // }
-
+          // User sync completed successfully (no external services to sync)
           setSyncStatus("success");
           console.log(
             `[USER_SYNC] User synchronization completed successfully`,
@@ -50,9 +31,11 @@ export function useUserSync() {
           );
         } catch (error) {
           setSyncStatus("error");
+          const message =
+            error instanceof Error ? error.message : String(error);
           console.error(`[USER_SYNC] User synchronization failed`, {
-            userId: user.id,
-            error: error instanceof Error ? error.message : "Unknown error",
+            userId: user?.id ?? "unknown",
+            error: message,
             timestamp: new Date().toISOString(),
           });
         }

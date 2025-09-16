@@ -42,6 +42,11 @@ export default function BudgetingPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<Budget | undefined>();
   const [isLoading, setIsLoading] = useState(true);
+
+  // Set page title
+  useEffect(() => {
+    document.title = "Budgeting | Finova";
+  }, []);
   const [stats, setStats] = useState({
     totalBudget: 0,
     totalSpent: 0,

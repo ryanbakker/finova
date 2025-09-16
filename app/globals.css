@@ -787,7 +787,7 @@
 }
 
 .page-sub-title {
-  @apply text-slate-600 dark:text-slate-400 font-light text-sm! max-w-[330px];
+  @apply text-slate-600 dark:text-slate-400 font-normal text-sm! max-w-[330px];
 }
 
 /* Button Utilities */

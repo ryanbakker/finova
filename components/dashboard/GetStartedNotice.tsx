@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Plus, TrendingUp, Target, CreditCard } from "lucide-react";
+import { Plus, TrendingUp, Target, CreditCard, Info } from "lucide-react";
 
 interface GetStartedNoticeProps {
   onClose: () => void;
@@ -29,7 +29,7 @@ export function GetStartedNotice({ onClose }: GetStartedNoticeProps) {
     <Alert className="border-sky-200 bg-gradient-to-r from-sky-50 to-cyan-50 dark:border-sky-800 dark:from-sky-950/50 dark:to-cyan-950/50">
       <div className="flex items-start space-x-3">
         <div className="flex-shrink-0">
-          <TrendingUp className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+          <Info className="h-5 w-5 text-sky-600 dark:text-sky-400" />
         </div>
         <div className="flex-1">
           <AlertTitle className="text-sky-900 dark:text-sky-100">
@@ -37,17 +37,14 @@ export function GetStartedNotice({ onClose }: GetStartedNoticeProps) {
           </AlertTitle>
           <AlertDescription className="text-sky-800 dark:text-sky-200 mt-2">
             <p className="mb-3">
-              Your dashboard is ready, but you&apos;ll need to add some data to
-              see your financial insights. Start by adding your first
-              transaction, asset, or budget to get a complete view of your
-              finances.
+              Your dashboard is ready, get started by adding your first
+              transaction, asset, or budget to start getting insights.
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col md:flex-row gap-3 md:gap-2">
               <Link href="/transactions">
                 <Button
-                  size="sm"
                   variant="outline"
-                  className="border-sky-300 bg-white hover:bg-sky-50 text-sky-700 dark:border-sky-700 dark:bg-sky-950/50 dark:text-sky-200 dark:hover:bg-sky-900/50 hover:text-white"
+                  className="border-sky-300 bg-white hover:bg-sky-50 text-sky-700 dark:border-sky-700 dark:bg-sky-950/50 dark:text-sky-200 dark:hover:bg-sky-900/50 hover:text-white w-full md:w-auto"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Transaction
@@ -55,9 +52,8 @@ export function GetStartedNotice({ onClose }: GetStartedNoticeProps) {
               </Link>
               <Link href="/assets">
                 <Button
-                  size="sm"
                   variant="outline"
-                  className="border-sky-300 bg-white hover:bg-sky-50 text-sky-700 dark:border-sky-700 dark:bg-sky-950/50 dark:text-sky-200 dark:hover:bg-sky-900/50 hover:text-white"
+                  className="border-sky-300 bg-white hover:bg-sky-50 text-sky-700 dark:border-sky-700 dark:bg-sky-950/50 dark:text-sky-200 dark:hover:bg-sky-900/50 hover:text-white w-full md:w-auto"
                 >
                   <CreditCard className="h-4 w-4 mr-2" />
                   Add Asset
@@ -65,9 +61,8 @@ export function GetStartedNotice({ onClose }: GetStartedNoticeProps) {
               </Link>
               <Link href="/budgeting">
                 <Button
-                  size="sm"
                   variant="outline"
-                  className="border-sky-300 bg-white hover:bg-sky-50 text-sky-700 dark:border-sky-700 dark:bg-sky-950/50 dark:text-sky-200 dark:hover:bg-sky-900/50 hover:text-white"
+                  className="border-sky-300 bg-white hover:bg-sky-50 text-sky-700 dark:border-sky-700 dark:bg-sky-950/50 dark:text-sky-200 dark:hover:bg-sky-900/50 hover:text-white w-full md:w-auto"
                 >
                   <Target className="h-4 w-4 mr-2" />
                   Set Budget

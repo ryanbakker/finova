@@ -38,6 +38,14 @@ export function DashboardFooter() {
             </li>
             <li>
               <Link
+                href="/manage-plan"
+                className="hover:text-foreground transition-colors"
+              >
+                Manage Plan
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/privacy"
                 className="hover:text-foreground transition-colors"
               >

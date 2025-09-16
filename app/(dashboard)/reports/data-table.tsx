@@ -328,8 +328,27 @@ ${report.content}
             aValue = a.status.toLowerCase();
             bValue = b.status.toLowerCase();
             break;
+          case "healthScore":
+            aValue =
+              a.insights?.financialHealthScore ?? Number.NEGATIVE_INFINITY;
+            bValue =
+              b.insights?.financialHealthScore ?? Number.NEGATIVE_INFINITY;
+            break;
           default:
             return 0;
+        }
+
+        // Ensure missing health scores sort to the end in both directions
+        if (columnId === "healthScore") {
+          const aMissing =
+            a.insights?.financialHealthScore === undefined ||
+            a.insights?.financialHealthScore === null;
+          const bMissing =
+            b.insights?.financialHealthScore === undefined ||
+            b.insights?.financialHealthScore === null;
+          if (aMissing && bMissing) return 0;
+          if (aMissing) return 1; // a goes after b
+          if (bMissing) return -1; // b goes after a
         }
 
         if ((aValue as string | number) < (bValue as string | number))

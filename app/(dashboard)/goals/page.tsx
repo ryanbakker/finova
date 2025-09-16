@@ -19,6 +19,11 @@ function GoalsPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<FinancialGoal | null>(null);
 
+  // Set page title
+  useEffect(() => {
+    document.title = "Goals | Finova";
+  }, []);
+
   // Load goals from database
   useEffect(() => {
     const loadGoals = async () => {

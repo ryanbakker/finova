@@ -165,6 +165,11 @@ export default function ReportsPage() {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Set page title
+  useEffect(() => {
+    document.title = "Reports | Finova";
+  }, []);
+
   // Fetch reports on component mount
   useEffect(() => {
     fetchReports();

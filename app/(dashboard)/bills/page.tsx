@@ -18,6 +18,11 @@ function BillsPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { sortStates, toggleSorting } = useSorting();
 
+  // Set page title
+  useEffect(() => {
+    document.title = "Bills | Finova";
+  }, []);
+
   // Create columns
   const columns = createColumns(sortStates, toggleSorting);
 

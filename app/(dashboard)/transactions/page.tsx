@@ -27,6 +27,11 @@ function TransactionsPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+
+  // Set page title
+  useEffect(() => {
+    document.title = "Transactions | Finova";
+  }, []);
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
   const { sortStates, toggleSorting } = useSorting();

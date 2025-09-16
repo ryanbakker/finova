@@ -27,6 +27,11 @@ function LiabilitiesPage() {
   const [tableReady, setTableReady] = useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [showUpdateAmountDialog, setShowUpdateAmountDialog] = useState(false);
+
+  // Set page title
+  useEffect(() => {
+    document.title = "Liabilities | Finova";
+  }, []);
   const [selectedLiability, setSelectedLiability] = useState<Liability | null>(
     null
   );
