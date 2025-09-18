@@ -253,6 +253,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             : "hover:bg-accent hover:text-accent-foreground"
                         }`}
                         title={item.title}
+                        disabled={true}
                       >
                         <Link
                           href={item.href}

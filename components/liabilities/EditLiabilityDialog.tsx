@@ -147,6 +147,18 @@ export function EditLiabilityDialog({
     }
   };
 
+  const getCategoryName = (
+    category: string | { name: string; icon: string } | undefined
+  ): string => {
+    if (typeof category === "string") {
+      return category;
+    }
+    if (category && typeof category === "object" && "name" in category) {
+      return category.name;
+    }
+    return "";
+  };
+
   if (!liability) return null;
 
   return (
@@ -154,7 +166,9 @@ export function EditLiabilityDialog({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-3">
-            {getLiabilityCategoryIcon(formData.category || liability.category)}
+            {getLiabilityCategoryIcon(
+              getCategoryName(formData.category || liability.category)
+            )}
             <span>Edit Liability</span>
           </DialogTitle>
           <DialogDescription>
@@ -184,7 +198,9 @@ export function EditLiabilityDialog({
               <div className="space-y-2">
                 <Label htmlFor="category">Category *</Label>
                 <Select
-                  value={formData.category || ""}
+                  value={getCategoryName(
+                    formData.category || liability.category
+                  )}
                   onValueChange={(value) =>
                     handleInputChange("category", value)
                   }

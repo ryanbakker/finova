@@ -3,7 +3,10 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IAsset extends Document {
   userId: string;
   name: string;
-  category: string;
+  category: {
+    name: string;
+    icon: string;
+  };
   currentValue: number;
   changeAmount: number;
   changePercentage: number;
@@ -28,11 +31,18 @@ const assetSchema = new Schema<IAsset>(
       maxlength: [100, "Asset name cannot exceed 100 characters"],
     },
     category: {
-      type: String,
-      required: [true, "Category is required"],
-      trim: true,
-      minlength: [1, "Category must be at least 1 character long"],
-      maxlength: [50, "Category cannot exceed 50 characters"],
+      name: {
+        type: String,
+        required: [true, "Category name is required"],
+        trim: true,
+        minlength: [1, "Category name must be at least 1 character long"],
+        maxlength: [50, "Category name cannot exceed 50 characters"],
+      },
+      icon: {
+        type: String,
+        required: [true, "Category icon is required"],
+        trim: true,
+      },
     },
     currentValue: {
       type: Number,
@@ -85,7 +95,8 @@ const assetSchema = new Schema<IAsset>(
 assetSchema.pre("save", function (next) {
   // Sanitize string fields
   if (this.name) this.name = this.name.trim();
-  if (this.category) this.category = this.category.trim();
+  if (this.category?.name) this.category.name = this.category.name.trim();
+  if (this.category?.icon) this.category.icon = this.category.icon.trim();
   if (this.description) this.description = this.description.trim();
 
   next();
@@ -99,7 +110,10 @@ assetSchema.pre(
 
     // Sanitize string fields in updates
     if (update.name) update.name = update.name.trim();
-    if (update.category) update.category = update.category.trim();
+    if (update.category?.name)
+      update.category.name = update.category.name.trim();
+    if (update.category?.icon)
+      update.category.icon = update.category.icon.trim();
     if (update.description) update.description = update.description.trim();
 
     next();
@@ -107,12 +121,12 @@ assetSchema.pre(
 );
 
 // Indexes for better query performance and security
-assetSchema.index({ userId: 1, category: 1 });
+assetSchema.index({ userId: 1, "category.name": 1 });
 assetSchema.index({ userId: 1, createdAt: -1 });
 assetSchema.index({ userId: 1, currentValue: -1 });
 
 // Compound index for efficient filtering and sorting
-assetSchema.index({ userId: 1, category: 1, createdAt: -1 });
+assetSchema.index({ userId: 1, "category.name": 1, createdAt: -1 });
 
 // Text index for search functionality (if needed in the future)
 // assetSchema.index({ name: 'text', category: 'text', notes: 'text' });

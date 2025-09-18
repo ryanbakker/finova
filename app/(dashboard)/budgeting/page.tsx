@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, ChartPie } from "lucide-react";
 import { DashboardFooter } from "@/components/DashboardFooter";
 import {
   BudgetMetrics,
@@ -34,6 +34,7 @@ import {
 } from "@/lib/actions/budget.actions";
 import { getGoalsByUserId } from "@/lib/actions/goal.actions";
 import { useUser } from "@clerk/nextjs";
+import { DynamicUpgradeOverlay } from "@/components/upgrade";
 
 export default function BudgetingPage() {
   const { user, isLoaded } = useUser();
@@ -96,7 +97,11 @@ export default function BudgetingPage() {
 
   // Calculate category data from budgets
   const categoryData = budgets.reduce((acc, budget) => {
-    const existing = acc.find((cat) => cat.name === budget.category);
+    const categoryName =
+      typeof budget.category === "string"
+        ? budget.category
+        : budget.category.name;
+    const existing = acc.find((cat) => cat.name === categoryName);
     if (existing) {
       existing.budget += budget.amount;
       existing.value += budget.spent;
@@ -104,7 +109,7 @@ export default function BudgetingPage() {
       existing.percentage = (existing.value / existing.budget) * 100;
     } else {
       acc.push({
-        name: budget.category,
+        name: categoryName,
         budget: budget.amount,
         value: budget.spent,
         percentage: (budget.spent / budget.amount) * 100,
@@ -249,109 +254,118 @@ export default function BudgetingPage() {
   }
 
   return (
-    <div className="space-y-6 page-content">
-      {/* Header */}
-      <div className="flex gap-5 md:gap-0 justify-between flex-col md:flex-row md:items-end">
-        <div>
-          <h1 className="page-title">Budgeting</h1>
-          <h2 className="page-sub-title">
-            Set budgets, track spending, and achieve your financial goals.
-          </h2>
+    <DynamicUpgradeOverlay
+      title="Advanced Budgeting"
+      description="Access advanced budgeting tools, detailed analytics, and comprehensive financial planning features."
+      icon={ChartPie}
+    >
+      <div className="space-y-6 page-content">
+        {/* Header */}
+        <div className="flex gap-5 md:gap-0 justify-between flex-col md:flex-row md:items-end">
+          <div>
+            <h1 className="page-title">Budgeting</h1>
+            <h2 className="page-sub-title">
+              Set budgets, track spending, and achieve your financial goals.
+            </h2>
+          </div>
+          <Button className="button-blue-bg" onClick={handleCreateBudget}>
+            <Plus className="mr-1 h-4 w-4" />
+            Create Budget
+          </Button>
         </div>
-        <Button className="button-blue-bg" onClick={handleCreateBudget}>
-          <Plus className="mr-1 h-4 w-4" />
-          Create Budget
-        </Button>
+
+        {/* Budget Metrics + Quick Insights (unified) */}
+        <BudgetMetrics
+          totalSpent={stats.totalSpent}
+          totalBudget={stats.totalBudget}
+          totalBudgets={stats.totalBudgets}
+          overBudgetCount={stats.overBudgetCount}
+          warningBudgetCount={stats.warningBudgetCount}
+        />
+
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 gap-2 p-1 h-auto">
+            <TabsTrigger
+              value="overview"
+              className="budget-content-tabs-trigger"
+            >
+              Overview
+            </TabsTrigger>
+            <TabsTrigger
+              value="categories"
+              className="budget-content-tabs-trigger"
+            >
+              Categories
+            </TabsTrigger>
+            <TabsTrigger value="charts" className="budget-content-tabs-trigger">
+              Charts & Analysis
+            </TabsTrigger>
+            <TabsTrigger value="goals" className="budget-content-tabs-trigger">
+              Financial Goals
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            {/* Category Budgets */}
+            <CategoryBudgets categoryData={categoryData} />
+
+            {/* Budget Progress */}
+            <BudgetProgress
+              totalSpent={stats.totalSpent}
+              totalBudget={stats.totalBudget}
+            />
+
+            {/* Budget Alerts */}
+            <BudgetAlerts categoryData={categoryData} />
+          </TabsContent>
+
+          <TabsContent value="categories" className="space-y-6">
+            {/* Budget Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>All Budgets</CardTitle>
+                <CardDescription>
+                  Manage and monitor all your budget categories in detail.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <BudgetTable
+                  budgets={budgets}
+                  onEdit={handleEditBudget}
+                  onDelete={handleDeleteBudget}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="charts" className="space-y-6">
+            {/* Budget Charts */}
+            <BudgetCharts
+              monthlySpending={monthlySpending}
+              dailySpending={dailySpending}
+              budgetVsActual={budgetVsActual}
+              categoryData={categoryData}
+              monthlyBudget={stats.totalBudget}
+            />
+          </TabsContent>
+
+          <TabsContent value="goals" className="space-y-6">
+            {/* Financial Goals */}
+            <FinancialGoals goals={goals} isLoading={isLoading} />
+          </TabsContent>
+        </Tabs>
+
+        {/* Budget Dialog */}
+        <BudgetDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          budget={editingBudget}
+          onSave={handleSaveBudget}
+        />
+
+        <DashboardFooter />
       </div>
-
-      {/* Budget Metrics + Quick Insights (unified) */}
-      <BudgetMetrics
-        totalSpent={stats.totalSpent}
-        totalBudget={stats.totalBudget}
-        totalBudgets={stats.totalBudgets}
-        overBudgetCount={stats.overBudgetCount}
-        warningBudgetCount={stats.warningBudgetCount}
-      />
-
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 gap-2 p-1 h-auto">
-          <TabsTrigger value="overview" className="budget-content-tabs-trigger">
-            Overview
-          </TabsTrigger>
-          <TabsTrigger
-            value="categories"
-            className="budget-content-tabs-trigger"
-          >
-            Categories
-          </TabsTrigger>
-          <TabsTrigger value="charts" className="budget-content-tabs-trigger">
-            Charts & Analysis
-          </TabsTrigger>
-          <TabsTrigger value="goals" className="budget-content-tabs-trigger">
-            Financial Goals
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-6">
-          {/* Category Budgets */}
-          <CategoryBudgets categoryData={categoryData} />
-
-          {/* Budget Progress */}
-          <BudgetProgress
-            totalSpent={stats.totalSpent}
-            totalBudget={stats.totalBudget}
-          />
-
-          {/* Budget Alerts */}
-          <BudgetAlerts categoryData={categoryData} />
-        </TabsContent>
-
-        <TabsContent value="categories" className="space-y-6">
-          {/* Budget Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>All Budgets</CardTitle>
-              <CardDescription>
-                Manage and monitor all your budget categories in detail.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <BudgetTable
-                budgets={budgets}
-                onEdit={handleEditBudget}
-                onDelete={handleDeleteBudget}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="charts" className="space-y-6">
-          {/* Budget Charts */}
-          <BudgetCharts
-            monthlySpending={monthlySpending}
-            dailySpending={dailySpending}
-            budgetVsActual={budgetVsActual}
-            categoryData={categoryData}
-            monthlyBudget={stats.totalBudget}
-          />
-        </TabsContent>
-
-        <TabsContent value="goals" className="space-y-6">
-          {/* Financial Goals */}
-          <FinancialGoals goals={goals} isLoading={isLoading} />
-        </TabsContent>
-      </Tabs>
-
-      {/* Budget Dialog */}
-      <BudgetDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        budget={editingBudget}
-        onSave={handleSaveBudget}
-      />
-
-      <DashboardFooter />
-    </div>
+    </DynamicUpgradeOverlay>
   );
 }

@@ -86,26 +86,25 @@ const getChangeDisplay = (liability: Liability) => {
   };
 };
 
+import { getCategoryIcon as getCentralizedCategoryIcon } from "@/lib/categories";
+
 // Helper function to get liability category icon
 const getLiabilityCategoryIcon = (category: string) => {
-  switch (category.toLowerCase()) {
-    case "mortgage":
-      return <Building2 className="h-5 w-5 text-blue-600" />;
-    case "vehicle loan":
-      return <TrendingDown className="h-5 w-5 text-green-600" />;
-    case "credit card":
-      return <CreditCard className="h-5 w-5 text-purple-600" />;
-    case "personal loan":
-      return <DollarSign className="h-5 w-5 text-orange-600" />;
-    case "education loan":
-      return <FileText className="h-5 w-5 text-indigo-600" />;
-    case "business loan":
-      return <Building2 className="h-5 w-5 text-teal-600" />;
-    case "line of credit":
-      return <CreditCard className="h-5 w-5 text-pink-600" />;
-    default:
-      return <DollarSign className="h-5 w-5 text-gray-600" />;
-  }
+  const IconComponent = getCentralizedCategoryIcon(category);
+  const colorMap: Record<string, string> = {
+    "Credit Card Debt": "text-purple-600",
+    "Student Loan": "text-indigo-600",
+    "Car Loan": "text-green-600",
+    Mortgage: "text-blue-600",
+    "Personal Loan": "text-orange-600",
+    "Business Loan": "text-teal-600",
+    "Medical Debt": "text-red-600",
+    "Tax Debt": "text-gray-600",
+    "Other Debt": "text-gray-600",
+  };
+
+  const color = colorMap[category] || "text-gray-600";
+  return <IconComponent className={`h-5 w-5 ${color}`} />;
 };
 
 export function LiabilityDetailsAndHistoryDialog({
@@ -264,7 +263,11 @@ export function LiabilityDetailsAndHistoryDialog({
   if (!liability) return null;
 
   const changeDisplay = getChangeDisplay(liability);
-  const IconComponent = getLiabilityCategoryIcon(liability.category);
+  const IconComponent = getLiabilityCategoryIcon(
+    typeof liability.category === "string"
+      ? liability.category
+      : liability.category?.name || ""
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -279,7 +282,9 @@ export function LiabilityDetailsAndHistoryDialog({
             <div>
               <DialogTitle className="text-xl">{liability.name}</DialogTitle>
               <DialogDescription className="text-base">
-                {liability.category}
+                {typeof liability.category === "string"
+                  ? liability.category
+                  : liability.category?.name || ""}
               </DialogDescription>
             </div>
           </div>

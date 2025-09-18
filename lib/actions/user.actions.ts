@@ -11,6 +11,13 @@ declare type CreateUserParams = {
   firstName: string;
   lastName: string;
   photo: string;
+  companyId?: string;
+  subscription?: {
+    plan: "free" | "premium" | "pro";
+    status: "active" | "inactive" | "cancelled" | "past_due";
+    currentPeriodEnd?: Date;
+    cancelAtPeriodEnd?: boolean;
+  };
 };
 
 declare type UpdateUserParams = {
@@ -18,6 +25,13 @@ declare type UpdateUserParams = {
   lastName: string;
   username: string;
   photo: string;
+  companyId?: string;
+  subscription?: {
+    plan: "free" | "premium" | "pro";
+    status: "active" | "inactive" | "cancelled" | "past_due";
+    currentPeriodEnd?: Date;
+    cancelAtPeriodEnd?: boolean;
+  };
 };
 
 export async function createUser(user: CreateUserParams) {
@@ -71,6 +85,71 @@ export async function deleteUser(clerkId: string) {
     revalidatePath("/");
 
     return deletedUser ? JSON.parse(JSON.stringify(deletedUser)) : null;
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+export async function updateUserSubscription(
+  clerkId: string,
+  subscription: {
+    plan: "free" | "premium" | "pro";
+    status: "active" | "inactive" | "cancelled" | "past_due";
+    currentPeriodEnd?: Date;
+    cancelAtPeriodEnd?: boolean;
+  }
+) {
+  try {
+    await connectToDB();
+    const updatedUser = await User.findOneAndUpdate(
+      { clerkId },
+      { subscription },
+      { new: true }
+    );
+
+    if (!updatedUser) throw new Error("User not found");
+
+    return JSON.parse(JSON.stringify(updatedUser));
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+export async function getUsersByCompanyId(companyId: string) {
+  try {
+    await connectToDB();
+    const users = await User.find({ companyId, isActive: true });
+    return JSON.parse(JSON.stringify(users));
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+export async function updateUsersByCompanyId(
+  companyId: string,
+  subscription: {
+    plan: "free" | "premium" | "pro";
+    status: "active" | "inactive" | "cancelled" | "past_due";
+    currentPeriodEnd?: Date;
+    cancelAtPeriodEnd?: boolean;
+  }
+) {
+  try {
+    await connectToDB();
+    const updatedUsers = await User.updateMany(
+      { companyId, isActive: true },
+      { subscription },
+      { new: true }
+    );
+
+    console.log(
+      `[USER_ACTIONS] Updated ${updatedUsers.modifiedCount} users for company ${companyId}`
+    );
+
+    return {
+      modifiedCount: updatedUsers.modifiedCount,
+      matchedCount: updatedUsers.matchedCount,
+    };
   } catch (error) {
     handleError(error);
   }

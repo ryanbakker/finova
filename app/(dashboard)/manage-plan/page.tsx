@@ -1,4 +1,5 @@
 import SchematicComponent from "@/components/schematic/SchematicComponent";
+import { PlanUpdateTest } from "@/components/admin/PlanUpdateTest";
 
 function ManagePlan() {
   return (
@@ -8,6 +9,11 @@ function ManagePlan() {
         <h2 className="page-sub-title">
           Manage your Finova subscription and billing details.
         </h2>
+      </div>
+
+      {/* Temporary test component - remove after fixing webhook issues */}
+      <div className="mb-8">
+        <PlanUpdateTest />
       </div>
 
       <SchematicComponent

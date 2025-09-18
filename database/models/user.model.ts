@@ -26,6 +26,33 @@ const UserSchema = new Schema({
   lastName: {
     type: String,
   },
+  companyId: {
+    type: String,
+    index: true, // Add index for efficient queries
+  },
+  subscription: {
+    plan: {
+      type: String,
+      enum: ["free", "premium", "pro"],
+      default: "free",
+    },
+    status: {
+      type: String,
+      enum: ["active", "inactive", "cancelled", "past_due"],
+      default: "active",
+    },
+    currentPeriodEnd: {
+      type: Date,
+    },
+    cancelAtPeriodEnd: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const User = models?.User || model("User", UserSchema);

@@ -11,12 +11,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  FileText,
+  FileChartColumn,
   Sparkles,
   AlertTriangle,
   Loader2,
   Calendar,
   Gauge,
+  FileText,
 } from "lucide-react";
 import {
   AIReportGenerator,
@@ -28,6 +29,7 @@ import { createColumns } from "./columns";
 import { DashboardFooter } from "@/components/DashboardFooter";
 import { toast } from "sonner";
 import { triggerReportsRefresh } from "@/lib/utils/reports-events";
+import { DynamicUpgradeOverlay } from "@/components/upgrade";
 
 interface Report {
   id: string;
@@ -492,153 +494,163 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="space-y-6 page-content">
-      {/* Header */}
-      <div className="flex gap-5 md:gap-0 justify-between flex-col md:flex-row md:items-end">
-        <div>
-          <h1 className="page-title">Financial Reports</h1>
-          <h2 className="page-sub-title">
-            AI-powered insights and analysis of your financial data to help you
-            make informed decisions.
-          </h2>
+    <DynamicUpgradeOverlay
+      title="AI Financial Reports"
+      description="Generate comprehensive AI-powered financial reports with personalized insights and recommendations."
+      icon={FileChartColumn}
+    >
+      <div className="space-y-6 page-content">
+        {/* Header */}
+        <div className="flex gap-5 md:gap-0 justify-between flex-col md:flex-row md:items-end">
+          <div>
+            <h1 className="page-title">Financial Reports</h1>
+            <h2 className="page-sub-title">
+              AI-powered insights and analysis of your financial data to help
+              you make informed decisions.
+            </h2>
+          </div>
+          <Button
+            className="button-blue-bg hover:cursor-pointer"
+            onClick={generateQuickReport}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-1 h-4 w-4" />
+                Quick Report
+              </>
+            )}
+          </Button>
         </div>
-        <Button
-          className="button-blue-bg hover:cursor-pointer"
-          onClick={generateQuickReport}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-              Generating...
-            </>
-          ) : (
-            <>
-              <Sparkles className="mr-1 h-4 w-4" />
-              Quick Report
-            </>
-          )}
-        </Button>
-      </div>
 
-      {/* Quick Stats */}
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
-        <Card className="border-l-4 border-l-sky-500 bg-gradient-to-r from-sky-50 to-white dark:from-sky-950/30 dark:to-neutral-900/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Reports</CardTitle>
-            <FileText className="h-6 w-6 opacity-80 text-sky-600 dark:text-sky-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-sky-700 dark:text-sky-300">
-              {totalReports}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              AI-generated reports
-            </p>
-          </CardContent>
-        </Card>
+        {/* Quick Stats */}
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+          <Card className="border-l-4 border-l-sky-500 bg-gradient-to-r from-sky-50 to-white dark:from-sky-950/30 dark:to-neutral-900/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Reports
+              </CardTitle>
+              <FileText className="h-6 w-6 opacity-80 text-sky-600 dark:text-sky-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-sky-700 dark:text-sky-300">
+                {totalReports}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                AI-generated reports
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="border-l-4 border-l-sky-500 bg-gradient-to-r from-sky-50 to-white dark:from-sky-950/30 dark:to-neutral-900/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Avg Health Score
+          <Card className="border-l-4 border-l-sky-500 bg-gradient-to-r from-sky-50 to-white dark:from-sky-950/30 dark:to-neutral-900/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Avg Health Score
+              </CardTitle>
+              <Gauge className="h-6 w-6 opacity-80 text-sky-600 dark:text-sky-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-sky-700 dark:text-sky-300">
+                {avgHealthScore !== null ? avgHealthScore : "--"}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {avgHealthScore !== null ? (
+                  <>
+                    {avgHealthScore >= 80
+                      ? "Excellent"
+                      : avgHealthScore >= 60
+                      ? "Good"
+                      : avgHealthScore >= 40
+                      ? "Fair"
+                      : "Needs Improvement"}
+                    {healthScoreTrend !== 0 && (
+                      <span
+                        className={`ml-1 ${
+                          healthScoreTrend > 0
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        ({healthScoreTrend > 0 ? "+" : ""}
+                        {healthScoreTrend})
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  "Financial health rating"
+                )}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-sky-500 bg-gradient-to-r from-sky-50 to-white dark:from-sky-950/30 dark:to-neutral-900/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Last Generated
+              </CardTitle>
+              <Calendar className="h-6 w-6 opacity-80 text-sky-600 dark:text-sky-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-sky-700 dark:text-sky-300">
+                {lastGenerated || "--"}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {lastGenerated ? "Most recent report" : "No reports yet"}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Report Generator */}
+        <AIReportGenerator onReportGenerated={handleReportGenerated} />
+
+        {/* Reports List */}
+        <Card className="dashboard-table-container">
+          <CardHeader>
+            <CardTitle className="dashboard-page-card-title">
+              Financial Reports
             </CardTitle>
-            <Gauge className="h-6 w-6 opacity-80 text-sky-600 dark:text-sky-400" />
+            <CardDescription className="dashboard-page-card-description">
+              Your AI-generated financial reports and analysis
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-sky-700 dark:text-sky-300">
-              {avgHealthScore !== null ? avgHealthScore : "--"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {avgHealthScore !== null ? (
-                <>
-                  {avgHealthScore >= 80
-                    ? "Excellent"
-                    : avgHealthScore >= 60
-                    ? "Good"
-                    : avgHealthScore >= 40
-                    ? "Fair"
-                    : "Needs Improvement"}
-                  {healthScoreTrend !== 0 && (
-                    <span
-                      className={`ml-1 ${
-                        healthScoreTrend > 0 ? "text-green-600" : "text-red-600"
-                      }`}
-                    >
-                      ({healthScoreTrend > 0 ? "+" : ""}
-                      {healthScoreTrend})
-                    </span>
-                  )}
-                </>
-              ) : (
-                "Financial health rating"
-              )}
-            </p>
+            {error ? (
+              <div className="text-center py-8">
+                <AlertTriangle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-red-600 mb-2">
+                  Error loading reports
+                </h3>
+                <p className="text-gray-500 mb-4">{error}</p>
+                <Button
+                  onClick={fetchReports}
+                  variant="outline"
+                  className="cursor-pointer"
+                >
+                  Try Again
+                </Button>
+              </div>
+            ) : (
+              <ReportsList
+                reports={reports}
+                onViewReport={handleViewReport}
+                onDeleteReport={handleDeleteReport}
+                onBulkDeleteReports={handleBulkDeleteReports}
+                isLoading={isLoading}
+                onGenerateQuickReport={generateQuickReport}
+                onRefresh={fetchReports}
+              />
+            )}
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-sky-500 bg-gradient-to-r from-sky-50 to-white dark:from-sky-950/30 dark:to-neutral-900/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Last Generated
-            </CardTitle>
-            <Calendar className="h-6 w-6 opacity-80 text-sky-600 dark:text-sky-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-sky-700 dark:text-sky-300">
-              {lastGenerated || "--"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {lastGenerated ? "Most recent report" : "No reports yet"}
-            </p>
-          </CardContent>
-        </Card>
+        <DashboardFooter />
       </div>
-
-      {/* Report Generator */}
-      <AIReportGenerator onReportGenerated={handleReportGenerated} />
-
-      {/* Reports List */}
-      <Card className="dashboard-table-container">
-        <CardHeader>
-          <CardTitle className="dashboard-page-card-title">
-            Financial Reports
-          </CardTitle>
-          <CardDescription className="dashboard-page-card-description">
-            Your AI-generated financial reports and analysis
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {error ? (
-            <div className="text-center py-8">
-              <AlertTriangle className="h-12 w-12 text-red-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-red-600 mb-2">
-                Error loading reports
-              </h3>
-              <p className="text-gray-500 mb-4">{error}</p>
-              <Button
-                onClick={fetchReports}
-                variant="outline"
-                className="cursor-pointer"
-              >
-                Try Again
-              </Button>
-            </div>
-          ) : (
-            <ReportsList
-              reports={reports}
-              onViewReport={handleViewReport}
-              onDeleteReport={handleDeleteReport}
-              onBulkDeleteReports={handleBulkDeleteReports}
-              isLoading={isLoading}
-              onGenerateQuickReport={generateQuickReport}
-              onRefresh={fetchReports}
-            />
-          )}
-        </CardContent>
-      </Card>
-
-      <DashboardFooter />
-    </div>
+    </DynamicUpgradeOverlay>
   );
 }

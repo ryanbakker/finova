@@ -143,7 +143,7 @@ export function BillDetailsDialog({
             <span className="text-sm font-medium text-muted-foreground">
               Category
             </span>
-            <Badge variant="secondary">{bill.category}</Badge>
+            <Badge variant="secondary">{bill.category.name}</Badge>
           </div>
 
           {/* Recurring */}

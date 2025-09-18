@@ -6,6 +6,7 @@ import { UserSync } from "@/components/UserSync";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { PlanProvider } from "@/hooks/use-plan-context";
 import { Noto_Sans } from "next/font/google";
 
 export const metadata: Metadata = {
@@ -110,11 +111,13 @@ export default function RootLayout({
             afterSignInUrl="/"
             afterSignUpUrl="/"
           >
-            <UserSync />
-            {children}
-            <Toaster />
-            <Analytics />
-            <SpeedInsights />
+            <PlanProvider>
+              <UserSync />
+              {children}
+              <Toaster />
+              <Analytics />
+              <SpeedInsights />
+            </PlanProvider>
           </ThemeAwareClerkProvider>
         </ThemeProvider>
       </body>

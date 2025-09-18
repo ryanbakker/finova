@@ -172,7 +172,9 @@ export function DataTable<TData, TValue>({
 
     // Category filter
     if (selectedCategory !== "all") {
-      filtered = filtered.filter((bill) => bill.category === selectedCategory);
+      filtered = filtered.filter(
+        (bill) => bill.category.name === selectedCategory
+      );
     }
 
     // Status filter

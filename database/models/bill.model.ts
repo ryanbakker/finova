@@ -5,7 +5,10 @@ export interface IBill extends Document {
   name: string;
   amount: number;
   dueDate: Date;
-  category: string;
+  category: {
+    name: string;
+    icon: string;
+  };
   isRecurring: boolean;
   status: "paid" | "unpaid" | "overdue";
   frequency?: "monthly" | "quarterly" | "yearly" | "weekly";
@@ -37,8 +40,14 @@ const billSchema = new Schema<IBill>(
       index: true,
     },
     category: {
-      type: String,
-      required: true,
+      name: {
+        type: String,
+        required: true,
+      },
+      icon: {
+        type: String,
+        required: true,
+      },
     },
     isRecurring: {
       type: Boolean,
@@ -76,7 +85,7 @@ const billSchema = new Schema<IBill>(
 
 // Indexes for better query performance
 billSchema.index({ userId: 1, dueDate: 1 });
-billSchema.index({ userId: 1, category: 1 });
+billSchema.index({ userId: 1, "category.name": 1 });
 billSchema.index({ userId: 1, status: 1 });
 billSchema.index({ userId: 1, isRecurring: 1 });
 

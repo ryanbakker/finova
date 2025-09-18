@@ -175,7 +175,7 @@ export const createColumns = (
     enableHiding: true,
     cell: ({ row }) => {
       const bill = row.original;
-      const IconComponent = getBillCategoryIcon(bill.category);
+      const IconComponent = getBillCategoryIcon(bill.category.name);
 
       return (
         <div className="flex items-center space-x-2">

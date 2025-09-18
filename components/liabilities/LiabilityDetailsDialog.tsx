@@ -92,7 +92,11 @@ export function LiabilityDetailsDialog({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-3">
-            {getLiabilityCategoryIcon(liability.category)}
+            {getLiabilityCategoryIcon(
+              typeof liability.category === "string"
+                ? liability.category
+                : liability.category?.name || ""
+            )}
             <span>{liability.name}</span>
           </DialogTitle>
           <DialogDescription>
@@ -110,8 +114,16 @@ export function LiabilityDetailsDialog({
                   Category
                 </label>
                 <div className="flex items-center space-x-2">
-                  {getLiabilityCategoryIcon(liability.category)}
-                  <span className="text-sm">{liability.category}</span>
+                  {getLiabilityCategoryIcon(
+                    typeof liability.category === "string"
+                      ? liability.category
+                      : liability.category?.name || ""
+                  )}
+                  <span className="text-sm">
+                    {typeof liability.category === "string"
+                      ? liability.category
+                      : liability.category?.name || ""}
+                  </span>
                 </div>
               </div>
               <div className="space-y-2">

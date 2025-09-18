@@ -20,12 +20,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { getCategoriesByType } from "@/constants";
+import { getCategoriesByType, getCategoriesWithIcons } from "@/lib/categories";
 import { createAsset } from "@/lib/actions/asset.actions";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import { DatePicker } from "@/components/ui/date-picker";
-import { getAssetCategoryIcon } from "@/lib/utils/categoryUtils";
 
 interface CreateAssetDialogProps {
   isOpen: boolean;
@@ -58,7 +57,7 @@ export function CreateAssetDialog({
   const { toast } = useToast();
 
   // Get asset categories
-  const assetCategories = getCategoriesByType("assets");
+  const assetCategories = getCategoriesWithIcons("assets");
 
   // Handle form field changes
   const handleInputChange = (
@@ -140,13 +139,18 @@ export function CreateAssetDialog({
 
       const assetData = {
         name: formData.name.trim(),
-        category: formData.category,
-        value: parseFloat(formData.value),
+        category: {
+          name: formData.category,
+          icon:
+            getCategoriesByType("assets").find(
+              (cat) => cat.name === formData.category
+            )?.icon || "Plus",
+        },
+        currentValue: parseFloat(formData.value),
         currency: formData.currency,
         institution: formData.institution.trim() || undefined,
         accountNumber: formData.accountNumber.trim() || undefined,
         purchaseDate: formData.purchaseDate || undefined,
-        currentValue: parseFloat(formData.currentValue) || 0,
         changeAmount: formData.changeAmount
           ? parseFloat(formData.changeAmount)
           : 0,
@@ -274,7 +278,7 @@ export function CreateAssetDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {assetCategories.map((category) => {
-                    const Icon = getAssetCategoryIcon(category.name);
+                    const Icon = category.iconComponent;
                     return (
                       <SelectItem key={category.name} value={category.name}>
                         <span className="flex items-center gap-2">

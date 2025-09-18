@@ -25,17 +25,11 @@ import { Plus, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { createLiability } from "@/lib/actions/liability.actions";
 import { DatePicker } from "@/components/ui/date-picker";
-
-const LIABILITY_CATEGORIES = [
-  "Mortgage",
-  "Vehicle Loan",
-  "Credit Card",
-  "Personal Loan",
-  "Education Loan",
-  "Business Loan",
-  "Line of Credit",
-  "Other",
-];
+import {
+  getCategoriesByType,
+  getCategoriesWithIcons,
+  getCategoryIcon,
+} from "@/lib/categories";
 
 const CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD", "JPY", "CHF", "CNY"];
 
@@ -152,7 +146,13 @@ export function CreateLiabilityDialog({
     try {
       const liabilityData = {
         name: formData.name.trim(),
-        category: formData.category,
+        category: {
+          name: formData.category,
+          icon:
+            getCategoriesByType("liabilities").find(
+              (cat) => cat.name === formData.category
+            )?.icon || "Minus",
+        },
         currentValue: parseFloat(formData.amount),
         description: formData.notes.trim() || undefined,
       };
@@ -234,11 +234,17 @@ export function CreateLiabilityDialog({
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {LIABILITY_CATEGORIES.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
+                  {getCategoriesWithIcons("liabilities").map((category) => {
+                    const Icon = category.iconComponent;
+                    return (
+                      <SelectItem key={category.name} value={category.name}>
+                        <span className="flex items-center gap-2">
+                          {Icon && <Icon className="h-4 w-4" />}
+                          <span>{category.name}</span>
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
               {errors.category && (

@@ -246,16 +246,16 @@ export const menuItems = [
     title: "Bills",
   },
   {
-    href: "/budgeting",
-    label: "Budgeting",
-    icon: "budgets",
-    title: "Budgeting",
-  },
-  {
     href: "/goals",
     label: "Goals",
     icon: "goals",
     title: "Goals",
+  },
+  {
+    href: "/budgeting",
+    label: "Budgeting",
+    icon: "budgets",
+    title: "Budgeting",
   },
   {
     href: "/assets",

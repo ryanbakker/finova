@@ -3,7 +3,10 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface ILiability extends Document {
   userId: string;
   name: string;
-  category: string;
+  category: {
+    name: string;
+    icon: string;
+  };
   currentValue: number;
   changeAmount: number;
   changePercentage: number;
@@ -28,11 +31,18 @@ const liabilitySchema = new Schema<ILiability>(
       maxlength: [100, "Liability name cannot exceed 100 characters"],
     },
     category: {
-      type: String,
-      required: [true, "Category is required"],
-      trim: true,
-      minlength: [1, "Category must be at least 1 character long"],
-      maxlength: [50, "Category cannot exceed 50 characters"],
+      name: {
+        type: String,
+        required: [true, "Category name is required"],
+        trim: true,
+        minlength: [1, "Category name must be at least 1 character long"],
+        maxlength: [50, "Category name cannot exceed 50 characters"],
+      },
+      icon: {
+        type: String,
+        required: [true, "Category icon is required"],
+        trim: true,
+      },
     },
     currentValue: {
       type: Number,
@@ -82,18 +92,19 @@ const liabilitySchema = new Schema<ILiability>(
 );
 
 // Indexes for better query performance and security
-liabilitySchema.index({ userId: 1, category: 1 });
+liabilitySchema.index({ userId: 1, "category.name": 1 });
 liabilitySchema.index({ userId: 1, createdAt: -1 });
 liabilitySchema.index({ userId: 1, currentValue: -1 });
 
 // Compound index for efficient filtering and sorting
-liabilitySchema.index({ userId: 1, category: 1, createdAt: -1 });
+liabilitySchema.index({ userId: 1, "category.name": 1, createdAt: -1 });
 
 // Pre-save middleware for data sanitization
 liabilitySchema.pre("save", function (next) {
   // Sanitize string fields
   if (this.name) this.name = this.name.trim();
-  if (this.category) this.category = this.category.trim();
+  if (this.category?.name) this.category.name = this.category.name.trim();
+  if (this.category?.icon) this.category.icon = this.category.icon.trim();
   if (this.description) this.description = this.description.trim();
 
   next();

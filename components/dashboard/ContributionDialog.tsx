@@ -83,8 +83,10 @@ export function ContributionDialog({
     try {
       const assetData = {
         name: `Savings Contribution - ${formData.description.trim()}`,
-        category: "Savings Account",
-        value: parseFloat(formData.amount),
+        category: {
+          name: "Savings Account",
+          icon: "PiggyBank",
+        },
         currentValue: parseFloat(formData.amount),
         currency: "USD",
         institution: "Personal Savings",

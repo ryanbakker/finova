@@ -47,7 +47,17 @@ export function EditBillDialog({
 
   useEffect(() => {
     if (bill) {
-      setFormData(bill);
+      setFormData({
+        ...bill,
+        category: {
+          name:
+            typeof bill.category === "string"
+              ? bill.category
+              : bill.category.name,
+          icon:
+            typeof bill.category === "string" ? "receipt" : bill.category.icon,
+        },
+      });
     }
   }, [bill]);
 
@@ -70,7 +80,10 @@ export function EditBillDialog({
           name: formData.name,
           amount: Number(formData.amount),
           dueDate: new Date(formData.dueDate),
-          category: formData.category || bill.category,
+          category:
+            typeof formData.category === "string"
+              ? { name: formData.category, icon: "Plus" }
+              : formData.category || bill.category,
           isRecurring: formData.isRecurring ?? bill.isRecurring,
           frequency: formData.isRecurring ? formData.frequency : undefined,
           accountId: formData.accountId || undefined,
@@ -171,7 +184,11 @@ export function EditBillDialog({
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
             <Select
-              value={formData.category || ""}
+              value={
+                typeof formData.category === "string"
+                  ? formData.category
+                  : formData.category?.name || ""
+              }
               onValueChange={(value) => handleInputChange("category", value)}
             >
               <SelectTrigger>

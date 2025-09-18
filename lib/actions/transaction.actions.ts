@@ -12,11 +12,8 @@ export interface CreateTransactionParams {
   amount: number;
   type: "income" | "expense" | "transfer";
   category: {
-    id: string;
     name: string;
     icon: string;
-    color: string;
-    budget?: number;
   };
   description: string;
   merchant?: string;

@@ -2,7 +2,7 @@
 
 import { DashboardFooter } from "@/components/DashboardFooter";
 import { Liability } from "@/lib/types";
-import { BarChart3, Table as TableIcon } from "lucide-react";
+import { BarChart3, Table as TableIcon, CreditCard } from "lucide-react";
 import { DataTable } from "./data-table";
 import { createColumns } from "./columns";
 import { Suspense, useState, useEffect, useRef, useCallback } from "react";
@@ -19,6 +19,7 @@ import { useSorting } from "@/hooks/use-sorting";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getLiabilitiesByUserId } from "@/lib/actions/liability.actions";
 import { useToast } from "@/components/ui/use-toast";
+import { DynamicUpgradeOverlay } from "@/components/upgrade";
 
 function LiabilitiesPage() {
   const [liabilities, setLiabilities] = useState<Liability[]>([]);
@@ -107,100 +108,109 @@ function LiabilitiesPage() {
   }
 
   return (
-    <div className="space-y-6 page-content">
-      <div className="flex gap-5 md:gap-0 justify-between flex-col md:flex-row md:items-end">
-        <div>
-          <h1 className="page-title">Liabilities</h1>
-          <h2 className="page-sub-title">
-            Track and manage your financial liabilities, loans, and debt
-            obligations.
-          </h2>
-        </div>
-        <CreateLiabilityDialog onLiabilityCreated={loadLiabilities} />
-      </div>
-
-      {/* View Toggle Tabs - Always visible */}
-      <div className="w-full">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="w-auto"
-          >
-            <TabsList className="grid w-auto grid-cols-2">
-              <TabsTrigger
-                value="table"
-                className="flex items-center space-x-2 cursor-pointer"
-              >
-                <TableIcon className="h-4 w-4" />
-                <span>Liability List</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="insights"
-                className="flex items-center space-x-2 cursor-pointer"
-              >
-                <BarChart3 className="h-4 w-4" />
-                <span>Insights</span>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          {/* Filter controls moved into LiabilityFilters to standardize UX */}
+    <DynamicUpgradeOverlay
+      title="Liability Tracking"
+      description="Monitor your debts, loans, and financial obligations with comprehensive tracking and payment insights."
+      icon={CreditCard}
+    >
+      <div className="space-y-6 page-content">
+        <div className="flex gap-5 md:gap-0 justify-between flex-col md:flex-row md:items-end">
+          <div>
+            <h1 className="page-title">Liabilities</h1>
+            <h2 className="page-sub-title">
+              Track and manage your financial liabilities, loans, and debt
+              obligations.
+            </h2>
+          </div>
+          <CreateLiabilityDialog onLiabilityCreated={loadLiabilities} />
         </div>
 
-        {/* Filters Section - now self-managed within LiabilityFilters */}
-        {activeTab === "table" &&
-          (tableReady ? (
-            <LiabilityFilters table={tableRef.current || undefined} />
-          ) : (
-            <div className="w-full p-4 text-center text-muted-foreground bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-700 rounded-lg animate-in fade-in duration-300">
-              <div className="animate-pulse">
-                <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/4 mx-auto mb-2"></div>
-                <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 mx-auto"></div>
+        {/* View Toggle Tabs - Always visible */}
+        <div className="w-full">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-auto"
+            >
+              <TabsList className="grid w-auto grid-cols-2">
+                <TabsTrigger
+                  value="table"
+                  className="flex items-center space-x-2 cursor-pointer"
+                >
+                  <TableIcon className="h-4 w-4" />
+                  <span>Liability List</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="insights"
+                  className="flex items-center space-x-2 cursor-pointer"
+                >
+                  <BarChart3 className="h-4 w-4" />
+                  <span>Insights</span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {/* Filter controls moved into LiabilityFilters to standardize UX */}
+          </div>
+
+          {/* Filters Section - now self-managed within LiabilityFilters */}
+          {activeTab === "table" &&
+            (tableReady ? (
+              <LiabilityFilters table={tableRef.current || undefined} />
+            ) : (
+              <div className="w-full p-4 text-center text-muted-foreground bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-700 rounded-lg animate-in fade-in duration-300">
+                <div className="animate-pulse">
+                  <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/4 mx-auto mb-2"></div>
+                  <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 mx-auto"></div>
+                </div>
               </div>
-            </div>
-          ))}
-      </div>
+            ))}
+        </div>
 
-      {/* Tabs Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsContent value="table" className="space-y-2">
-          <Suspense fallback={<LiabilityPageSkeleton />}>
-            <DataTable
-              columns={columns}
-              data={liabilities}
+        {/* Tabs Content */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsContent value="table" className="space-y-2">
+            <Suspense fallback={<LiabilityPageSkeleton />}>
+              <DataTable
+                columns={columns}
+                data={liabilities}
+                isLoading={isLoading}
+                sortStates={sortStates}
+                onTableReady={(table) => {
+                  tableRef.current = table;
+                  setTableReady(true);
+                }}
+                onDataChange={loadLiabilities}
+              />
+            </Suspense>
+          </TabsContent>
+
+          <TabsContent value="insights" className="space-y-4">
+            <LiabilityInsights
+              liabilities={liabilities}
               isLoading={isLoading}
-              sortStates={sortStates}
-              onTableReady={(table) => {
-                tableRef.current = table;
-                setTableReady(true);
-              }}
-              onDataChange={loadLiabilities}
             />
-          </Suspense>
-        </TabsContent>
+          </TabsContent>
+        </Tabs>
 
-        <TabsContent value="insights" className="space-y-4">
-          <LiabilityInsights liabilities={liabilities} isLoading={isLoading} />
-        </TabsContent>
-      </Tabs>
+        <DashboardFooter />
 
-      <DashboardFooter />
+        {/* Dialogs */}
+        <LiabilityDetailsAndHistoryDialog
+          liability={selectedLiability}
+          isOpen={showDetailsDialog}
+          onClose={() => setShowDetailsDialog(false)}
+        />
 
-      {/* Dialogs */}
-      <LiabilityDetailsAndHistoryDialog
-        liability={selectedLiability}
-        isOpen={showDetailsDialog}
-        onClose={() => setShowDetailsDialog(false)}
-      />
-
-      <UpdateLiabilityAmountDialog
-        liability={selectedLiability}
-        isOpen={showUpdateAmountDialog}
-        onClose={() => setShowUpdateAmountDialog(false)}
-        onSuccess={loadLiabilities}
-      />
-    </div>
+        <UpdateLiabilityAmountDialog
+          liability={selectedLiability}
+          isOpen={showUpdateAmountDialog}
+          onClose={() => setShowUpdateAmountDialog(false)}
+          onSuccess={loadLiabilities}
+        />
+      </div>
+    </DynamicUpgradeOverlay>
   );
 }
 

@@ -466,12 +466,12 @@ function DashboardContent({
             </div>
           </div>
 
-          {/* Fourth Row - Budget Snapshot & Financial Goals */}
+          {/* Fourth Row - Category Breakdown & Financial Goals */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mx-auto">
             <div className="w-full lg:col-span-2">
-              <BudgetSnapshot
+              <CategoryBreakdownChart
                 isLoading={isLoading}
-                budgetProgress={dashboardData?.budgetProgress}
+                categoryData={dashboardData?.categoryBreakdown}
               />
             </div>
             <div className="w-full lg:col-span-2">
@@ -482,12 +482,12 @@ function DashboardContent({
             </div>
           </div>
 
-          {/* Fifth Row - Category Breakdown & Financial Assets */}
+          {/* Fifth Row - Budget Snapshot & Financial Assets */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mx-auto">
             <div className="w-full lg:col-span-2">
-              <CategoryBreakdownChart
+              <BudgetSnapshot
                 isLoading={isLoading}
-                categoryData={dashboardData?.categoryBreakdown}
+                budgetProgress={dashboardData?.budgetProgress}
               />
             </div>
             <div className="w-full lg:col-span-2">

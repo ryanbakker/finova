@@ -10,14 +10,24 @@ import { auth } from "@clerk/nextjs/server";
 
 declare type CreateLiabilityParams = {
   name: string;
-  category: string;
+  category:
+    | {
+        name: string;
+        icon: string;
+      }
+    | string;
   currentValue: number;
   description?: string;
 };
 
 declare type UpdateLiabilityParams = {
   name?: string;
-  category?: string;
+  category?:
+    | {
+        name: string;
+        icon: string;
+      }
+    | string;
   currentValue?: number;
   description?: string;
 };
@@ -84,7 +94,10 @@ export async function createLiability(liability: CreateLiabilityParams) {
       ...liability,
       userId,
       name: liability.name.trim(),
-      category: liability.category.trim(),
+      category:
+        typeof liability.category === "string"
+          ? liability.category.trim()
+          : (liability.category as { name: string; icon: string }).name.trim(),
       description: liability.description?.trim(),
       changeAmount: 0,
       changePercentage: 0,

@@ -11,7 +11,12 @@ import { handleError } from "../utils";
 // Types for asset operations
 export interface CreateAssetParams {
   name: string;
-  category: string;
+  category:
+    | {
+        name: string;
+        icon: string;
+      }
+    | string;
   currentValue: number;
   changeAmount?: number;
   changePercentage?: number;
@@ -39,11 +44,19 @@ export interface UpdateAssetValueParams {
 function validateAssetData(
   data: CreateAssetParams | UpdateAssetParams | Partial<CreateAssetParams>
 ): void {
-  if (data.name && (!data.name.trim() || data.name.trim().length < 1)) {
+  if (
+    data.name &&
+    typeof data.name === "string" &&
+    (!data.name.trim() || data.name.trim().length < 1)
+  ) {
     throw new Error("Asset name must be at least 1 character long");
   }
 
-  if (data.name && data.name.trim().length > 100) {
+  if (
+    data.name &&
+    typeof data.name === "string" &&
+    data.name.trim().length > 100
+  ) {
     throw new Error("Asset name cannot exceed 100 characters");
   }
 
@@ -82,7 +95,20 @@ export async function createAsset(assetData: CreateAssetParams) {
       ...assetData,
       userId,
       name: assetData.name.trim(),
-      category: assetData.category.trim(),
+      category: {
+        name:
+          typeof assetData.category === "string"
+            ? assetData.category.trim()
+            : (
+                assetData.category as { name: string; icon: string }
+              ).name.trim(),
+        icon:
+          typeof assetData.category === "string"
+            ? "DollarSign"
+            : (
+                assetData.category as { name: string; icon: string }
+              ).icon.trim(),
+      },
       description: assetData.description?.trim(),
       changeAmount: 0,
       changePercentage: 0,
@@ -217,7 +243,20 @@ export async function updateAsset(assetData: UpdateAssetParams) {
     if (updateData.name !== undefined)
       sanitizedUpdateData.name = updateData.name.trim();
     if (updateData.category !== undefined)
-      sanitizedUpdateData.category = updateData.category.trim();
+      sanitizedUpdateData.category = {
+        name:
+          typeof updateData.category === "string"
+            ? updateData.category.trim()
+            : (
+                updateData.category as { name: string; icon: string }
+              ).name.trim(),
+        icon:
+          typeof updateData.category === "string"
+            ? "DollarSign"
+            : (
+                updateData.category as { name: string; icon: string }
+              ).icon.trim(),
+      };
     if (updateData.institution !== undefined)
       sanitizedUpdateData.institution = updateData.institution?.trim();
     if (updateData.accountNumber !== undefined)
@@ -552,7 +591,20 @@ export async function bulkUpdateAssets(
     if (updateData.name !== undefined)
       sanitizedUpdateData.name = updateData.name.trim();
     if (updateData.category !== undefined)
-      sanitizedUpdateData.category = updateData.category.trim();
+      sanitizedUpdateData.category = {
+        name:
+          typeof updateData.category === "string"
+            ? updateData.category.trim()
+            : (
+                updateData.category as { name: string; icon: string }
+              ).name.trim(),
+        icon:
+          typeof updateData.category === "string"
+            ? "DollarSign"
+            : (
+                updateData.category as { name: string; icon: string }
+              ).icon.trim(),
+      };
     if (updateData.institution !== undefined)
       sanitizedUpdateData.institution = updateData.institution?.trim();
     if (updateData.accountNumber !== undefined)

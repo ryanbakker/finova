@@ -52,22 +52,26 @@ const formatDate = (dateString: string): string => {
   });
 };
 
+import { getCategoryIcon as getCentralizedCategoryIcon } from "@/lib/categories";
+
 // Helper function to get category icon
 const getCategoryIcon = (category: string) => {
-  const iconMap: Record<string, React.ReactNode> = {
-    "Emergency Fund": <Shield className="h-6 w-6 text-blue-600" />,
-    Retirement: <Target className="h-6 w-6 text-green-600" />,
-    "Home Purchase": <Home className="h-6 w-6 text-purple-600" />,
-    "Vehicle Purchase": <Car className="h-6 w-6 text-orange-600" />,
-    Education: <GraduationCap className="h-6 w-6 text-indigo-600" />,
-    Travel: <Plane className="h-6 w-6 text-cyan-600" />,
-    Wedding: <Heart className="h-6 w-6 text-pink-600" />,
-    "Business Startup": <Building2 className="h-6 w-6 text-gray-600" />,
-    "Investment Portfolio": <TrendingUp className="h-6 w-6 text-emerald-600" />,
-    "Debt Payoff": <CreditCard className="h-6 w-6 text-red-600" />,
+  const IconComponent = getCentralizedCategoryIcon(category);
+  const colorMap: Record<string, string> = {
+    "Emergency Fund": "text-blue-600",
+    Retirement: "text-green-600",
+    "Home Purchase": "text-purple-600",
+    "Vehicle Purchase": "text-orange-600",
+    Education: "text-indigo-600",
+    Travel: "text-cyan-600",
+    Wedding: "text-pink-600",
+    "Business Startup": "text-gray-600",
+    "Investment Portfolio": "text-emerald-600",
+    "Debt Payoff": "text-red-600",
   };
 
-  return iconMap[category] || <Flag className="h-6 w-6 text-gray-600" />;
+  const color = colorMap[category] || "text-gray-600";
+  return <IconComponent className={`h-6 w-6 ${color}`} />;
 };
 
 // Helper function to get priority badge

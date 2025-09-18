@@ -20,7 +20,7 @@ interface TimedLoadingPageProps {
 
 export function TimedLoadingPage({
   children,
-  duration = 4000,
+  duration = 3000,
   message = "Loading your financial data...",
   overlayType = "full",
   className,
@@ -70,7 +70,7 @@ export function TimedLoadingPage({
 // Specialized timed loading page for root dashboard
 export function DashboardTimedLoadingPage({
   children,
-  duration = 4000,
+  duration = 3000,
   message = "Loading your financial dashboard...",
   onLoadingComplete,
 }: {
@@ -96,7 +96,7 @@ export function DashboardTimedLoadingPage({
 // Specialized timed loading page for dashboard sub-pages
 export function SubPageTimedLoadingPage({
   children,
-  duration = 4000,
+  duration = 3000,
   message = "Loading your data...",
   onLoadingComplete,
 }: {
@@ -120,7 +120,7 @@ export function SubPageTimedLoadingPage({
 }
 
 // Hook for managing timed loading state
-export function useTimedLoading(duration: number = 4000) {
+export function useTimedLoading(duration: number = 3000) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

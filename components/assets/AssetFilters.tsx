@@ -22,7 +22,7 @@ import { Filter, Search, X, ChevronDown } from "lucide-react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { getCategoriesByType } from "@/constants";
-import { getAssetCategoryIcon } from "@/lib/utils/categoryUtils";
+import { getCategoryIcon } from "@/lib/categories";
 
 interface AssetFiltersProps<TData extends Asset> {
   table?: Table<TData>;
@@ -246,7 +246,7 @@ export function AssetFilters<TData extends Asset>({
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
                 {assetCategories.map((category) => {
-                  const Icon = getAssetCategoryIcon(category.name);
+                  const Icon = getCategoryIcon(category.icon);
                   return (
                     <SelectItem key={category.name} value={category.name}>
                       <span className="flex items-center gap-2">

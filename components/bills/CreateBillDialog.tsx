@@ -23,7 +23,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { createBill } from "@/lib/actions/bill.actions";
 import { Plus, DollarSign, FileText } from "lucide-react";
-import { getCategoriesByType } from "@/constants";
+import {
+  getCategoriesByType,
+  getCategoriesWithIcons,
+  getCategoryIcon,
+} from "@/lib/categories";
 import { toast } from "@/components/ui/use-toast";
 import { DatePicker } from "@/components/ui/date-picker";
 
@@ -85,7 +89,13 @@ export function CreateBillDialog({
         name: formData.name,
         amount: parseFloat(formData.amount),
         dueDate: new Date(formData.dueDate),
-        category: formData.category,
+        category: {
+          name: formData.category,
+          icon:
+            getCategoriesByType("bills").find(
+              (cat) => cat.name === formData.category
+            )?.icon || "FileText",
+        },
         isRecurring: formData.isRecurring,
         frequency: formData.isRecurring ? formData.frequency : undefined,
         accountId: formData.accountId || undefined,
@@ -141,7 +151,7 @@ export function CreateBillDialog({
     }
   };
 
-  const categories = getCategoriesByType("bills");
+  const categories = getCategoriesWithIcons("bills");
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -215,11 +225,17 @@ export function CreateBillDialog({
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category.name} value={category.name}>
-                    {category.name}
-                  </SelectItem>
-                ))}
+                {categories.map((category) => {
+                  const Icon = category.iconComponent;
+                  return (
+                    <SelectItem key={category.name} value={category.name}>
+                      <span className="flex items-center gap-2">
+                        {Icon && <Icon className="h-4 w-4" />}
+                        <span>{category.name}</span>
+                      </span>
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>

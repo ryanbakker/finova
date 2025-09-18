@@ -10,6 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, CheckCircle, Clock, MoveRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import { usePlanStatus } from "@/hooks/use-plan-status";
+import { BudgetSnapshotUpgradeOverlay } from "@/components/upgrade";
 
 interface BudgetCategory {
   name: string;
@@ -33,6 +35,7 @@ export function BudgetSnapshot({
   isLoading = false,
   budgetProgress,
 }: BudgetSnapshotProps) {
+  const { isPremium, isPro, isLoading: isPlanLoading } = usePlanStatus();
   const getStatusIcon = (spent: number, budgeted: number) => {
     const percentage = (spent / budgeted) * 100;
     if (percentage > 100)
@@ -169,90 +172,97 @@ export function BudgetSnapshot({
     );
   }
 
-  return (
-    <Card className="h-full container-color">
-      <CardHeader>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-2">
-            <CardTitle className="card-title">Budget Snapshot</CardTitle>
-            <CardDescription>
-              Top budget categories for the current month
-            </CardDescription>
-          </div>
-          <Link href="/budgeting">
-            <Button className="button-blue-bg w-full md:w-auto">
-              Budgets
-              <MoveRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-3 overflow-y-auto category-breakdown-scroll max-h-[410px]">
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-4">
-              {transformedCategories.map((category) => {
-                const percentage = (category.spent / category.budgeted) * 100;
-                const remaining = category.budgeted - category.spent;
-                const colors = getCategoryColors(
-                  category.spent,
-                  category.budgeted
-                );
+  const hasAccess = isPremium || isPro;
+  const showOverlay = !isPlanLoading && !hasAccess;
 
-                return (
-                  <div
-                    key={category.name}
-                    className={`p-3 border rounded-lg transition-colors ${colors.border} ${colors.background}`}
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center space-x-2">
-                          <div className={`p-1.5 rounded-sm ${colors.iconBg}`}>
-                            {getStatusIcon(category.spent, category.budgeted)}
+  return (
+    <BudgetSnapshotUpgradeOverlay className={showOverlay ? "" : "hidden"}>
+      <Card className="h-full container-color">
+        <CardHeader>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-2">
+              <CardTitle className="card-title">Budget Snapshot</CardTitle>
+              <CardDescription>
+                Top budget categories for the current month
+              </CardDescription>
+            </div>
+            <Link href="/budgeting">
+              <Button className="button-blue-bg w-full md:w-auto">
+                Budgets
+                <MoveRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="border border-gray-200 dark:border-neutral-600 rounded-sm bg-gray-50 dark:bg-neutral-900/40 p-3 overflow-y-auto category-breakdown-scroll max-h-[410px]">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 gap-4">
+                {transformedCategories.map((category) => {
+                  const percentage = (category.spent / category.budgeted) * 100;
+                  const remaining = category.budgeted - category.spent;
+                  const colors = getCategoryColors(
+                    category.spent,
+                    category.budgeted
+                  );
+
+                  return (
+                    <div
+                      key={category.name}
+                      className={`p-3 border rounded-lg transition-colors ${colors.border} ${colors.background}`}
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center space-x-2">
+                            <div
+                              className={`p-1.5 rounded-sm ${colors.iconBg}`}
+                            >
+                              {getStatusIcon(category.spent, category.budgeted)}
+                            </div>
+                            <p className={`font-medium ${colors.textColor}`}>
+                              {category.name}
+                            </p>
                           </div>
-                          <p className={`font-medium ${colors.textColor}`}>
-                            {category.name}
-                          </p>
+                          <span
+                            className={`text-sm font-medium ${colors.percentageColor}`}
+                          >
+                            {percentage.toFixed(1)}%
+                          </span>
                         </div>
-                        <span
-                          className={`text-sm font-medium ${colors.percentageColor}`}
-                        >
-                          {percentage.toFixed(1)}%
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm text-muted-foreground">
-                          ${category.spent.toLocaleString()} / $
-                          {category.budgeted.toLocaleString()}
-                        </p>
-                        {remaining >= 0 ? (
-                          <p className="text-xs text-muted-foreground">
-                            ${remaining.toLocaleString()} left
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-sm text-muted-foreground">
+                            ${category.spent.toLocaleString()} / $
+                            {category.budgeted.toLocaleString()}
                           </p>
-                        ) : (
-                          <p className="text-xs text-muted-foreground">
-                            ${Math.abs(remaining).toLocaleString()} over
-                          </p>
-                        )}
+                          {remaining >= 0 ? (
+                            <p className="text-xs text-muted-foreground">
+                              ${remaining.toLocaleString()} left
+                            </p>
+                          ) : (
+                            <p className="text-xs text-muted-foreground">
+                              ${Math.abs(remaining).toLocaleString()} over
+                            </p>
+                          )}
+                        </div>
+                        <Progress
+                          value={Math.min(percentage, 100)}
+                          className="w-full h-2"
+                          style={
+                            {
+                              "--progress-background": "#e5e7eb",
+                              "--progress-foreground": colors.progressColor,
+                            } as React.CSSProperties
+                          }
+                        />
                       </div>
-                      <Progress
-                        value={Math.min(percentage, 100)}
-                        className="w-full h-2"
-                        style={
-                          {
-                            "--progress-background": "#e5e7eb",
-                            "--progress-foreground": colors.progressColor,
-                          } as React.CSSProperties
-                        }
-                      />
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </BudgetSnapshotUpgradeOverlay>
   );
 }

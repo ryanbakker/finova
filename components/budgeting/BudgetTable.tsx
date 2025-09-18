@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Edit, Trash2 } from "lucide-react";
 import { Budget } from "@/lib/types";
-import { getBudgetCategoryIcon } from "@/lib/utils/categoryUtils";
+import { getCategoryIcon } from "@/lib/categories";
 
 interface BudgetTableProps {
   budgets: Budget[];
@@ -66,7 +66,9 @@ export function BudgetTable({ budgets, onEdit, onDelete }: BudgetTableProps) {
           {budgets.map((budget) => {
             const percentage = (budget.spent / budget.amount) * 100;
             const remaining = budget.amount - budget.spent;
-            const IconComponent = getBudgetCategoryIcon(budget.category);
+            const IconComponent = getCategoryIcon(
+              budget.category?.icon || budget.category?.name || "Plus"
+            );
 
             return (
               <TableRow key={budget._id || budget.id}>
@@ -75,7 +77,11 @@ export function BudgetTable({ budgets, onEdit, onDelete }: BudgetTableProps) {
                     {IconComponent && (
                       <IconComponent className="h-4 w-4 text-muted-foreground" />
                     )}
-                    <span className="font-medium">{budget.category}</span>
+                    <span className="font-medium">
+                      {typeof budget.category === "string"
+                        ? budget.category
+                        : budget.category?.name || ""}
+                    </span>
                   </div>
                 </TableCell>
                 <TableCell className="font-medium">

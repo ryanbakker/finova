@@ -288,7 +288,7 @@ export async function POST(request: NextRequest) {
     const sanitizedData = {
       userId,
       name: (body.name as string).trim(),
-      category: (body.category as string).trim(),
+      category: body.category,
       value: body.value as number,
       currency: (body.currency as string).trim(),
       institution: (body.institution as string)?.trim(),

@@ -7,7 +7,10 @@ import { handleError } from "../utils";
 
 // Types for budget operations
 export interface CreateBudgetParams {
-  category: string;
+  category: {
+    name: string;
+    icon: string;
+  };
   amount: number;
   spent?: number;
   currency: string;

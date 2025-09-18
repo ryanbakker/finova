@@ -21,7 +21,11 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FinancialGoal } from "@/lib/types";
-import { getCategoriesByType } from "@/constants";
+import {
+  getCategoriesByType,
+  getCategoriesWithIcons,
+  getCategoryIcon,
+} from "@/lib/categories";
 import { useUser } from "@clerk/nextjs";
 import { createGoal, updateGoal } from "@/lib/actions/goal.actions";
 import { toast } from "@/components/ui/use-toast";
@@ -46,7 +50,7 @@ export function EditGoalDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get goal categories
-  const goalCategories = getCategoriesByType("goals");
+  const goalCategories = getCategoriesWithIcons("goals");
 
   // Initialize form data when goal changes
   useEffect(() => {
@@ -170,7 +174,13 @@ export function EditGoalDialog({
 
         const updatedGoal = await updateGoal(goalId, user.id, {
           name: formData.name,
-          category: formData.category,
+          category: {
+            name: formData.category || "",
+            icon:
+              getCategoriesByType("goals").find(
+                (cat) => cat.name === formData.category
+              )?.icon || "Flag",
+          },
           targetAmount: formData.targetAmount,
           currentAmount: formData.currentAmount,
           currency: formData.currency,
@@ -193,7 +203,13 @@ export function EditGoalDialog({
         const newGoal = await createGoal({
           userId: user.id,
           name: formData.name || "",
-          category: formData.category || "",
+          category: {
+            name: formData.category || "",
+            icon:
+              getCategoriesByType("goals").find(
+                (cat) => cat.name === formData.category
+              )?.icon || "Flag",
+          },
           targetAmount: formData.targetAmount || 0,
           currentAmount: formData.currentAmount || 0,
           currency: formData.currency || "AUD",
@@ -278,11 +294,17 @@ export function EditGoalDialog({
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {goalCategories.map((category) => (
-                    <SelectItem key={category.name} value={category.name}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
+                  {goalCategories.map((category) => {
+                    const Icon = category.iconComponent;
+                    return (
+                      <SelectItem key={category.name} value={category.name}>
+                        <span className="flex items-center gap-2">
+                          {Icon && <Icon className="h-4 w-4" />}
+                          <span>{category.name}</span>
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
               {errors.category && (

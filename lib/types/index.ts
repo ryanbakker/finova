@@ -46,7 +46,10 @@ export type Bill = {
   name: string;
   amount: number;
   dueDate: string;
-  category: string;
+  category: {
+    name: string;
+    icon: string;
+  };
   isRecurring: boolean;
   icon?: React.ReactNode;
   status: "paid" | "unpaid" | "overdue";
@@ -116,7 +119,10 @@ export type Liability = {
   id: string;
   userId: string;
   name: string;
-  category: string;
+  category: {
+    name: string;
+    icon: string;
+  };
   currentValue: number;
   changeAmount: number;
   changePercentage: number;
@@ -151,7 +157,10 @@ export type FinancialGoal = {
 export type Budget = {
   id?: string;
   _id?: string;
-  category: string;
+  category: {
+    name: string;
+    icon: string;
+  };
   amount: number;
   spent: number;
   currency: string;

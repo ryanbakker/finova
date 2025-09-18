@@ -13,8 +13,14 @@ const GoalSchema = new Schema(
       trim: true,
     },
     category: {
-      type: String,
-      required: true,
+      name: {
+        type: String,
+        required: true,
+      },
+      icon: {
+        type: String,
+        required: true,
+      },
     },
     targetAmount: {
       type: Number,

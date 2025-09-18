@@ -21,7 +21,11 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Asset } from "@/lib/types";
-import { getCategoriesByType } from "@/constants";
+import {
+  getCategoriesByType,
+  getCategoriesWithIcons,
+  getCategoryIcon,
+} from "@/lib/categories";
 import { updateAsset, updateAssetValue } from "@/lib/actions/asset.actions";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
@@ -46,7 +50,7 @@ export function EditAssetDialog({
   const { toast } = useToast();
 
   // Get asset categories
-  const assetCategories = getCategoriesByType("assets");
+  const assetCategories = getCategoriesWithIcons("assets");
 
   // Initialize form data when asset changes
   useEffect(() => {
@@ -144,6 +148,15 @@ export function EditAssetDialog({
       const metadataUpdate = {
         id: asset.id,
         ...rest,
+        category: rest.category
+          ? {
+              name: rest.category,
+              icon:
+                getCategoriesByType("assets").find(
+                  (cat) => cat.name === rest.category
+                )?.icon || "Plus",
+            }
+          : undefined,
       } as { id: string } & Partial<typeof rest>;
 
       // Update non-value fields first
@@ -241,11 +254,17 @@ export function EditAssetDialog({
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {assetCategories.map((category) => (
-                      <SelectItem key={category.name} value={category.name}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
+                    {assetCategories.map((category) => {
+                      const Icon = category.iconComponent;
+                      return (
+                        <SelectItem key={category.name} value={category.name}>
+                          <span className="flex items-center gap-2">
+                            {Icon && <Icon className="h-4 w-4" />}
+                            <span>{category.name}</span>
+                          </span>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
                 {errors.category && (

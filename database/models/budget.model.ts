@@ -2,7 +2,10 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IBudget extends Document {
   userId: string;
-  category: string;
+  category: {
+    name: string;
+    icon: string;
+  };
   amount: number;
   spent: number;
   currency: string;
@@ -22,9 +25,15 @@ const budgetSchema = new Schema<IBudget>(
       index: true,
     },
     category: {
-      type: String,
-      required: true,
-      index: true,
+      name: {
+        type: String,
+        required: true,
+        index: true,
+      },
+      icon: {
+        type: String,
+        required: true,
+      },
     },
     amount: {
       type: Number,
@@ -68,7 +77,7 @@ const budgetSchema = new Schema<IBudget>(
 );
 
 // Indexes for better query performance
-budgetSchema.index({ userId: 1, category: 1 });
+budgetSchema.index({ userId: 1, "category.name": 1 });
 budgetSchema.index({ userId: 1, period: 1 });
 budgetSchema.index({ userId: 1, startDate: -1 });
 budgetSchema.index({ userId: 1, isActive: 1 });

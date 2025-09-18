@@ -20,7 +20,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Budget } from "@/lib/types";
-import { getCategoriesByType } from "@/constants";
+import {
+  getCategoriesByType,
+  getCategoriesWithIcons,
+  getCategoryIcon,
+} from "@/lib/categories";
 import { toast } from "@/components/ui/use-toast";
 import { DatePicker } from "@/components/ui/date-picker";
 
@@ -50,13 +54,28 @@ export function BudgetDialog({
     isActive: budget?.isActive ?? true,
   });
 
-  const budgetCategories = getCategoriesByType("budgets");
+  const budgetCategories = getCategoriesWithIcons("budgets");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      await onSave(formData);
+      const budgetData = {
+        ...formData,
+        category: {
+          name:
+            typeof formData.category === "string"
+              ? formData.category
+              : formData.category?.name || "",
+          icon:
+            typeof formData.category === "string"
+              ? getCategoriesByType("budgets").find(
+                  (cat) => cat.name === formData.category
+                )?.icon || "Plus"
+              : formData.category?.icon || "Plus",
+        },
+      };
+      await onSave(budgetData);
       onOpenChange(false);
     } catch (error) {
       toast({
@@ -92,18 +111,28 @@ export function BudgetDialog({
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
             <Select
-              value={formData.category}
+              value={
+                typeof formData.category === "string"
+                  ? formData.category
+                  : formData.category?.name || ""
+              }
               onValueChange={(value) => handleInputChange("category", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                {budgetCategories.map((category) => (
-                  <SelectItem key={category.name} value={category.name}>
-                    {category.name}
-                  </SelectItem>
-                ))}
+                {budgetCategories.map((category) => {
+                  const Icon = category.iconComponent;
+                  return (
+                    <SelectItem key={category.name} value={category.name}>
+                      <span className="flex items-center gap-2">
+                        {Icon && <Icon className="h-4 w-4" />}
+                        <span>{category.name}</span>
+                      </span>
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>

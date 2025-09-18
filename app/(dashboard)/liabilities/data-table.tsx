@@ -223,7 +223,7 @@ export function DataTable<TData extends Liability, TValue>({
     // Category filter
     if (selectedCategory !== "all") {
       filtered = filtered.filter(
-        (liability) => liability.category === selectedCategory
+        (liability) => liability.category.name === selectedCategory
       );
     }
 

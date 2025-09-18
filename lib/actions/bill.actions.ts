@@ -11,7 +11,10 @@ export interface CreateBillParams {
   name: string;
   amount: number;
   dueDate: Date;
-  category: string;
+  category: {
+    name: string;
+    icon: string;
+  };
   isRecurring: boolean;
   status?: "paid" | "unpaid" | "overdue";
   frequency?: "monthly" | "quarterly" | "yearly" | "weekly";

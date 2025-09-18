@@ -6,11 +6,8 @@ export interface ITransaction extends Document {
   amount: number;
   type: "income" | "expense" | "transfer";
   category: {
-    id: string;
     name: string;
     icon: string;
-    color: string;
-    budget?: number;
   };
   description: string;
   merchant?: string;
@@ -46,10 +43,6 @@ const transactionSchema = new Schema<ITransaction>(
       required: true,
     },
     category: {
-      id: {
-        type: String,
-        required: true,
-      },
       name: {
         type: String,
         required: true,
@@ -57,14 +50,6 @@ const transactionSchema = new Schema<ITransaction>(
       icon: {
         type: String,
         required: true,
-      },
-      color: {
-        type: String,
-        required: true,
-      },
-      budget: {
-        type: Number,
-        required: false,
       },
     },
     description: {
@@ -111,7 +96,7 @@ const transactionSchema = new Schema<ITransaction>(
 
 // Indexes for better query performance
 transactionSchema.index({ userId: 1, date: -1 });
-transactionSchema.index({ userId: 1, category: 1 });
+transactionSchema.index({ userId: 1, "category.name": 1 });
 transactionSchema.index({ userId: 1, type: 1 });
 transactionSchema.index({ userId: 1, accountId: 1 });
 

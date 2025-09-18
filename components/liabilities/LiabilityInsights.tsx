@@ -136,7 +136,10 @@ export function LiabilityInsights({
 
     // Category breakdown with enhanced data
     const categoryBreakdown = activeLiabilities.reduce((acc, liability) => {
-      const category = liability.category;
+      const category =
+        typeof liability.category === "string"
+          ? liability.category
+          : liability.category?.name || "";
       if (!acc[category]) {
         acc[category] = {
           amount: 0,
@@ -208,7 +211,9 @@ export function LiabilityInsights({
         const categories =
           riskCategories[riskLevel as keyof typeof riskCategories];
         const riskLiabilities = activeLiabilities.filter((l) =>
-          categories.includes(l.category)
+          categories.includes(
+            typeof l.category === "string" ? l.category : l.category?.name || ""
+          )
         );
         acc[riskLevel] = {
           amount: riskLiabilities.reduce((sum, l) => sum + l.currentValue, 0),
@@ -375,11 +380,17 @@ export function LiabilityInsights({
                     <Badge variant="outline" className="text-xs">
                       #{index + 1}
                     </Badge>
-                    {getCategoryIcon(debt.category)}
+                    {getCategoryIcon(
+                      typeof debt.category === "string"
+                        ? debt.category
+                        : debt.category?.name || ""
+                    )}
                     <div>
                       <div className="font-medium">{debt.name}</div>
                       <div className="text-sm text-muted-foreground">
-                        {debt.category}
+                        {typeof debt.category === "string"
+                          ? debt.category
+                          : debt.category?.name || ""}
                       </div>
                     </div>
                   </div>

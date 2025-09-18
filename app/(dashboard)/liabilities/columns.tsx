@@ -172,7 +172,7 @@ export const createColumns = (
       return (
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-            {getCategoryIcon(liability.category)}
+            {getCategoryIcon(liability.category.name)}
           </div>
           <div>
             <div className="font-medium text-sm">{liability.name}</div>

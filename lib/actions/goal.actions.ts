@@ -7,7 +7,10 @@ import Goal from "@/database/models/goal.model";
 declare type CreateGoalParams = {
   userId: string;
   name: string;
-  category: string;
+  category: {
+    name: string;
+    icon: string;
+  };
   targetAmount: number;
   currentAmount: number;
   currency: string;
@@ -20,7 +23,10 @@ declare type CreateGoalParams = {
 
 declare type UpdateGoalParams = {
   name?: string;
-  category?: string;
+  category?: {
+    name: string;
+    icon: string;
+  };
   targetAmount?: number;
   currentAmount?: number;
   currency?: string;
